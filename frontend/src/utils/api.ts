@@ -1,6 +1,8 @@
 import type { PredictionResponse, FighterSearchResult, FighterDetail, StatsResponse } from '../types';
 
-const API_BASE = '/api';
+const API_BASE = import.meta.env.PROD
+  ? 'https://web-production-2bc52.up.railway.app'
+  : '/api';
 
 export async function searchFighters(query: string, limit = 20): Promise<FighterSearchResult> {
   const res = await fetch(`${API_BASE}/fighters?search=${encodeURIComponent(query)}&limit=${limit}&min_fights=1`);
