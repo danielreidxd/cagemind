@@ -17,11 +17,7 @@ data/processed/training_dataset.csv
 data/processed/training_dataset_v2.csv
 data/processed/sherdog_features.csv
 
-# Database
-db/*.db
-
 # ML models (large binary files)
-ml/models/*.pkl
 ml/models/*.pkl.bak
 
 # Checkpoints
