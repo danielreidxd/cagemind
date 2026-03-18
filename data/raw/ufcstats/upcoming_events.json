@@ -331,6 +331,11 @@
         "fighter_a": "John Castaneda",
         "fighter_b": "Mark Vologdin",
         "weight_class": "Bantamweight"
+      },
+      {
+        "fighter_a": "JJ Aldrich",
+        "fighter_b": "Jamey-Lyn Horth",
+        "weight_class": "Women's Flyweight"
       }
     ]
   },
@@ -367,6 +372,31 @@
         "fighter_a": "Beneil Dariush",
         "fighter_b": "Quillan Salkilld",
         "weight_class": "Lightweight"
+      },
+      {
+        "fighter_a": "Tai Tuivasa",
+        "fighter_b": "Sean Sharaf",
+        "weight_class": "Heavyweight"
+      },
+      {
+        "fighter_a": "Junior Tafa",
+        "fighter_b": "Kevin Christian",
+        "weight_class": "Light Heavyweight"
+      },
+      {
+        "fighter_a": "Cam Rowston",
+        "fighter_b": "Robert Bryczek",
+        "weight_class": "Middleweight"
+      },
+      {
+        "fighter_a": "Jacob Malkoun",
+        "fighter_b": "Gerald Meerschaert",
+        "weight_class": "Middleweight"
+      },
+      {
+        "fighter_a": "Steve Erceg",
+        "fighter_b": "Tim Elliott",
+        "weight_class": "Flyweight"
       }
     ]
   },
@@ -400,6 +430,11 @@
         "fighter_a": "Sean Brady",
         "fighter_b": "Joaquin Buckley",
         "weight_class": "Welterweight"
+      },
+      {
+        "fighter_a": "King Green",
+        "fighter_b": "Jeremy Stephens",
+        "weight_class": "Lightweight"
       }
     ]
   },

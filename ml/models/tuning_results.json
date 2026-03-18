@@ -1,0 +1,76 @@
+{
+  "winner": {
+    "name": "Modelo 1: Qui\u00e9n gana",
+    "algorithm": "xgb",
+    "best_cv_score": 0.6463,
+    "test_accuracy": 0.651,
+    "test_f1": 0.6485,
+    "best_params": {
+      "algorithm": "xgb",
+      "xgb_n_estimators": 350,
+      "xgb_max_depth": 4,
+      "xgb_learning_rate": 0.0192994095373655,
+      "xgb_subsample": 0.5488724588189555,
+      "xgb_colsample_bytree": 0.5447237701984649,
+      "xgb_reg_alpha": 1.412776113462773e-07,
+      "xgb_reg_lambda": 0.6909581936157522,
+      "xgb_min_child_weight": 1,
+      "xgb_gamma": 2.2210132978299812
+    },
+    "n_trials": 80,
+    "time_seconds": 1016.5
+  },
+  "method": {
+    "name": "Modelo 2: C\u00f3mo gana",
+    "algorithm": "logistic",
+    "best_cv_score": 0.4775,
+    "test_accuracy": 0.5119,
+    "test_f1": 0.4677,
+    "best_params": {
+      "algorithm": "logistic",
+      "lr_C": 0.004081331768789206,
+      "lr_penalty": "l2",
+      "lr_solver": "lbfgs"
+    },
+    "n_trials": 80,
+    "time_seconds": 4905.0
+  },
+  "distance": {
+    "name": "Modelo 3: Finish vs Decisi\u00f3n",
+    "algorithm": "rf",
+    "best_cv_score": 0.5952,
+    "test_accuracy": 0.5986,
+    "test_f1": 0.5937,
+    "best_params": {
+      "algorithm": "rf",
+      "rf_n_estimators": 250,
+      "rf_max_depth": 21,
+      "rf_min_samples_split": 20,
+      "rf_min_samples_leaf": 14,
+      "rf_max_features": 0.7
+    },
+    "n_trials": 80,
+    "time_seconds": 1182.7
+  },
+  "round": {
+    "name": "Modelo 4: En qu\u00e9 round",
+    "algorithm": "xgb",
+    "best_cv_score": 0.4175,
+    "test_accuracy": 0.4446,
+    "test_f1": 0.4056,
+    "best_params": {
+      "algorithm": "xgb",
+      "xgb_n_estimators": 250,
+      "xgb_max_depth": 10,
+      "xgb_learning_rate": 0.2982537434905137,
+      "xgb_subsample": 0.6440106006914703,
+      "xgb_colsample_bytree": 0.6072911560578056,
+      "xgb_reg_alpha": 1.0094101615272034e-06,
+      "xgb_reg_lambda": 1.4243385633398538e-06,
+      "xgb_min_child_weight": 6,
+      "xgb_gamma": 1.8217032734914422
+    },
+    "n_trials": 80,
+    "time_seconds": 865.1
+  }
+}
