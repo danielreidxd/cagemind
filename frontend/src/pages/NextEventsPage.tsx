@@ -128,27 +128,27 @@ export default function NextEventsPage() {
       </div>
 
       {/* Navigation */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 gap-2">
         <button onClick={() => doNavigate('prev')} disabled={page <= 1}
-          className="btn-secondary flex items-center gap-2 disabled:opacity-30">
+          className="btn-secondary flex items-center gap-1 px-3 py-2 text-sm disabled:opacity-30">
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
-          Anterior
+          <span className="hidden sm:inline">Anterior</span>
         </button>
-        <div className="text-center">
+        <div className="text-center min-w-0">
           <span className="text-ufc-muted text-sm">{page} de {totalPages}</span>
-          <div className="flex items-center gap-1 mt-1 justify-center">
+          <div className="flex items-center gap-1 mt-1 justify-center overflow-hidden">
             {events.map((_, i) => (
               <button key={i} onClick={() => { setExpandedIdx(null); setPage(i + 1); }}
-                className={'w-2 h-2 rounded-full transition-all ' +
-                  (i + 1 === page ? 'bg-ufc-gold w-6' : 'bg-ufc-border hover:bg-ufc-muted')} />
+                className={'w-2 h-2 rounded-full transition-all flex-shrink-0 ' +
+                  (i + 1 === page ? 'bg-ufc-gold w-4' : 'bg-ufc-border hover:bg-ufc-muted')} />
             ))}
           </div>
         </div>
         <button onClick={() => doNavigate('next')} disabled={page >= totalPages}
-          className="btn-secondary flex items-center gap-2 disabled:opacity-30">
-          Siguiente
+          className="btn-secondary flex items-center gap-1 px-3 py-2 text-sm disabled:opacity-30">
+          <span className="hidden sm:inline">Siguiente</span>
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
