@@ -43,7 +43,8 @@ export default function UpcomingPage() {
     setLoading(true);
     setExpandedIdx(null);
     try {
-      const res = await fetch('/api/events?page=' + p);
+      const API_BASE = import.meta.env.PROD ? 'https://web-production-2bc52.up.railway.app' : '/api';
+      const res = await fetch(API_BASE + '/events?page=' + p);
       const json = await res.json();
       setData(json);
     } catch (e) {

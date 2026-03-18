@@ -31,7 +31,8 @@ export default function NextEventsPage() {
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
 
   useEffect(() => {
-    fetch('/api/upcoming')
+    const API_BASE = import.meta.env.PROD ? 'https://web-production-2bc52.up.railway.app' : '/api';
+    fetch(API_BASE + '/upcoming')
       .then(r => r.json())
       .then(data => {
         if (data.events) {

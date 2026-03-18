@@ -347,5 +347,7 @@ def scrape_all_fight_stats():
     return all_stats
 
 
+
+
 if __name__ == "__main__":
     scrape_all_fight_stats()
