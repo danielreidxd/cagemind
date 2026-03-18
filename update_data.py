@@ -33,7 +33,7 @@ from bs4 import BeautifulSoup
 # ============================================================
 # CONFIGURACIÓN
 # ============================================================
-DB_PATH = Path("db/ufc_database.db")
+DB_PATH = Path("db/ufc_predictor.db")
 UPCOMING_FILE = Path("data/raw/ufcstats/upcoming_events.json")
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
