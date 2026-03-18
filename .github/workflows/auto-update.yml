@@ -2,18 +2,30 @@ name: CageMind Auto-Update
 
 on:
   schedule:
-    # Corre cada 2 días a las 10:00 AM UTC (4:00 AM hora México)
+    # Job 1: Upcoming events — cada 2 días a las 10:00 UTC (4:00 AM México)
     - cron: '0 10 */2 * *'
+    # Job 2: Post-event — cada lunes a las 14:00 UTC (8:00 AM México)
+    - cron: '0 14 * * 1'
   
-  # También se puede correr manualmente desde GitHub
+  # Correr manualmente desde GitHub
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Qué ejecutar'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - upcoming
+          - post-event
+          - all
 
 jobs:
   update-data:
     runs-on: ubuntu-latest
     
     permissions:
-      contents: write  # Necesario para hacer push
+      contents: write
     
     steps:
       - name: Checkout repo
@@ -25,29 +37,45 @@ jobs:
           python-version: '3.11'
       
       - name: Install dependencies
-        run: |
-          pip install requests beautifulsoup4 lxml pandas numpy
+        run: pip install requests beautifulsoup4 lxml pandas numpy
       
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
       
-      - name: Run update script
-        run: python update_data.py
-      
-      - name: Check for changes
-        id: changes
+      - name: Determine mode
+        id: mode
         run: |
-          if [ -n "$(git status --porcelain)" ]; then
-            echo "has_changes=true" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "mode=${{ inputs.mode }}" >> $GITHUB_OUTPUT
+          elif [ "$(date +%u)" = "1" ]; then
+            # Es lunes → post-event (incluye upcoming también)
+            echo "mode=all" >> $GITHUB_OUTPUT
           else
-            echo "has_changes=false" >> $GITHUB_OUTPUT
+            # No es lunes → solo upcoming
+            echo "mode=upcoming" >> $GITHUB_OUTPUT
           fi
       
-      - name: Commit and push
-        if: steps.changes.outputs.has_changes == 'true'
+      - name: Run update (upcoming only)
+        if: steps.mode.outputs.mode == 'upcoming'
+        run: python update_data.py --upcoming
+      
+      - name: Run update (post-event only)
+        if: steps.mode.outputs.mode == 'post-event'
+        run: python update_data.py --post-event
+      
+      - name: Run update (all)
+        if: steps.mode.outputs.mode == 'all'
+        run: python update_data.py --all
+      
+      - name: Commit and push changes
         run: |
-          git add -A
-          git commit -m "🤖 Auto-update: $(date +'%Y-%m-%d %H:%M') UTC"
-          git push
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "🤖 Auto-update: $(date +'%Y-%m-%d %H:%M') UTC [${{ steps.mode.outputs.mode }}]"
+            git push
+            echo "✅ Cambios pusheados"
+          else
+            echo "📭 Sin cambios"
+          fi
