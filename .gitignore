@@ -11,7 +11,11 @@ node_modules/
 dist/
 
 # Data files (too large for git)
-data/raw/
+data/raw/sherdog/
+data/raw/ufcstats/fighters/
+data/raw/ufcstats/events/
+data/raw/ufcstats/fights/
+data/raw/ufcstats/fight_stats/
 data/exports/charts/
 data/processed/training_dataset.csv
 data/processed/training_dataset_v2.csv
@@ -22,7 +26,6 @@ ml/models/*.pkl.bak
 
 # Checkpoints
 *.checkpoint
-data/raw/sherdog/checkpoint.json
 
 # IDE
 .vscode/
