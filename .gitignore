@@ -1,0 +1,51 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+venv/
+env/
+
+# Node
+node_modules/
+dist/
+
+# Data files (too large for git)
+data/raw/
+data/exports/charts/
+data/processed/training_dataset.csv
+data/processed/training_dataset_v2.csv
+data/processed/sherdog_features.csv
+
+# Database
+db/*.db
+
+# ML models (large binary files)
+ml/models/*.pkl
+ml/models/*.pkl.bak
+
+# Checkpoints
+*.checkpoint
+data/raw/sherdog/checkpoint.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
+
+# Logs
+*.log
+
+# Test/debug scripts
+debug_*.py
+inspect_*.py
+test_*.py
+count_*.py
+check_*.py
