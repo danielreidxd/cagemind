@@ -21,6 +21,7 @@ from __future__ import annotations
 import os
 import pickle
 import sqlite3
+import sys
 from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Optional
@@ -71,7 +72,7 @@ security = HTTPBearer(auto_error=False)
 
 
 def init_users_table():
-    """Crea la tabla users si no existe y crea el admin por defecto."""
+    """Crea las tablas users, analytics y update_logs si no existen."""
     conn = get_db()
     conn.execute("""
         CREATE TABLE IF NOT EXISTS users (
@@ -82,6 +83,30 @@ def init_users_table():
             created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS analytics_events (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            event_type  TEXT NOT NULL,
+            page        TEXT,
+            detail      TEXT,
+            ip          TEXT,
+            user_agent  TEXT,
+            created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS update_logs (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            action      TEXT NOT NULL,
+            status      TEXT NOT NULL DEFAULT 'running',
+            result      TEXT,
+            started_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            finished_at TIMESTAMP
+        )
+    """)
+
     conn.commit()
 
     # Crear admin si no existe
@@ -1171,3 +1196,166 @@ async def admin_dashboard(user: dict = Depends(require_admin)):
         "fights_by_year": [dict(f) for f in fights_by_year],
         "total_fights_with_result": total_fights_w_winner,
     }
+
+
+# ============================================================
+# ANALYTICS ENDPOINTS
+# ============================================================
+
+class TrackEvent(BaseModel):
+    event_type: str       # page_view, prediction, search
+    page: Optional[str] = None
+    detail: Optional[str] = None
+
+
+@app.post("/analytics/track")
+async def track_event(event: TrackEvent):
+    """Registra un evento de analytics (público, no requiere auth)."""
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO analytics_events (event_type, page, detail) VALUES (?, ?, ?)",
+        (event.event_type, event.page, event.detail),
+    )
+    conn.commit()
+    conn.close()
+    return {"ok": True}
+
+
+@app.get("/admin/analytics")
+async def get_analytics(user: dict = Depends(require_admin)):
+    """Estadísticas de uso del sistema."""
+    conn = get_db()
+
+    # Total de eventos
+    total_events = conn.execute("SELECT COUNT(*) FROM analytics_events").fetchone()[0]
+
+    # Eventos por tipo
+    by_type = conn.execute("""
+        SELECT event_type, COUNT(*) as count
+        FROM analytics_events
+        GROUP BY event_type
+        ORDER BY count DESC
+    """).fetchall()
+
+    # Page views por sección
+    by_page = conn.execute("""
+        SELECT page, COUNT(*) as count
+        FROM analytics_events
+        WHERE event_type = 'page_view' AND page IS NOT NULL
+        GROUP BY page
+        ORDER BY count DESC
+    """).fetchall()
+
+    # Predicciones por día (últimos 14 días)
+    predictions_daily = conn.execute("""
+        SELECT DATE(created_at) as day, COUNT(*) as count
+        FROM analytics_events
+        WHERE event_type = 'prediction'
+        GROUP BY day
+        ORDER BY day DESC
+        LIMIT 14
+    """).fetchall()
+
+    # Peleadores más buscados
+    top_searched = conn.execute("""
+        SELECT detail, COUNT(*) as count
+        FROM analytics_events
+        WHERE event_type = 'search' AND detail IS NOT NULL AND detail != ''
+        GROUP BY detail
+        ORDER BY count DESC
+        LIMIT 15
+    """).fetchall()
+
+    # Predicciones más populares (pares de peleadores)
+    top_predictions = conn.execute("""
+        SELECT detail, COUNT(*) as count
+        FROM analytics_events
+        WHERE event_type = 'prediction' AND detail IS NOT NULL
+        GROUP BY detail
+        ORDER BY count DESC
+        LIMIT 10
+    """).fetchall()
+
+    # Actividad por hora (distribución)
+    by_hour = conn.execute("""
+        SELECT CAST(STRFTIME('%H', created_at) AS INTEGER) as hour, COUNT(*) as count
+        FROM analytics_events
+        GROUP BY hour
+        ORDER BY hour
+    """).fetchall()
+
+    conn.close()
+
+    return {
+        "total_events": total_events,
+        "by_type": [dict(r) for r in by_type],
+        "by_page": [dict(r) for r in by_page],
+        "predictions_daily": [dict(r) for r in predictions_daily],
+        "top_searched": [dict(r) for r in top_searched],
+        "top_predictions": [dict(r) for r in top_predictions],
+        "by_hour": [dict(r) for r in by_hour],
+    }
+
+
+# ============================================================
+# UPDATE / SCRAPER ENDPOINTS (admin)
+# ============================================================
+
+@app.post("/admin/update")
+async def trigger_update(user: dict = Depends(require_admin)):
+    """
+    Ejecuta el scraper de upcoming events.
+    Corre scrape_upcoming.py y registra el resultado.
+    """
+    import subprocess as sp
+
+    conn = get_db()
+    conn.execute(
+        "INSERT INTO update_logs (action, status) VALUES (?, ?)",
+        ("upcoming", "running"),
+    )
+    conn.commit()
+    log_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+    conn.close()
+
+    try:
+        result = sp.run(
+            [sys.executable, "scrape_upcoming.py"],
+            capture_output=True, text=True, timeout=120,
+            cwd=str(Path(__file__).parent.parent),
+        )
+        status = "success" if result.returncode == 0 else "error"
+        output = (result.stdout or "") + (result.stderr or "")
+        # Truncar output si es muy largo
+        if len(output) > 2000:
+            output = output[:2000] + "... (truncated)"
+    except sp.TimeoutExpired:
+        status = "error"
+        output = "Timeout: el scraper tardó más de 2 minutos"
+    except Exception as e:
+        status = "error"
+        output = str(e)
+
+    conn = get_db()
+    conn.execute(
+        "UPDATE update_logs SET status = ?, result = ?, finished_at = CURRENT_TIMESTAMP WHERE id = ?",
+        (status, output, log_id),
+    )
+    conn.commit()
+    conn.close()
+
+    return {"status": status, "log_id": log_id, "output": output[:500]}
+
+
+@app.get("/admin/update-logs")
+async def get_update_logs(user: dict = Depends(require_admin)):
+    """Historial de actualizaciones."""
+    conn = get_db()
+    logs = conn.execute("""
+        SELECT id, action, status, result, started_at, finished_at
+        FROM update_logs
+        ORDER BY started_at DESC
+        LIMIT 20
+    """).fetchall()
+    conn.close()
+    return {"logs": [dict(l) for l in logs]}

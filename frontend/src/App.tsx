@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useAnalytics } from './hooks/useAnalytics';
 import Navbar from './components/Navbar';
 import LoadingScreen from './components/LoadingScreen';
 import SandboxPage from './pages/SandboxPage';
@@ -20,6 +21,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function AppContent() {
   const [loading, setLoading] = useState(true);
   const handleFinish = useCallback(() => setLoading(false), []);
+  useAnalytics(); // Auto-tracks page views on route change
 
   return (
     <>

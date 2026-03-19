@@ -4,6 +4,7 @@ import type { PredictionResponse } from '../types';
 import FighterSelector from '../components/FighterSelector';
 import PredictionResult from '../components/PredictionResult';
 import { predictFight } from '../utils/api';
+import { useAnalytics } from '../hooks/useAnalytics';
 
 export default function SandboxPage() {
   const [fighterA, setFighterA] = useState<Fighter | null>(null);
@@ -11,6 +12,7 @@ export default function SandboxPage() {
   const [prediction, setPrediction] = useState<PredictionResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { trackPrediction } = useAnalytics();
 
   const canPredict = fighterA && fighterB && fighterA.name !== fighterB.name;
 
@@ -23,6 +25,7 @@ export default function SandboxPage() {
     try {
       const result = await predictFight(fighterA.name, fighterB.name);
       setPrediction(result);
+      trackPrediction(fighterA.name, fighterB.name);
     } catch (e: any) {
       setError(e.message || 'Error al predecir');
     } finally {
