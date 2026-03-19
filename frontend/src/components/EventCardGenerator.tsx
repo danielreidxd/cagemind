@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 
 interface FightPrediction {
   predicted_winner: string;
@@ -57,9 +58,9 @@ export default function EventCardGenerator({ eventName, eventDate, location, fig
   const cardRef = useRef<HTMLDivElement>(null);
 
   const CARD_W = 1080;
-  const FIGHT_ROW_H = 64;
-  const GAP = 8;
-  const CARD_H = 40 + 160 + (fights.length * (FIGHT_ROW_H + GAP)) + 60 + 24;
+  const ROW_H = 56;
+  const ROW_GAP = 6;
+  const CARD_H = 48 + 140 + (fights.length * (ROW_H + ROW_GAP)) + 60 + 32;
 
   const handleGenerate = useCallback(async () => {
     if (!cardRef.current) return;
@@ -86,141 +87,257 @@ export default function EventCardGenerator({ eventName, eventDate, location, fig
 
   const previewScale = Math.min(1, 840 / CARD_W);
 
+  // ─── The card rendered at 1080px real size ───
   const EventCard = () => (
-    <div style={{
-      width: CARD_W,
-      minHeight: CARD_H,
-      background: C.bg,
-      fontFamily: 'Inter, system-ui, sans-serif',
-      color: C.text,
-      padding: '40px 48px 24px',
-      display: 'flex',
-      flexDirection: 'column' as const,
-    }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <img src={LOGO_SVG} alt="" width={36} height={36} />
-          <span style={{ fontWeight: 800, fontSize: 20, letterSpacing: '0.5px' }}>
-            <span style={{ color: C.red }}>CAGE</span>
-            <span style={{ color: C.gold }}>MIND</span>
-          </span>
-        </div>
-        <span style={{ color: C.muted, fontSize: 13 }}>ML Predictions</span>
-      </div>
+    <div
+      style={{
+        width: CARD_W,
+        minHeight: CARD_H,
+        backgroundColor: C.bg,
+        fontFamily: 'Inter, system-ui, sans-serif',
+        color: C.text,
+        padding: '48px 56px 32px',
+        boxSizing: 'border-box' as const,
+      }}
+    >
+      {/* ── Logo bar ── */}
+      <table style={{ width: '100%', borderCollapse: 'collapse' as const, marginBottom: 16 }}>
+        <tbody>
+          <tr>
+            <td style={{ verticalAlign: 'middle' }}>
+              <img src={LOGO_SVG} alt="" width={36} height={36} style={{ verticalAlign: 'middle', marginRight: 10 }} />
+              <span style={{ fontWeight: 800, fontSize: 20, letterSpacing: 0.5, verticalAlign: 'middle' }}>
+                <span style={{ color: C.red }}>CAGE</span>
+                <span style={{ color: C.gold }}>MIND</span>
+              </span>
+            </td>
+            <td style={{ verticalAlign: 'middle', textAlign: 'right' as const }}>
+              <span style={{ color: C.muted, fontSize: 13 }}>ML Predictions</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-      <div style={{ height: 1, background: C.border, marginBottom: 20 }} />
+      {/* Divider */}
+      <div style={{ height: 1, backgroundColor: C.border, marginBottom: 20 }} />
 
-      {/* Event info */}
-      <div style={{
-        background: C.card,
-        border: `1px solid ${C.border}`,
-        borderRadius: 14,
-        padding: '20px 28px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: 20,
+      {/* ── Event info box ── */}
+      <table style={{
+        width: '100%', borderCollapse: 'collapse' as const,
+        backgroundColor: C.card, borderRadius: 14,
+        marginBottom: 20, border: `1px solid ${C.border}`,
       }}>
-        <div>
-          <h2 style={{ color: '#fff', fontSize: 28, fontWeight: 900, margin: 0, lineHeight: 1.2 }}>{eventName}</h2>
-          <p style={{ color: C.muted, fontSize: 14, marginTop: 6 }}>
-            {eventDate}{location ? ` · ${location}` : ''}
-          </p>
-        </div>
-        <span style={{
-          color: C.gold, fontSize: 14, fontWeight: 700,
-          background: C.dark, padding: '8px 16px', borderRadius: 8,
-        }}>
-          {totalFights} peleas · {predictedFights} predicciones
-        </span>
-      </div>
+        <tbody>
+          <tr>
+            <td style={{ padding: '20px 28px', verticalAlign: 'middle' }}>
+              <div style={{ color: '#fff', fontSize: 26, fontWeight: 900, lineHeight: 1.2, marginBottom: 6, whiteSpace: 'normal' as const, wordSpacing: '4px' }}>
+                {eventName}
+              </div>
+              <div style={{ color: C.muted, fontSize: 14 }}>
+                {eventDate}{location ? ` \u00B7 ${location}` : ''}
+              </div>
+            </td>
+            <td style={{ padding: '20px 28px', verticalAlign: 'middle', textAlign: 'right' as const, whiteSpace: 'nowrap' as const }}>
+              <span style={{
+                color: C.gold, fontSize: 13, fontWeight: 700,
+                backgroundColor: C.dark, padding: '8px 16px', borderRadius: 8,
+              }}>
+                {totalFights} peleas &middot; {predictedFights} predicciones
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-      {/* Fight Rows */}
-      <div style={{ display: 'flex', flexDirection: 'column' as const, gap: GAP }}>
-        {fights.map((fight, idx) => {
-          const pred = fight.prediction;
-          const probA = pred ? Math.round(pred.prob_a * 100) : null;
-          const probB = pred ? Math.round(pred.prob_b * 100) : null;
-          const aWins = pred ? pred.prob_a > pred.prob_b : false;
+      {/* ── Fight rows ── */}
+      {fights.map((fight, idx) => {
+        const pred = fight.prediction;
+        const probA = pred ? Math.round(pred.prob_a * 100) : null;
+        const probB = pred ? Math.round(pred.prob_b * 100) : null;
+        const aWins = pred ? pred.prob_a > pred.prob_b : false;
 
-          return (
-            <div key={idx} style={{
-              height: FIGHT_ROW_H,
-              background: C.card,
+        return (
+          <table
+            key={idx}
+            style={{
+              width: '100%',
+              borderCollapse: 'collapse' as const,
+              backgroundColor: C.card,
               border: `1px solid ${pred ? C.border : `${C.border}60`}`,
               borderRadius: 10,
-              display: 'flex',
-              alignItems: 'center',
-              padding: '0 24px',
+              marginBottom: ROW_GAP,
               opacity: pred ? 1 : 0.5,
-            }}>
-              <div style={{
-                width: 10, height: 10, borderRadius: '50%',
-                background: pred ? C.gold : C.border,
-                marginRight: 16, flexShrink: 0,
-              }} />
+              height: ROW_H,
+              tableLayout: 'fixed' as const,
+            }}
+          >
+            <tbody>
+              <tr>
+                {/* Dot */}
+                <td style={{ width: 50, textAlign: 'center' as const, verticalAlign: 'middle' }}>
+                  <div style={{
+                    width: 10, height: 10, borderRadius: '50%',
+                    backgroundColor: pred ? C.gold : C.border,
+                    display: 'inline-block',
+                  }} />
+                </td>
 
-              <div style={{ flex: 1, textAlign: 'right' as const, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 10 }}>
-                <span style={{
+                {/* Fighter A name */}
+                <td style={{
+                  width: '32%', textAlign: 'right' as const, verticalAlign: 'middle',
+                  padding: '0 6px',
                   color: pred && aWins ? '#fff' : C.muted,
                   fontSize: 15, fontWeight: pred && aWins ? 700 : 500,
+                  whiteSpace: 'nowrap' as const, overflow: 'hidden' as const,
+                  textOverflow: 'ellipsis' as const,
+                  wordSpacing: '3px',
                 }}>
                   {fight.fighter_a}
-                </span>
-                {probA !== null && (
-                  <span style={{
-                    color: aWins ? C.gold : C.muted,
-                    fontSize: 13, fontWeight: 700, minWidth: 38, textAlign: 'right' as const,
-                  }}>
-                    {probA}%
-                  </span>
-                )}
-              </div>
+                </td>
 
-              <div style={{
-                width: 120, textAlign: 'center' as const, flexShrink: 0,
-                display: 'flex', flexDirection: 'column' as const, alignItems: 'center', gap: 1,
-              }}>
-                <span style={{ color: C.muted, fontSize: 12, fontWeight: 600 }}>vs</span>
-                {fight.weight_class && (
-                  <span style={{ color: `${C.muted}80`, fontSize: 10 }}>{fight.weight_class}</span>
-                )}
-              </div>
+                {/* Prob A */}
+                <td style={{
+                  width: 50, textAlign: 'right' as const, verticalAlign: 'middle',
+                  color: aWins ? C.gold : C.muted,
+                  fontSize: 13, fontWeight: 700,
+                  padding: '0 4px',
+                }}>
+                  {probA !== null ? `${probA}%` : ''}
+                </td>
 
-              <div style={{ flex: 1, textAlign: 'left' as const, display: 'flex', alignItems: 'center', gap: 10 }}>
-                {probB !== null && (
-                  <span style={{
-                    color: !aWins ? C.gold : C.muted,
-                    fontSize: 13, fontWeight: 700, minWidth: 38,
-                  }}>
-                    {probB}%
-                  </span>
-                )}
-                <span style={{
+                {/* VS + weight class */}
+                <td style={{
+                  width: 110, textAlign: 'center' as const, verticalAlign: 'middle',
+                  padding: '0 4px',
+                }}>
+                  <div style={{ color: C.muted, fontSize: 12, fontWeight: 600, lineHeight: 1.2 }}>vs</div>
+                  {fight.weight_class && (
+                    <div style={{ color: `${C.muted}80`, fontSize: 9, lineHeight: 1.2 }}>{fight.weight_class}</div>
+                  )}
+                </td>
+
+                {/* Prob B */}
+                <td style={{
+                  width: 50, textAlign: 'left' as const, verticalAlign: 'middle',
+                  color: !aWins ? C.gold : C.muted,
+                  fontSize: 13, fontWeight: 700,
+                  padding: '0 4px',
+                }}>
+                  {probB !== null ? `${probB}%` : ''}
+                </td>
+
+                {/* Fighter B name */}
+                <td style={{
+                  width: '32%', textAlign: 'left' as const, verticalAlign: 'middle',
+                  padding: '0 6px',
                   color: pred && !aWins ? '#fff' : C.muted,
                   fontSize: 15, fontWeight: pred && !aWins ? 700 : 500,
+                  whiteSpace: 'nowrap' as const, overflow: 'hidden' as const,
+                  textOverflow: 'ellipsis' as const,
+                  wordSpacing: '3px',
                 }}>
                   {fight.fighter_b}
-                </span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        );
+      })}
 
-      {/* Footer */}
-      <div style={{ paddingTop: 20, marginTop: 'auto' }}>
-        <div style={{ height: 1, background: C.border, marginBottom: 12 }} />
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: 0.5 }}>
-          <img src={LOGO_SVG} alt="" width={14} height={14} />
-          <span style={{ color: C.muted, fontSize: 12, letterSpacing: 0.5 }}>
-            cagemind.app · ML Predictions
-          </span>
-        </div>
-      </div>
+      {/* ── Footer ── */}
+      <div style={{ height: 1, backgroundColor: C.border, marginTop: 16, marginBottom: 12 }} />
+      <table style={{ width: '100%', borderCollapse: 'collapse' as const }}>
+        <tbody>
+          <tr>
+            <td style={{ textAlign: 'center' as const, opacity: 0.5, verticalAlign: 'middle' }}>
+              <img src={LOGO_SVG} alt="" width={14} height={14} style={{ verticalAlign: 'middle', marginRight: 6 }} />
+              <span style={{ color: C.muted, fontSize: 12, letterSpacing: 0.5, verticalAlign: 'middle' }}>
+                cagemind.app &middot; ML Predictions
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
+
+  // ─── Modal rendered via portal to document.body ───
+  const modal = showModal ? createPortal(
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 999999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(0,0,0,0.88)',
+        backdropFilter: 'blur(4px)',
+        padding: 24,
+      }}
+      onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}
+    >
+      <div
+        style={{
+          backgroundColor: '#1A1A2E',
+          border: '1px solid #2A2A4A',
+          borderRadius: 16,
+          padding: 24,
+          width: '80vw',
+          maxWidth: 920,
+          maxHeight: '90vh',
+          display: 'flex',
+          flexDirection: 'column' as const,
+        }}
+        className="animate-fadeIn"
+      >
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, flexShrink: 0 }}>
+          <h3 style={{ color: '#fff', fontSize: 18, fontWeight: 700, margin: 0 }}>{eventName}</h3>
+          <button
+            onClick={() => setShowModal(false)}
+            style={{
+              background: 'none', border: 'none', color: C.muted, cursor: 'pointer',
+              padding: 6, borderRadius: 8, fontSize: 20, lineHeight: 1,
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = C.muted)}
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Preview — scrollable */}
+        <div style={{
+          flex: 1, minHeight: 0, overflow: 'auto',
+          borderRadius: 12, border: `1px solid ${C.border}`,
+          backgroundColor: C.bg, marginBottom: 16,
+        }}>
+          <div style={{
+            transform: `scale(${previewScale})`,
+            transformOrigin: 'top left',
+            width: CARD_W,
+            height: CARD_H,
+          }}>
+            <div ref={cardRef}>
+              <EventCard />
+            </div>
+          </div>
+        </div>
+
+        {/* Download */}
+        <button
+          onClick={handleGenerate}
+          disabled={generating}
+          className="btn-primary"
+          style={{ width: '100%', padding: '14px 0', fontSize: 15, flexShrink: 0 }}
+        >
+          {generating ? 'Generando imagen...' : `Descargar PNG (1080×${CARD_H} · 2x)`}
+        </button>
+      </div>
+    </div>,
+    document.body,
+  ) : null;
 
   return (
     <>
@@ -235,70 +352,7 @@ export default function EventCardGenerator({ eventName, eventDate, location, fig
         </svg>
         Descargar cartelera
       </button>
-
-      {showModal && (
-        <div
-          className="fixed inset-0 flex items-center justify-center bg-black/85 backdrop-blur-sm p-6"
-          style={{ zIndex: 99999 }}
-          onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}
-        >
-          <div
-            className="bg-ufc-gray border border-ufc-border rounded-2xl p-6 animate-fadeIn flex flex-col"
-            style={{ width: '80vw', maxWidth: 900, maxHeight: '90vh' }}
-          >
-            {/* Modal Header */}
-            <div className="flex items-center justify-between mb-4 flex-shrink-0">
-              <h3 className="text-lg font-bold text-white">{eventName}</h3>
-              <button
-                onClick={() => setShowModal(false)}
-                className="p-1.5 rounded-lg hover:bg-ufc-border/50 text-ufc-muted hover:text-white transition-colors"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Preview — scrollable container */}
-            <div className="flex-1 min-h-0 overflow-auto rounded-xl border border-ufc-border bg-ufc-dark mb-4">
-              <div style={{
-                transform: `scale(${previewScale})`,
-                transformOrigin: 'top left',
-                width: CARD_W,
-                height: CARD_H,
-              }}>
-                <div ref={cardRef}>
-                  <EventCard />
-                </div>
-              </div>
-            </div>
-
-            {/* Download Button */}
-            <button
-              onClick={handleGenerate}
-              disabled={generating}
-              className="w-full btn-primary text-base py-3 flex-shrink-0"
-            >
-              {generating ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Generando imagen...
-                </span>
-              ) : (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                  </svg>
-                  Descargar PNG (1080×{CARD_H} · 2x)
-                </span>
-              )}
-            </button>
-          </div>
-        </div>
-      )}
+      {modal}
     </>
   );
 }
