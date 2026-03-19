@@ -42,7 +42,7 @@ export default function LoginPage() {
               <span className="text-ufc-red">CAGE</span><span className="gold-gradient">MIND</span>
             </span>
           </div>
-          <p className="text-ufc-muted text-sm">Panel de administración</p>
+          
         </div>
 
         {/* Login form */}
@@ -57,7 +57,6 @@ export default function LoginPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="input-search"
-                placeholder="admin"
                 autoFocus
                 autoComplete="username"
               />
