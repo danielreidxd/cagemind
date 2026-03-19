@@ -86,6 +86,12 @@ def init_users_table():
         )
     """)
 
+# Migración: agregar columna email si no existe (para DBs creadas antes de v1.1)
+    try:
+        conn.execute("ALTER TABLE users ADD COLUMN email TEXT UNIQUE")
+    except sqlite3.OperationalError:
+        pass  # La columna ya existe
+
     conn.execute("""
         CREATE TABLE IF NOT EXISTS analytics_events (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
