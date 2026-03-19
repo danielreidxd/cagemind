@@ -18,17 +18,21 @@ Docs automáticas: http://localhost:8000/docs
 """
 from __future__ import annotations
 
+import os
 import pickle
 import sqlite3
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 import numpy as np
 import pandas as pd
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
+from jose import jwt, JWTError
+from passlib.context import CryptContext
 
 # ============================================================
 # CONFIGURACIÓN
@@ -52,6 +56,72 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# ============================================================
+# AUTENTICACIÓN (JWT + bcrypt)
+# ============================================================
+
+JWT_SECRET = os.environ.get("JWT_SECRET", "cagemind_dev_secret_change_in_prod_2026")
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRE_HOURS = 24
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+security = HTTPBearer(auto_error=False)
+
+
+def init_users_table():
+    """Crea la tabla users si no existe y crea el admin por defecto."""
+    conn = get_db()
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            username    TEXT NOT NULL UNIQUE,
+            password    TEXT NOT NULL,
+            role        TEXT NOT NULL DEFAULT 'user',
+            created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.commit()
+
+    # Crear admin si no existe
+    existing = conn.execute("SELECT id FROM users WHERE username = ?", ("admin",)).fetchone()
+    if not existing:
+        admin_pass = os.environ.get("ADMIN_PASSWORD", "cagemind2026")
+        hashed = pwd_context.hash(admin_pass)
+        conn.execute(
+            "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
+            ("admin", hashed, "admin"),
+        )
+        conn.commit()
+        print(f"Usuario admin creado (password: {'***' if 'ADMIN_PASSWORD' in os.environ else admin_pass})")
+
+    conn.close()
+
+
+def create_token(username: str, role: str) -> str:
+    expire = datetime.utcnow() + timedelta(hours=JWT_EXPIRE_HOURS)
+    return jwt.encode({"sub": username, "role": role, "exp": expire}, JWT_SECRET, algorithm=JWT_ALGORITHM)
+
+
+def verify_token(token: str) -> dict:
+    try:
+        payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+        return payload
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Token inválido o expirado")
+
+
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    if not credentials:
+        raise HTTPException(status_code=401, detail="No autenticado")
+    return verify_token(credentials.credentials)
+
+
+async def require_admin(user: dict = Depends(get_current_user)):
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Solo administradores")
+    return user
 
 
 # ============================================================
@@ -164,6 +234,8 @@ def load_fighter_stats_cache():
 @app.on_event("startup")
 async def startup():
     """Pre-carga modelos y datos al iniciar."""
+    print("Inicializando tabla users...")
+    init_users_table()
     print("Cargando modelos...")
     load_models()
     print("Cargando cache de peleadores...")
@@ -966,4 +1038,136 @@ async def get_stats():
             "features": len(load_models()["feature_names"]),
             "models": ["winner", "method", "distance", "round"],
         }
+    }
+
+
+# ============================================================
+# AUTH ENDPOINTS
+# ============================================================
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
+
+
+@app.post("/auth/login")
+async def login(req: LoginRequest):
+    """Autenticación con username y password. Devuelve JWT."""
+    conn = get_db()
+    user = conn.execute(
+        "SELECT id, username, password, role FROM users WHERE username = ?",
+        (req.username,),
+    ).fetchone()
+    conn.close()
+
+    if not user or not pwd_context.verify(req.password, user["password"]):
+        raise HTTPException(status_code=401, detail="Credenciales incorrectas")
+
+    token = create_token(user["username"], user["role"])
+    return {
+        "token": token,
+        "username": user["username"],
+        "role": user["role"],
+    }
+
+
+@app.get("/auth/me")
+async def auth_me(user: dict = Depends(get_current_user)):
+    """Devuelve info del usuario autenticado."""
+    return {"username": user["sub"], "role": user["role"]}
+
+
+# ============================================================
+# ADMIN ENDPOINTS (requieren rol admin)
+# ============================================================
+
+@app.get("/admin/dashboard")
+async def admin_dashboard(user: dict = Depends(require_admin)):
+    """Dashboard del panel admin con stats completas."""
+    conn = get_db()
+
+    # Conteos de BD
+    db_stats = {}
+    for table in ["fighters", "events", "fights", "fight_stats"]:
+        db_stats[table] = conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+
+    # Último evento
+    last_event = conn.execute("""
+        SELECT name, date_parsed, location FROM events
+        WHERE date_parsed IS NOT NULL
+        ORDER BY date_parsed DESC LIMIT 1
+    """).fetchone()
+
+    # Accuracy del modelo (desde eventos históricos con resultados)
+    total_fights_w_winner = conn.execute("""
+        SELECT COUNT(*) FROM fights WHERE winner_name IS NOT NULL AND winner_name != ''
+    """).fetchone()[0]
+
+    # Eventos recientes (últimos 5)
+    recent_events = conn.execute("""
+        SELECT e.name, e.date_parsed, e.location,
+               COUNT(f.fight_id) as total_fights
+        FROM events e
+        LEFT JOIN fights f ON e.event_id = f.event_id
+        WHERE e.date_parsed IS NOT NULL
+        GROUP BY e.event_id
+        ORDER BY e.date_parsed DESC
+        LIMIT 5
+    """).fetchall()
+
+    # Top 10 peleadores activos (más peleas recientes)
+    top_active = conn.execute("""
+        SELECT f.name, f.wins, f.losses, f.draws,
+               f.weight_lbs, f.stance
+        FROM fighters f
+        WHERE f.wins + f.losses >= 5
+        ORDER BY f.wins DESC
+        LIMIT 10
+    """).fetchall()
+
+    # Distribución de métodos de victoria
+    methods = conn.execute("""
+        SELECT
+            CASE
+                WHEN UPPER(method) LIKE '%KO%' OR UPPER(method) LIKE '%TKO%' THEN 'KO/TKO'
+                WHEN UPPER(method) LIKE '%SUB%' THEN 'Submission'
+                WHEN UPPER(method) LIKE '%DEC%' THEN 'Decision'
+                ELSE 'Otro'
+            END as method_group,
+            COUNT(*) as count
+        FROM fights
+        WHERE winner_name IS NOT NULL AND winner_name != ''
+        GROUP BY method_group
+        ORDER BY count DESC
+    """).fetchall()
+
+    # Info del modelo
+    bundle = load_models()
+    model_info = {
+        "features": len(bundle.get("feature_names", [])),
+        "models": list(bundle.get("models", {}).keys()) if isinstance(bundle.get("models"), dict) else ["winner", "method", "distance", "round"],
+    }
+
+    # Peleas por año (últimos 10 años)
+    fights_by_year = conn.execute("""
+        SELECT SUBSTR(e.date_parsed, 1, 4) as year, COUNT(f.fight_id) as count
+        FROM fights f
+        JOIN events e ON f.event_id = e.event_id
+        WHERE e.date_parsed IS NOT NULL
+        GROUP BY year
+        ORDER BY year DESC
+        LIMIT 10
+    """).fetchall()
+
+    conn.close()
+
+    return {
+        "database": db_stats,
+        "last_event": dict(last_event) if last_event else None,
+        "recent_events": [dict(e) for e in recent_events],
+        "top_active_fighters": [dict(f) for f in top_active],
+        "method_distribution": [dict(m) for m in methods],
+        "model_info": model_info,
+        "fights_by_year": [dict(f) for f in fights_by_year],
+        "total_fights_with_result": total_fights_w_winner,
     }

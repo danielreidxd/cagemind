@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Navbar() {
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path;
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isAdmin } = useAuth();
 
   const navLink = (path: string, label: string, mobile = false) => (
     <Link to={path}
@@ -48,6 +50,7 @@ export default function Navbar() {
             {navLink("/historico", "Historico")}
             {navLink("/sandbox", "Sandbox")}
             {navLink("/stats", "Stats")}
+            {isAdmin && navLink("/admin", "Admin")}
           </div>
 
           {/* Hamburger button */}
@@ -75,6 +78,7 @@ export default function Navbar() {
           {navLink("/historico", "Historico", true)}
           {navLink("/sandbox", "Sandbox", true)}
           {navLink("/stats", "Stats", true)}
+          {isAdmin && navLink("/admin", "Admin", true)}
         </div>
       )}
     </nav>
