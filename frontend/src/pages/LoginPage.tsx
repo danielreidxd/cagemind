@@ -19,7 +19,17 @@ export default function LoginPage() {
 
     try {
       await login(username.trim(), password);
-      navigate('/admin');
+      const token = sessionStorage.getItem('cagemind_token');
+      if (token) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          navigate(payload.role === 'admin' ? '/admin' : '/');
+        } catch {
+          navigate('/');
+        }
+      } else {
+        navigate('/');
+      }
     } catch (err: any) {
       setError(err.message || 'Error al iniciar sesión');
     } finally {
