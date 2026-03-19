@@ -509,7 +509,7 @@ export default function CardGenerator({ prediction, eventName }: Props) {
       {/* Modal */}
       {showModal && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-auto"
           onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}
         >
           <div className="bg-ufc-gray border border-ufc-border rounded-2xl p-6 max-w-[95vw] max-h-[95vh] overflow-auto animate-fadeIn">

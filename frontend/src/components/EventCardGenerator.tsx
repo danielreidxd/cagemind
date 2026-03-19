@@ -279,10 +279,10 @@ export default function EventCardGenerator({ eventName, eventDate, location, fig
       {/* Modal */}
       {showModal && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 overflow-auto"
           onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}
         >
-          <div className="bg-ufc-gray border border-ufc-border rounded-2xl p-6 max-w-[95vw] max-h-[95vh] overflow-auto animate-fadeIn">
+          <div className="bg-ufc-gray border border-ufc-border rounded-2xl p-6 w-[600px] max-w-[95vw] max-h-[90vh] overflow-auto animate-fadeIn">
             {/* Modal Header */}
             <div className="flex items-center justify-between mb-5">
               <h3 className="text-lg font-bold text-white">Cartelera completa — {eventName}</h3>
@@ -297,12 +297,14 @@ export default function EventCardGenerator({ eventName, eventDate, location, fig
             </div>
 
             {/* Preview */}
-            <div className="mb-5 rounded-xl overflow-hidden border border-ufc-border bg-ufc-dark flex justify-center">
+            <div className="mb-5 rounded-xl overflow-hidden border border-ufc-border bg-ufc-dark flex justify-center"
+              style={{ height: CARD_H * previewScale + 16 }}
+            >
               <div style={{
                 transform: `scale(${previewScale})`,
                 transformOrigin: 'top center',
-                width: previewW,
-                height: previewH,
+                width: CARD_W,
+                height: CARD_H,
               }}>
                 <div ref={cardRef}>
                   <EventCard />
