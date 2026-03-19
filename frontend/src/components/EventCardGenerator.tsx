@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 interface FightPrediction {
@@ -14,9 +14,6 @@ interface EventFight {
   fighter_b: string;
   weight_class: string | null;
   prediction: FightPrediction | null;
-  winner?: string | null;
-  method?: string | null;
-  round?: number | null;
 }
 
 interface Props {
@@ -28,18 +25,6 @@ interface Props {
   predictedFights: number;
 }
 
-const LOGO_SVG = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-<polygon points="50,8 89,29 89,71 50,92 11,71 11,29" fill="none" stroke="#C8102E" stroke-width="4"/>
-<polygon points="50,22 74,36 74,64 50,78 26,64 26,36" fill="none" stroke="#D4AF37" stroke-width="2" opacity="0.5"/>
-<circle cx="38" cy="38" r="4" fill="#C8102E"/><circle cx="62" cy="38" r="4" fill="#C8102E"/>
-<circle cx="50" cy="50" r="5" fill="#D4AF37"/>
-<circle cx="38" cy="62" r="4" fill="#C8102E"/><circle cx="62" cy="62" r="4" fill="#C8102E"/>
-<line x1="38" y1="38" x2="50" y2="50" stroke="#C8102E" stroke-width="1.5" opacity="0.6"/>
-<line x1="62" y1="38" x2="50" y2="50" stroke="#C8102E" stroke-width="1.5" opacity="0.6"/>
-<line x1="38" y1="62" x2="50" y2="50" stroke="#C8102E" stroke-width="1.5" opacity="0.6"/>
-<line x1="62" y1="62" x2="50" y2="50" stroke="#C8102E" stroke-width="1.5" opacity="0.6"/>
-</svg>`)}`;
-
 const C = {
   bg: '#0D0D0D',
   card: '#1C1C3A',
@@ -50,218 +35,303 @@ const C = {
   text: '#E0E0E0',
   muted: '#8888AA',
   dark: '#111118',
+  white: '#FFFFFF',
 };
+
+// ─── Draw the entire card onto a canvas ───
+function drawCard(
+  canvas: HTMLCanvasElement,
+  eventName: string,
+  eventDate: string,
+  location: string | null | undefined,
+  fights: EventFight[],
+  totalFights: number,
+  predictedFights: number,
+) {
+  const SCALE = 2; // 2x for retina
+  const W = 1080;
+  const PAD_X = 56;
+  const ROW_H = 58;
+  const ROW_GAP = 6;
+  const HEADER_BLOCK = 190;
+  const FOOTER_BLOCK = 70;
+  const TOP_BAR = 80;
+  const H = TOP_BAR + HEADER_BLOCK + fights.length * (ROW_H + ROW_GAP) + FOOTER_BLOCK;
+
+  canvas.width = W * SCALE;
+  canvas.height = H * SCALE;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+
+  const ctx = canvas.getContext('2d')!;
+  ctx.scale(SCALE, SCALE);
+
+  // ── Helpers ──
+  const roundRect = (x: number, y: number, w: number, h: number, r: number) => {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  };
+
+  const fillRoundRect = (x: number, y: number, w: number, h: number, r: number, color: string) => {
+    ctx.fillStyle = color;
+    roundRect(x, y, w, h, r);
+    ctx.fill();
+  };
+
+  const strokeRoundRect = (x: number, y: number, w: number, h: number, r: number, color: string, lineW = 1) => {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lineW;
+    roundRect(x, y, w, h, r);
+    ctx.stroke();
+  };
+
+  const drawCircle = (cx: number, cy: number, r: number, color: string) => {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fill();
+  };
+
+  const truncText = (text: string, maxW: number): string => {
+    if (ctx.measureText(text).width <= maxW) return text;
+    let t = text;
+    while (t.length > 0 && ctx.measureText(t + '…').width > maxW) {
+      t = t.slice(0, -1);
+    }
+    return t + '…';
+  };
+
+  // ── Background ──
+  ctx.fillStyle = C.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  // ── Logo bar ──
+  let y = 40;
+
+  // Draw octagon logo (simplified)
+  const logoX = PAD_X;
+  const logoY = y - 12;
+  const logoS = 32;
+  ctx.strokeStyle = C.red;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const angle = (Math.PI / 3) * i - Math.PI / 2;
+    const px = logoX + logoS / 2 + (logoS / 2) * Math.cos(angle);
+    const py = logoY + logoS / 2 + (logoS / 2) * Math.sin(angle);
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.stroke();
+
+  // Inner hexagon
+  ctx.strokeStyle = C.gold;
+  ctx.lineWidth = 1;
+  ctx.globalAlpha = 0.5;
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const angle = (Math.PI / 3) * i - Math.PI / 2;
+    const px = logoX + logoS / 2 + (logoS / 3) * Math.cos(angle);
+    const py = logoY + logoS / 2 + (logoS / 3) * Math.sin(angle);
+    if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  // Center dot
+  drawCircle(logoX + logoS / 2, logoY + logoS / 2, 3, C.gold);
+
+  // CAGEMIND text
+  ctx.font = '800 20px Inter, system-ui, sans-serif';
+  ctx.fillStyle = C.red;
+  ctx.textAlign = 'left';
+  ctx.fillText('CAGE', logoX + logoS + 10, y + 2);
+  const cageW = ctx.measureText('CAGE').width;
+  ctx.fillStyle = C.gold;
+  ctx.fillText('MIND', logoX + logoS + 10 + cageW, y + 2);
+
+  // "ML Predictions" right side
+  ctx.font = '400 13px Inter, system-ui, sans-serif';
+  ctx.fillStyle = C.muted;
+  ctx.textAlign = 'right';
+  ctx.fillText('ML Predictions', W - PAD_X, y + 2);
+
+  // Divider
+  y += 24;
+  ctx.fillStyle = C.border;
+  ctx.fillRect(PAD_X, y, W - PAD_X * 2, 1);
+  y += 20;
+
+  // ── Event info box ──
+  const boxH = 90;
+  fillRoundRect(PAD_X, y, W - PAD_X * 2, boxH, 14, C.card);
+  strokeRoundRect(PAD_X, y, W - PAD_X * 2, boxH, 14, C.border);
+
+  // Event name
+  ctx.font = '900 26px Inter, system-ui, sans-serif';
+  ctx.fillStyle = C.white;
+  ctx.textAlign = 'left';
+  ctx.fillText(eventName, PAD_X + 28, y + 38);
+
+  // Event date + location
+  ctx.font = '400 14px Inter, system-ui, sans-serif';
+  ctx.fillStyle = C.muted;
+  const dateStr = eventDate + (location ? ` · ${location}` : '');
+  ctx.fillText(dateStr, PAD_X + 28, y + 62);
+
+  // Fights count badge
+  const badgeText = `${totalFights} peleas · ${predictedFights} predicciones`;
+  ctx.font = '700 13px Inter, system-ui, sans-serif';
+  const badgeW = ctx.measureText(badgeText).width + 32;
+  const badgeX = W - PAD_X - 28 - badgeW;
+  const badgeY = y + (boxH - 34) / 2;
+  fillRoundRect(badgeX, badgeY, badgeW, 34, 8, C.dark);
+  ctx.fillStyle = C.gold;
+  ctx.textAlign = 'center';
+  ctx.fillText(badgeText, badgeX + badgeW / 2, badgeY + 22);
+
+  y += boxH + 16;
+
+  // ── Fight rows ──
+  const contentW = W - PAD_X * 2;
+  const dotCol = 40;
+  const probCol = 54;
+  const vsCol = 100;
+  const nameCol = (contentW - dotCol - probCol * 2 - vsCol) / 2;
+
+  fights.forEach((fight) => {
+    const pred = fight.prediction;
+    const probA = pred ? Math.round(pred.prob_a * 100) : null;
+    const probB = pred ? Math.round(pred.prob_b * 100) : null;
+    const aWins = pred ? pred.prob_a > pred.prob_b : false;
+    const rowAlpha = pred ? 1 : 0.45;
+
+    ctx.globalAlpha = rowAlpha;
+
+    // Row background
+    fillRoundRect(PAD_X, y, contentW, ROW_H, 10, C.card);
+    strokeRoundRect(PAD_X, y, contentW, ROW_H, 10, C.border);
+
+    const cy = y + ROW_H / 2;
+
+    // Status dot
+    drawCircle(PAD_X + dotCol / 2 + 8, cy, 5, pred ? C.gold : C.border);
+
+    // Fighter A name (right aligned)
+    const nameAx = PAD_X + dotCol + nameCol;
+    ctx.font = pred && aWins ? '700 15px Inter, system-ui, sans-serif' : '500 15px Inter, system-ui, sans-serif';
+    ctx.fillStyle = pred && aWins ? C.white : C.muted;
+    ctx.textAlign = 'right';
+    const nameA = truncText(fight.fighter_a, nameCol - 12);
+    ctx.fillText(nameA, nameAx - 6, cy + 5);
+
+    // Prob A
+    if (probA !== null) {
+      ctx.font = '700 13px Inter, system-ui, sans-serif';
+      ctx.fillStyle = aWins ? C.gold : C.muted;
+      ctx.textAlign = 'right';
+      ctx.fillText(`${probA}%`, nameAx + probCol - 4, cy + 5);
+    }
+
+    // VS + weight class
+    const vsCenterX = nameAx + probCol + vsCol / 2;
+    ctx.font = '600 12px Inter, system-ui, sans-serif';
+    ctx.fillStyle = C.muted;
+    ctx.textAlign = 'center';
+    ctx.fillText('vs', vsCenterX, cy + (fight.weight_class ? -1 : 4));
+    if (fight.weight_class) {
+      ctx.font = '400 9px Inter, system-ui, sans-serif';
+      ctx.globalAlpha = rowAlpha * 0.6;
+      ctx.fillText(fight.weight_class, vsCenterX, cy + 12);
+      ctx.globalAlpha = rowAlpha;
+    }
+
+    // Prob B
+    const probBx = nameAx + probCol + vsCol;
+    if (probB !== null) {
+      ctx.font = '700 13px Inter, system-ui, sans-serif';
+      ctx.fillStyle = !aWins ? C.gold : C.muted;
+      ctx.textAlign = 'left';
+      ctx.fillText(`${probB}%`, probBx + 4, cy + 5);
+    }
+
+    // Fighter B name (left aligned)
+    const nameBx = probBx + probCol;
+    ctx.font = pred && !aWins ? '700 15px Inter, system-ui, sans-serif' : '500 15px Inter, system-ui, sans-serif';
+    ctx.fillStyle = pred && !aWins ? C.white : C.muted;
+    ctx.textAlign = 'left';
+    const nameB = truncText(fight.fighter_b, nameCol - 12);
+    ctx.fillText(nameB, nameBx + 6, cy + 5);
+
+    ctx.globalAlpha = 1;
+    y += ROW_H + ROW_GAP;
+  });
+
+  // ── Footer ──
+  y += 8;
+  ctx.fillStyle = C.border;
+  ctx.fillRect(PAD_X, y, contentW, 1);
+  y += 16;
+
+  // Watermark
+  ctx.globalAlpha = 0.5;
+  ctx.font = '400 12px Inter, system-ui, sans-serif';
+  ctx.fillStyle = C.muted;
+  ctx.textAlign = 'center';
+  ctx.fillText('cagemind.app · ML Predictions', W / 2, y + 4);
+
+  // Small logo dot
+  drawCircle(W / 2 - ctx.measureText('cagemind.app · ML Predictions').width / 2 - 14, y, 3, C.gold);
+  ctx.globalAlpha = 1;
+
+  return { width: W, height: H };
+}
 
 export default function EventCardGenerator({ eventName, eventDate, location, fights, totalFights, predictedFights }: Props) {
   const [generating, setGenerating] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const cardRef = useRef<HTMLDivElement>(null);
+  const previewCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [cardDims, setCardDims] = useState({ width: 1080, height: 800 });
 
-  const CARD_W = 1080;
-  const ROW_H = 56;
-  const ROW_GAP = 6;
-  const CARD_H = 48 + 140 + (fights.length * (ROW_H + ROW_GAP)) + 60 + 32;
+  // Draw preview when modal opens
+  useEffect(() => {
+    if (showModal && previewCanvasRef.current) {
+      const dims = drawCard(previewCanvasRef.current, eventName, eventDate, location, fights, totalFights, predictedFights);
+      setCardDims(dims);
+    }
+  }, [showModal, eventName, eventDate, location, fights, totalFights, predictedFights]);
 
-  const handleGenerate = useCallback(async () => {
-    if (!cardRef.current) return;
+  const handleGenerate = useCallback(() => {
     setGenerating(true);
     try {
-      const html2canvas = (await import('html2canvas')).default;
-      const canvas = await html2canvas(cardRef.current, {
-        backgroundColor: C.bg,
-        scale: 2,
-        useCORS: true,
-        logging: false,
-      });
+      // Create a fresh offscreen canvas for download
+      const offscreen = document.createElement('canvas');
+      drawCard(offscreen, eventName, eventDate, location, fights, totalFights, predictedFights);
+
       const link = document.createElement('a');
       const safeName = eventName.replace(/[^a-zA-Z0-9]/g, '_');
       link.download = `CageMind_${safeName}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.href = offscreen.toDataURL('image/png');
       link.click();
     } catch (err) {
       console.error('Error generating event card:', err);
     } finally {
       setGenerating(false);
     }
-  }, [eventName]);
+  }, [eventName, eventDate, location, fights, totalFights, predictedFights]);
 
-  const previewScale = Math.min(1, 840 / CARD_W);
+  const previewScale = Math.min(1, 840 / cardDims.width);
 
-  // ─── The card rendered at 1080px real size ───
-  const EventCard = () => (
-    <div
-      style={{
-        width: CARD_W,
-        minHeight: CARD_H,
-        backgroundColor: C.bg,
-        fontFamily: 'Inter, system-ui, sans-serif',
-        color: C.text,
-        padding: '48px 56px 32px',
-        boxSizing: 'border-box' as const,
-      }}
-    >
-      {/* ── Logo bar ── */}
-      <table style={{ width: '100%', borderCollapse: 'collapse' as const, marginBottom: 16 }}>
-        <tbody>
-          <tr>
-            <td style={{ verticalAlign: 'middle' }}>
-              <img src={LOGO_SVG} alt="" width={36} height={36} style={{ verticalAlign: 'middle', marginRight: 10 }} />
-              <span style={{ fontWeight: 800, fontSize: 20, letterSpacing: 0.5, verticalAlign: 'middle' }}>
-                <span style={{ color: C.red }}>CAGE</span>
-                <span style={{ color: C.gold }}>MIND</span>
-              </span>
-            </td>
-            <td style={{ verticalAlign: 'middle', textAlign: 'right' as const }}>
-              <span style={{ color: C.muted, fontSize: 13 }}>ML Predictions</span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      {/* Divider */}
-      <div style={{ height: 1, backgroundColor: C.border, marginBottom: 20 }} />
-
-      {/* ── Event info box ── */}
-      <table style={{
-        width: '100%', borderCollapse: 'collapse' as const,
-        backgroundColor: C.card, borderRadius: 14,
-        marginBottom: 20, border: `1px solid ${C.border}`,
-      }}>
-        <tbody>
-          <tr>
-            <td style={{ padding: '20px 28px', verticalAlign: 'middle' }}>
-              <div style={{ color: '#fff', fontSize: 26, fontWeight: 900, lineHeight: 1.2, marginBottom: 6, whiteSpace: 'normal' as const, wordSpacing: '4px' }}>
-                {eventName}
-              </div>
-              <div style={{ color: C.muted, fontSize: 14 }}>
-                {eventDate}{location ? ` \u00B7 ${location}` : ''}
-              </div>
-            </td>
-            <td style={{ padding: '20px 28px', verticalAlign: 'middle', textAlign: 'right' as const, whiteSpace: 'nowrap' as const }}>
-              <span style={{
-                color: C.gold, fontSize: 13, fontWeight: 700,
-                backgroundColor: C.dark, padding: '8px 16px', borderRadius: 8,
-              }}>
-                {totalFights} peleas &middot; {predictedFights} predicciones
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      {/* ── Fight rows ── */}
-      {fights.map((fight, idx) => {
-        const pred = fight.prediction;
-        const probA = pred ? Math.round(pred.prob_a * 100) : null;
-        const probB = pred ? Math.round(pred.prob_b * 100) : null;
-        const aWins = pred ? pred.prob_a > pred.prob_b : false;
-
-        return (
-          <table
-            key={idx}
-            style={{
-              width: '100%',
-              borderCollapse: 'collapse' as const,
-              backgroundColor: C.card,
-              border: `1px solid ${pred ? C.border : `${C.border}60`}`,
-              borderRadius: 10,
-              marginBottom: ROW_GAP,
-              opacity: pred ? 1 : 0.5,
-              height: ROW_H,
-              tableLayout: 'fixed' as const,
-            }}
-          >
-            <tbody>
-              <tr>
-                {/* Dot */}
-                <td style={{ width: 50, textAlign: 'center' as const, verticalAlign: 'middle' }}>
-                  <div style={{
-                    width: 10, height: 10, borderRadius: '50%',
-                    backgroundColor: pred ? C.gold : C.border,
-                    display: 'inline-block',
-                  }} />
-                </td>
-
-                {/* Fighter A name */}
-                <td style={{
-                  width: '32%', textAlign: 'right' as const, verticalAlign: 'middle',
-                  padding: '0 6px',
-                  color: pred && aWins ? '#fff' : C.muted,
-                  fontSize: 15, fontWeight: pred && aWins ? 700 : 500,
-                  whiteSpace: 'nowrap' as const, overflow: 'hidden' as const,
-                  textOverflow: 'ellipsis' as const,
-                  wordSpacing: '3px',
-                }}>
-                  {fight.fighter_a}
-                </td>
-
-                {/* Prob A */}
-                <td style={{
-                  width: 50, textAlign: 'right' as const, verticalAlign: 'middle',
-                  color: aWins ? C.gold : C.muted,
-                  fontSize: 13, fontWeight: 700,
-                  padding: '0 4px',
-                }}>
-                  {probA !== null ? `${probA}%` : ''}
-                </td>
-
-                {/* VS + weight class */}
-                <td style={{
-                  width: 110, textAlign: 'center' as const, verticalAlign: 'middle',
-                  padding: '0 4px',
-                }}>
-                  <div style={{ color: C.muted, fontSize: 12, fontWeight: 600, lineHeight: 1.2 }}>vs</div>
-                  {fight.weight_class && (
-                    <div style={{ color: `${C.muted}80`, fontSize: 9, lineHeight: 1.2 }}>{fight.weight_class}</div>
-                  )}
-                </td>
-
-                {/* Prob B */}
-                <td style={{
-                  width: 50, textAlign: 'left' as const, verticalAlign: 'middle',
-                  color: !aWins ? C.gold : C.muted,
-                  fontSize: 13, fontWeight: 700,
-                  padding: '0 4px',
-                }}>
-                  {probB !== null ? `${probB}%` : ''}
-                </td>
-
-                {/* Fighter B name */}
-                <td style={{
-                  width: '32%', textAlign: 'left' as const, verticalAlign: 'middle',
-                  padding: '0 6px',
-                  color: pred && !aWins ? '#fff' : C.muted,
-                  fontSize: 15, fontWeight: pred && !aWins ? 700 : 500,
-                  whiteSpace: 'nowrap' as const, overflow: 'hidden' as const,
-                  textOverflow: 'ellipsis' as const,
-                  wordSpacing: '3px',
-                }}>
-                  {fight.fighter_b}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        );
-      })}
-
-      {/* ── Footer ── */}
-      <div style={{ height: 1, backgroundColor: C.border, marginTop: 16, marginBottom: 12 }} />
-      <table style={{ width: '100%', borderCollapse: 'collapse' as const }}>
-        <tbody>
-          <tr>
-            <td style={{ textAlign: 'center' as const, opacity: 0.5, verticalAlign: 'middle' }}>
-              <img src={LOGO_SVG} alt="" width={14} height={14} style={{ verticalAlign: 'middle', marginRight: 6 }} />
-              <span style={{ color: C.muted, fontSize: 12, letterSpacing: 0.5, verticalAlign: 'middle' }}>
-                cagemind.app &middot; ML Predictions
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  );
-
-  // ─── Modal rendered via portal to document.body ───
   const modal = showModal ? createPortal(
     <div
       style={{
@@ -307,22 +377,21 @@ export default function EventCardGenerator({ eventName, eventDate, location, fig
           </button>
         </div>
 
-        {/* Preview — scrollable */}
+        {/* Canvas preview */}
         <div style={{
           flex: 1, minHeight: 0, overflow: 'auto',
           borderRadius: 12, border: `1px solid ${C.border}`,
           backgroundColor: C.bg, marginBottom: 16,
+          display: 'flex', justifyContent: 'center',
         }}>
-          <div style={{
-            transform: `scale(${previewScale})`,
-            transformOrigin: 'top left',
-            width: CARD_W,
-            height: CARD_H,
-          }}>
-            <div ref={cardRef}>
-              <EventCard />
-            </div>
-          </div>
+          <canvas
+            ref={previewCanvasRef}
+            style={{
+              width: cardDims.width * previewScale,
+              height: cardDims.height * previewScale,
+              display: 'block',
+            }}
+          />
         </div>
 
         {/* Download */}
@@ -332,7 +401,7 @@ export default function EventCardGenerator({ eventName, eventDate, location, fig
           className="btn-primary"
           style={{ width: '100%', padding: '14px 0', fontSize: 15, flexShrink: 0 }}
         >
-          {generating ? 'Generando imagen...' : `Descargar PNG (1080×${CARD_H} · 2x)`}
+          {generating ? 'Generando imagen...' : `Descargar PNG (${cardDims.width}×${cardDims.height} · 2x)`}
         </button>
       </div>
     </div>,
