@@ -231,24 +231,14 @@ export default function CardGenerator({ prediction, eventName }: Props) {
   const VerticalCard = () => (
     <div style={{
       width: 1080, height: 1920,
-      background: `linear-gradient(180deg, ${COLORS.bg} 0%, #0a0a1a 50%, ${COLORS.bg} 100%)`,
+      background: COLORS.bg,
       fontFamily: 'Inter, system-ui, sans-serif',
       color: COLORS.text,
       padding: '48px 48px 36px',
-      display: 'flex', flexDirection: 'column',
-      position: 'relative',
+      display: 'flex', flexDirection: 'column' as const,
+      position: 'relative' as const,
       overflow: 'hidden',
     }}>
-      {/* Background octagon watermark */}
-      <div style={{
-        position: 'absolute', top: '50%', left: '50%',
-        transform: 'translate(-50%, -50%)',
-        opacity: 0.03, pointerEvents: 'none',
-      }}>
-        <svg width="800" height="800" viewBox="0 0 100 100">
-          <polygon points="50,5 93,27.5 93,72.5 50,95 7,72.5 7,27.5" fill="none" stroke="#fff" strokeWidth="1"/>
-        </svg>
-      </div>
 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
@@ -259,12 +249,12 @@ export default function CardGenerator({ prediction, eventName }: Props) {
       </div>
 
       {/* Divider */}
-      <div style={{ height: 1, background: `linear-gradient(90deg, transparent, ${COLORS.border}, transparent)`, marginBottom: 32 }} />
+      <div style={{ height: 1, background: COLORS.border, marginBottom: 32 }} />
 
       {/* Winner Banner */}
       <div style={{
         textAlign: 'center', padding: '28px 0', marginBottom: 28,
-        background: `linear-gradient(135deg, ${COLORS.red}10, transparent, ${COLORS.blue}10)`,
+        background: `${COLORS.card}`,
         borderRadius: 16, border: `1px solid ${COLORS.border}`,
       }}>
         <p style={{ color: COLORS.muted, fontSize: 14, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 6 }}>
@@ -347,7 +337,7 @@ export default function CardGenerator({ prediction, eventName }: Props) {
 
       {/* Footer */}
       <div style={{ marginTop: 'auto', paddingTop: 16 }}>
-        <div style={{ height: 1, background: `linear-gradient(90deg, transparent, ${COLORS.border}, transparent)`, marginBottom: 16 }} />
+        <div style={{ height: 1, background: COLORS.border, marginBottom: 16 }} />
         <Watermark fontSize={13} />
       </div>
     </div>
@@ -357,24 +347,14 @@ export default function CardGenerator({ prediction, eventName }: Props) {
   const HorizontalCard = () => (
     <div style={{
       width: 1200, height: 675,
-      background: `linear-gradient(135deg, ${COLORS.bg} 0%, #0a0a1a 50%, ${COLORS.bg} 100%)`,
+      background: COLORS.bg,
       fontFamily: 'Inter, system-ui, sans-serif',
       color: COLORS.text,
       padding: '28px 36px 20px',
-      display: 'flex', flexDirection: 'column',
-      position: 'relative',
+      display: 'flex', flexDirection: 'column' as const,
+      position: 'relative' as const,
       overflow: 'hidden',
     }}>
-      {/* Background octagon watermark */}
-      <div style={{
-        position: 'absolute', top: '50%', left: '50%',
-        transform: 'translate(-50%, -50%)',
-        opacity: 0.03, pointerEvents: 'none',
-      }}>
-        <svg width="600" height="600" viewBox="0 0 100 100">
-          <polygon points="50,5 93,27.5 93,72.5 50,95 7,72.5 7,27.5" fill="none" stroke="#fff" strokeWidth="1"/>
-        </svg>
-      </div>
 
       {/* Header row */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -385,7 +365,7 @@ export default function CardGenerator({ prediction, eventName }: Props) {
         </div>
       </div>
 
-      <div style={{ height: 1, background: `linear-gradient(90deg, transparent, ${COLORS.border}, transparent)`, marginBottom: 16 }} />
+      <div style={{ height: 1, background: COLORS.border, marginBottom: 16 }} />
 
       {/* Main content: 3 columns */}
       <div style={{ display: 'flex', gap: 20, flex: 1 }}>
@@ -394,7 +374,7 @@ export default function CardGenerator({ prediction, eventName }: Props) {
           {/* Winner */}
           <div style={{
             textAlign: 'center', padding: '14px 0',
-            background: `linear-gradient(135deg, ${COLORS.red}10, transparent, ${COLORS.blue}10)`,
+            background: `${COLORS.card}`,
             borderRadius: 10, border: `1px solid ${COLORS.border}`,
           }}>
             <p style={{ color: COLORS.muted, fontSize: 10, textTransform: 'uppercase', letterSpacing: 2, marginBottom: 2 }}>
@@ -447,7 +427,7 @@ export default function CardGenerator({ prediction, eventName }: Props) {
         </div>
 
         {/* Vertical divider */}
-        <div style={{ width: 1, background: `linear-gradient(180deg, transparent, ${COLORS.border}, transparent)` }} />
+        <div style={{ width: 1, background: COLORS.border }} />
 
         {/* RIGHT: Method + Finish + Round */}
         <div style={{ flex: 0.9, display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -488,7 +468,7 @@ export default function CardGenerator({ prediction, eventName }: Props) {
 
       {/* Footer */}
       <div style={{ marginTop: 'auto', paddingTop: 8 }}>
-        <div style={{ height: 1, background: `linear-gradient(90deg, transparent, ${COLORS.border}, transparent)`, marginBottom: 8 }} />
+        <div style={{ height: 1, background: COLORS.border, marginBottom: 8 }} />
         <Watermark fontSize={11} />
       </div>
     </div>
@@ -510,10 +490,26 @@ export default function CardGenerator({ prediction, eventName }: Props) {
         Compartir
       </button>
 
+      {/* Offscreen full-size card for html2canvas capture (no transform, no scale) */}
+      {showModal && (
+        <div
+          ref={cardRef}
+          style={{
+            position: 'fixed',
+            left: '-9999px',
+            top: 0,
+            zIndex: -1,
+            pointerEvents: 'none',
+          }}
+        >
+          {format === 'vertical' ? <VerticalCard /> : <HorizontalCard />}
+        </div>
+      )}
+
       {/* Modal */}
       {showModal && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80"
           onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}
         >
           <div className="bg-ufc-gray border border-ufc-border rounded-2xl p-6 max-w-[95vw] max-h-[95vh] overflow-auto animate-fadeIn">
@@ -554,7 +550,7 @@ export default function CardGenerator({ prediction, eventName }: Props) {
               </button>
             </div>
 
-            {/* Preview (scaled down) */}
+            {/* Visible preview (CSS-only scale, no ref) */}
             <div className="mb-5 rounded-xl overflow-hidden border border-ufc-border bg-ufc-dark flex justify-center">
               <div style={{
                 transform: format === 'vertical' ? 'scale(0.22)' : 'scale(0.45)',
@@ -562,9 +558,7 @@ export default function CardGenerator({ prediction, eventName }: Props) {
                 height: format === 'vertical' ? 1920 * 0.22 : 675 * 0.45,
                 width: format === 'vertical' ? 1080 * 0.22 : 1200 * 0.45,
               }}>
-                <div ref={cardRef}>
-                  {format === 'vertical' ? <VerticalCard /> : <HorizontalCard />}
-                </div>
+                {format === 'vertical' ? <VerticalCard /> : <HorizontalCard />}
               </div>
             </div>
 
