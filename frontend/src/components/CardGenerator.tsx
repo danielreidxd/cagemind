@@ -194,7 +194,7 @@ export default function CardGenerator({ prediction, eventName }: Props) {
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, opacity: 0.5 }}>
       <img src={LOGO_SVG} alt="" width={14} height={14} />
       <span style={{ color: COLORS.muted, fontSize, letterSpacing: 0.5 }}>
-        cagemind.vercel.app · ML Predictions
+        cagemind.app · ML Predictions
       </span>
     </div>
   );
