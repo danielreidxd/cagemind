@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 interface FightPrediction {
   predicted_winner: string;
@@ -298,6 +299,7 @@ function drawCard(
 }
 
 export default function EventCardGenerator({ eventName, eventDate, location, fights, totalFights, predictedFights }: Props) {
+  const { isAdmin } = useAuth();
   const [generating, setGenerating] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const previewCanvasRef = useRef<HTMLCanvasElement>(null);
@@ -407,6 +409,8 @@ export default function EventCardGenerator({ eventName, eventDate, location, fig
     </div>,
     document.body,
   ) : null;
+
+  if (!isAdmin) return null;
 
   return (
     <>

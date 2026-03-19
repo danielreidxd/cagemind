@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import type { PredictionResponse } from '../types';
 import { formatHeight, formatProbability } from '../utils/api';
+import { useAuth } from '../contexts/AuthContext';
 
 type CardFormat = 'vertical' | 'horizontal';
 
@@ -44,6 +45,7 @@ const METHOD_COLORS: Record<string, string> = {
 };
 
 export default function CardGenerator({ prediction, eventName }: Props) {
+  const { isAdmin } = useAuth();
   const [format, setFormat] = useState<CardFormat>('vertical');
   const [generating, setGenerating] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -475,6 +477,8 @@ export default function CardGenerator({ prediction, eventName }: Props) {
   );
 
   // ─── UI: Modal with preview + download ───
+  if (!isAdmin) return null;
+
   return (
     <>
       {/* Trigger Button */}
