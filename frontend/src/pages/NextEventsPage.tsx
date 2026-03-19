@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import FightDetailInline from '../components/FightDetailInline';
+import EventCardGenerator from '../components/EventCardGenerator';
 
 interface UpcomingFight {
   fighter_a: string;
@@ -168,16 +169,24 @@ export default function NextEventsPage() {
                 <h2 className="text-2xl font-black text-white">{currentEvent.name}</h2>
                 <p className="text-ufc-muted mt-1">
                   {currentEvent.date}
-                  {currentEvent.location && (' \u00b7 ' + currentEvent.location)}
+                  {currentEvent.location && (' · ' + currentEvent.location)}
                 </p>
               </div>
-              <div className="text-center">
+              <div className="flex flex-col items-end gap-2">
                 <span className="text-ufc-gold text-lg font-bold bg-ufc-dark/50 px-4 py-2 rounded-lg inline-block">
                   {daysUntil(currentEvent.date)}
                 </span>
-                <p className="text-ufc-muted text-xs mt-2">
+                <p className="text-ufc-muted text-xs">
                   {currentEvent.total_fights} peleas &middot; {currentEvent.predicted_fights} predicciones
                 </p>
+                <EventCardGenerator
+                  eventName={currentEvent.name}
+                  eventDate={currentEvent.date}
+                  location={currentEvent.location}
+                  fights={currentEvent.fights}
+                  totalFights={currentEvent.total_fights}
+                  predictedFights={currentEvent.predicted_fights}
+                />
               </div>
             </div>
           </div>
