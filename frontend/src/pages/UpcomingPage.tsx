@@ -244,6 +244,7 @@ export default function UpcomingPage() {
                         realWinner={fight.winner}
                         realMethod={fight.method}
                         realRound={fight.round}
+                        eventName={data?.event?.name}
                       />
                     </div>
                   )}

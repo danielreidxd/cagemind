@@ -255,6 +255,7 @@ export default function NextEventsPage() {
                         realWinner={null}
                         realMethod={null}
                         realRound={null}
+                        eventName={currentEvent?.name}
                       />
                     </div>
                   )}

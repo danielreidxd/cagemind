@@ -1,12 +1,14 @@
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, PieChart, Pie, Tooltip } from 'recharts';
 import type { PredictionResponse } from '../types';
 import { formatHeight, formatProbability } from '../utils/api';
+import CardGenerator from './CardGenerator';
 
 interface Props {
   prediction: PredictionResponse;
+  eventName?: string;
 }
 
-export default function PredictionResult({ prediction }: Props) {
+export default function PredictionResult({ prediction, eventName }: Props) {
   const { fighter_a_profile: a, fighter_b_profile: b, winner } = prediction;
   const aIsWinner = winner === prediction.fighter_a;
 
@@ -31,6 +33,9 @@ export default function PredictionResult({ prediction }: Props) {
       {/* Winner Banner */}
       <div className="glass-card p-6 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-ufc-red/5 via-transparent to-blue-500/5" />
+        <div className="absolute top-4 right-4 z-10">
+          <CardGenerator prediction={prediction} eventName={eventName} />
+        </div>
         <p className="text-ufc-muted text-sm mb-2 relative">Ganador predicho</p>
         <h2 className="text-3xl font-black text-white relative">{winner}</h2>
         <p className="text-ufc-gold text-2xl font-bold mt-1 relative">

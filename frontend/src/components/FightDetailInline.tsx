@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Cell, PieChart, Pie, Tooltip } from 'recharts';
 import type { PredictionResponse } from '../types';
 import { predictFight, formatHeight, formatProbability } from '../utils/api';
+import CardGenerator from './CardGenerator';
 
 interface Props {
   fighterA: string;
@@ -9,9 +10,10 @@ interface Props {
   realWinner: string | null;
   realMethod: string | null;
   realRound: number | null;
+  eventName?: string;
 }
 
-export default function FightDetailInline({ fighterA, fighterB, realWinner, realMethod, realRound }: Props) {
+export default function FightDetailInline({ fighterA, fighterB, realWinner, realMethod, realRound, eventName }: Props) {
   const [prediction, setPrediction] = useState<PredictionResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -100,7 +102,10 @@ export default function FightDetailInline({ fighterA, fighterB, realWinner, real
       )}
 
       {/* Winner prediction */}
-      <div className="text-center">
+      <div className="text-center relative">
+        <div className="absolute top-0 right-0">
+          <CardGenerator prediction={prediction} eventName={eventName} />
+        </div>
         <p className="text-xs text-ufc-muted">Prediccion del modelo</p>
         <p className="text-lg font-black text-white">{winner}</p>
         <p className="text-ufc-gold text-xl font-bold">{formatProbability(prediction.winner_probability)}</p>
