@@ -6,7 +6,7 @@ export default function Navbar() {
   const location = useLocation();
   const isActive = (path: string) => location.pathname === path;
   const [menuOpen, setMenuOpen] = useState(false);
-  const { isAdmin } = useAuth();
+  const { user, isAdmin, logout } = useAuth();
 
   const navLink = (path: string, label: string, mobile = false) => (
     <Link to={path}
@@ -50,7 +50,27 @@ export default function Navbar() {
             {navLink("/historico", "Historico")}
             {navLink("/sandbox", "Sandbox")}
             {navLink("/stats", "Stats")}
+            {navLink("/leaderboard", "Ranking")}
             {isAdmin && navLink("/admin", "Admin")}
+
+            {/* User status */}
+            {user ? (
+              <div className="flex items-center gap-2 ml-3 pl-3 border-l border-ufc-border/50">
+                <span className="text-xs text-ufc-muted">{user.username}</span>
+                <button onClick={logout} className="text-xs text-ufc-muted hover:text-white transition-colors">
+                  Salir
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 ml-3 pl-3 border-l border-ufc-border/50">
+                <Link to="/login" className="px-3 py-1.5 text-xs text-ufc-muted hover:text-white transition-colors">
+                  Login
+                </Link>
+                <Link to="/register" className="px-3 py-1.5 text-xs bg-ufc-gold/20 text-ufc-gold rounded-lg hover:bg-ufc-gold/30 transition-colors font-medium">
+                  Registro
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Hamburger button */}
@@ -78,7 +98,19 @@ export default function Navbar() {
           {navLink("/historico", "Historico", true)}
           {navLink("/sandbox", "Sandbox", true)}
           {navLink("/stats", "Stats", true)}
+          {navLink("/leaderboard", "Ranking", true)}
           {isAdmin && navLink("/admin", "Admin", true)}
+          {user ? (
+            <div className="pt-2 mt-2 border-t border-ufc-border/50 flex items-center justify-between px-4">
+              <span className="text-sm text-ufc-muted">{user.username}</span>
+              <button onClick={() => { logout(); setMenuOpen(false); }} className="text-sm text-ufc-red">Salir</button>
+            </div>
+          ) : (
+            <div className="pt-2 mt-2 border-t border-ufc-border/50 flex gap-2 px-4">
+              <Link to="/login" onClick={() => setMenuOpen(false)} className="flex-1 text-center py-2 text-sm text-ufc-muted hover:text-white rounded-lg hover:bg-ufc-border/50">Login</Link>
+              <Link to="/register" onClick={() => setMenuOpen(false)} className="flex-1 text-center py-2 text-sm text-ufc-gold bg-ufc-gold/20 rounded-lg font-medium">Registro</Link>
+            </div>
+          )}
         </div>
       )}
     </nav>

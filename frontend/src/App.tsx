@@ -9,7 +9,9 @@ import UpcomingPage from './pages/UpcomingPage';
 import NextEventsPage from './pages/NextEventsPage';
 import StatsPage from './pages/StatsPage';
 import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
 import AdminPage from './pages/AdminPage';
+import LeaderboardPage from './pages/LeaderboardPage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -21,7 +23,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 function AppContent() {
   const [loading, setLoading] = useState(true);
   const handleFinish = useCallback(() => setLoading(false), []);
-  useAnalytics(); // Auto-tracks page views on route change
+  useAnalytics();
 
   return (
     <>
@@ -34,7 +36,9 @@ function AppContent() {
             <Route path="/historico" element={<UpcomingPage />} />
             <Route path="/sandbox" element={<SandboxPage />} />
             <Route path="/stats" element={<StatsPage />} />
+            <Route path="/leaderboard" element={<LeaderboardPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
             <Route path="/admin" element={<ProtectedRoute><AdminPage /></ProtectedRoute>} />
           </Routes>
         </main>

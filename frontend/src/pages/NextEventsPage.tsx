@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import FightDetailInline from '../components/FightDetailInline';
 import EventCardGenerator from '../components/EventCardGenerator';
+import { useAuth } from '../contexts/AuthContext';
 
 interface UpcomingFight {
   fighter_a: string;
@@ -24,20 +25,27 @@ interface UpcomingEvent {
   predicted_fights: number;
 }
 
+const API_BASE = import.meta.env.PROD
+  ? 'https://web-production-2bc52.up.railway.app'
+  : '/api';
+
 export default function NextEventsPage() {
   const [events, setEvents] = useState<UpcomingEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [transitioning, setTransitioning] = useState<'left' | 'right' | null>(null);
   const [expandedIdx, setExpandedIdx] = useState<number | null>(null);
+  const { user, token } = useAuth();
+
+  // Picks state: { "fighterA|fighterB": "pickedWinner" }
+  const [picks, setPicks] = useState<Record<string, string>>({});
+  const [pickLoading, setPickLoading] = useState<string | null>(null);
 
   useEffect(() => {
-    const API_BASE = import.meta.env.PROD ? 'https://web-production-2bc52.up.railway.app' : '/api';
     fetch(API_BASE + '/upcoming')
       .then(r => r.json())
       .then(data => {
         if (data.events) {
-          // Filtrar solo eventos futuros y ordenar por fecha ascendente (más próximo primero)
           const now = new Date();
           const futureEvents = data.events.filter((e: UpcomingEvent) => {
             if (!e.date) return true;
@@ -56,6 +64,48 @@ export default function NextEventsPage() {
 
   const totalPages = events.length;
   const currentEvent = events[page - 1] || null;
+
+  // Load picks when event changes and user is logged in
+  useEffect(() => {
+    if (!currentEvent || !token) {
+      setPicks({});
+      return;
+    }
+    fetch(`${API_BASE}/picks/${encodeURIComponent(currentEvent.name)}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(r => r.ok ? r.json() : { picks: [] })
+      .then(data => {
+        const map: Record<string, string> = {};
+        for (const p of data.picks || []) {
+          map[`${p.fighter_a}|${p.fighter_b}`] = p.picked_winner;
+        }
+        setPicks(map);
+      })
+      .catch(() => setPicks({}));
+  }, [currentEvent?.name, token]);
+
+  const submitPick = useCallback(async (fight: UpcomingFight, pickedWinner: string) => {
+    if (!token || !currentEvent) return;
+    const key = `${fight.fighter_a}|${fight.fighter_b}`;
+    setPickLoading(key);
+    try {
+      const res = await fetch(`${API_BASE}/picks`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          event_name: currentEvent.name,
+          fighter_a: fight.fighter_a,
+          fighter_b: fight.fighter_b,
+          picked_winner: pickedWinner,
+        }),
+      });
+      if (res.ok) {
+        setPicks(prev => ({ ...prev, [key]: pickedWinner }));
+      }
+    } catch {}
+    setPickLoading(null);
+  }, [token, currentEvent]);
 
   function doNavigate(dir: 'prev' | 'next') {
     const newPage = dir === 'prev' ? page - 1 : page + 1;
@@ -169,7 +219,7 @@ export default function NextEventsPage() {
                 <h2 className="text-2xl font-black text-white">{currentEvent.name}</h2>
                 <p className="text-ufc-muted mt-1">
                   {currentEvent.date}
-                  {currentEvent.location && (' · ' + currentEvent.location)}
+                  {currentEvent.location && (' \u00b7 ' + currentEvent.location)}
                 </p>
               </div>
               <div className="flex flex-col items-end gap-2">
@@ -191,11 +241,14 @@ export default function NextEventsPage() {
             </div>
           </div>
 
-          {/* Fights List - Accordion */}
+          {/* Fights List */}
           <div className="space-y-2">
             {currentEvent.fights.map((fight, idx) => {
               const pred = fight.prediction;
               const isExpanded = expandedIdx === idx;
+              const fightKey = `${fight.fighter_a}|${fight.fighter_b}`;
+              const myPick = picks[fightKey];
+              const isSubmitting = pickLoading === fightKey;
 
               return (
                 <div key={idx} className={'glass-card overflow-hidden transition-all duration-200 ' +
@@ -255,6 +308,43 @@ export default function NextEventsPage() {
                     </div>
                   </div>
 
+                  {/* Pick Row */}
+                  {pred && (
+                    <div className="px-4 pb-2 flex items-center gap-2 justify-center">
+                      {user ? (
+                        <>
+                          <span className="text-[10px] text-ufc-muted mr-1">Tu pick:</span>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); submitPick(fight, fight.fighter_a); }}
+                            disabled={isSubmitting}
+                            className={`text-xs px-3 py-1 rounded-full font-medium transition-all ${
+                              myPick === fight.fighter_a
+                                ? 'bg-ufc-red text-white'
+                                : 'bg-ufc-dark text-ufc-muted hover:text-white hover:bg-ufc-red/30 border border-ufc-border'
+                            }`}
+                          >
+                            {fight.fighter_a}
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); submitPick(fight, fight.fighter_b); }}
+                            disabled={isSubmitting}
+                            className={`text-xs px-3 py-1 rounded-full font-medium transition-all ${
+                              myPick === fight.fighter_b
+                                ? 'bg-blue-500 text-white'
+                                : 'bg-ufc-dark text-ufc-muted hover:text-white hover:bg-blue-500/30 border border-ufc-border'
+                            }`}
+                          >
+                            {fight.fighter_b}
+                          </button>
+                        </>
+                      ) : (
+                        <a href="/register" className="text-[10px] text-ufc-gold hover:underline">
+                          Regístrate para hacer tus picks
+                        </a>
+                      )}
+                    </div>
+                  )}
+
                   {/* Expanded Detail */}
                   {isExpanded && pred && (
                     <div className="px-4 pb-4 border-t border-ufc-border/50">
@@ -286,7 +376,7 @@ export default function NextEventsPage() {
           </div>
 
           <div className="text-center mt-6 text-ufc-muted/50 text-xs">
-            Flechas \u2190 \u2192 para navegar &middot; Click en una pelea para ver prediccion completa
+            Flechas ← → para navegar · Click en una pelea para ver prediccion completa
           </div>
         </div>
       )}

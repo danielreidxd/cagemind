@@ -103,8 +103,9 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p className="text-center text-ufc-muted/50 text-xs mt-6">
-          Acceso restringido a administradores
+        <p className="text-center text-ufc-muted text-sm mt-6">
+          ¿No tienes cuenta?{' '}
+          <a href="/register" className="text-ufc-gold hover:underline">Regístrate</a>
         </p>
       </div>
     </div>
