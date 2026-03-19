@@ -78,8 +78,10 @@ def init_users_table():
         CREATE TABLE IF NOT EXISTS users (
             id          INTEGER PRIMARY KEY AUTOINCREMENT,
             username    TEXT NOT NULL UNIQUE,
+            email       TEXT UNIQUE,
             password    TEXT NOT NULL,
             role        TEXT NOT NULL DEFAULT 'user',
+            verified    BOOLEAN DEFAULT 0,
             created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -1381,37 +1383,43 @@ async def get_update_logs(user: dict = Depends(require_admin)):
 
 class RegisterRequest(BaseModel):
     username: str
+    email: str
     password: str
 
 
 @app.post("/auth/register")
 async def register(req: RegisterRequest):
-    """Registro público de usuarios."""
+    """Registro público de usuarios con email único."""
     username = req.username.strip()
+    email = req.email.strip().lower()
+
     if len(username) < 3 or len(username) > 20:
         raise HTTPException(status_code=400, detail="El usuario debe tener entre 3 y 20 caracteres")
     if len(req.password) < 6:
         raise HTTPException(status_code=400, detail="La contraseña debe tener al menos 6 caracteres")
-    if not username.isalnum():
-        raise HTTPException(status_code=400, detail="El usuario solo puede contener letras y números")
+    if not username.replace("_", "").isalnum():
+        raise HTTPException(status_code=400, detail="El usuario solo puede contener letras, números y guión bajo")
+    if "@" not in email or "." not in email.split("@")[-1]:
+        raise HTTPException(status_code=400, detail="Email inválido")
 
     conn = get_db()
-    existing = conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone()
-    if existing:
+    if conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone():
         conn.close()
         raise HTTPException(status_code=409, detail="Ese usuario ya existe")
+    if conn.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone():
+        conn.close()
+        raise HTTPException(status_code=409, detail="Ese email ya está registrado")
 
     hashed = pwd_context.hash(req.password)
     conn.execute(
-        "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
-        (username, hashed, "user"),
+        "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)",
+        (username, email, hashed, "user"),
     )
     conn.commit()
-    user_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
     conn.close()
 
     token = create_token(username, "user")
-    return {"token": token, "username": username, "role": "user", "user_id": user_id}
+    return {"token": token, "username": username, "role": "user"}
 
 
 # ============================================================

@@ -8,6 +8,7 @@ const API_BASE = import.meta.env.PROD
 
 export default function RegisterPage() {
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +40,7 @@ export default function RegisterPage() {
       const res = await fetch(`${API_BASE}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: username.trim(), password }),
+        body: JSON.stringify({ username: username.trim(), email: email.trim(), password }),
       });
 
       if (!res.ok) {
@@ -96,6 +97,20 @@ export default function RegisterPage() {
 
             <div>
               <label className="block text-xs text-ufc-muted font-bold uppercase tracking-wider mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input-search"
+                placeholder="tu@email.com"
+                autoComplete="email"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-ufc-muted font-bold uppercase tracking-wider mb-2">
                 Contraseña
               </label>
               <input
@@ -130,7 +145,7 @@ export default function RegisterPage() {
 
             <button
               type="submit"
-              disabled={loading || !username.trim() || !password || !confirm}
+              disabled={loading || !username.trim() || !email.trim() || !password || !confirm}
               className="btn-primary w-full text-base py-3"
             >
               {loading ? (
