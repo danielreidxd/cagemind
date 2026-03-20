@@ -375,7 +375,10 @@ def compute_live_features(name_a: str, name_b: str) -> np.ndarray:
     feats_a = compute_features_for_fighter(info_a, stats_a, hist_a)
     feats_b = compute_features_for_fighter(info_b, stats_b, hist_b)
 
-    # Agregar features de Sherdog (pre-UFC)
+    # Agregar features de Sherdog (pre-UFC) con descuento por experiencia UFC
+    # Lógica: cuantas más peleas UFC tiene un peleador, menos pesan sus stats pre-UFC.
+    # Con 0 peleas UFC, Sherdog pesa 100% (es todo lo que tenemos).
+    # Con 5+ peleas UFC, Sherdog pesa 30% (los datos UFC son más confiables).
     try:
         conn2 = get_db()
         sherdog_a = conn2.execute(
@@ -384,21 +387,45 @@ def compute_live_features(name_a: str, name_b: str) -> np.ndarray:
         sherdog_b = conn2.execute(
             "SELECT * FROM sherdog_features WHERE name = ?", (name_b,)
         ).fetchone()
+
+        # Contar peleas UFC para calcular descuento
+        ufc_fights_a = conn2.execute(
+            "SELECT COUNT(*) FROM fights WHERE fighter_a_name = ? OR fighter_b_name = ?",
+            (name_a, name_a)
+        ).fetchone()[0]
+        ufc_fights_b = conn2.execute(
+            "SELECT COUNT(*) FROM fights WHERE fighter_a_name = ? OR fighter_b_name = ?",
+            (name_b, name_b)
+        ).fetchone()[0]
         conn2.close()
+
+        # Factor de descuento: 1.0 (sin UFC) → 0.3 (5+ peleas UFC)
+        # Fórmula: max(0.3, 1.0 - ufc_fights * 0.14)
+        discount_a = max(0.3, 1.0 - ufc_fights_a * 0.14)
+        discount_b = max(0.3, 1.0 - ufc_fights_b * 0.14)
 
         sherdog_keys = [
             "pre_ufc_fights", "pre_ufc_wr", "pre_ufc_ko_rate", "pre_ufc_sub_rate",
             "pre_ufc_dec_rate", "pre_ufc_finish_rate", "pre_ufc_ko_loss_rate",
             "pre_ufc_sub_loss_rate", "pre_ufc_streak", "total_pro_fights", "org_level",
         ]
+        # Keys que NO se descuentan (son conteos, no rates)
+        no_discount_keys = {"pre_ufc_fights", "total_pro_fights"}
+
         if sherdog_a:
             sa = dict(sherdog_a)
             for k in sherdog_keys:
-                feats_a[k] = sa.get(k, 0) or 0
+                val = sa.get(k, 0) or 0
+                if k not in no_discount_keys:
+                    val = val * discount_a
+                feats_a[k] = val
         if sherdog_b:
             sb = dict(sherdog_b)
             for k in sherdog_keys:
-                feats_b[k] = sb.get(k, 0) or 0
+                val = sb.get(k, 0) or 0
+                if k not in no_discount_keys:
+                    val = val * discount_b
+                feats_b[k] = val
     except Exception:
         pass  # Si no existe la tabla, seguir sin Sherdog
 
