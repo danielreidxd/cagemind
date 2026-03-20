@@ -1,0 +1,13 @@
+{
+  "base_model": "LogReg",
+  "accuracy_uncalibrated": 0.6472457627118644,
+  "accuracy_calibrated": 0.6514830508474576,
+  "brier_uncalibrated": 0.22140475310586447,
+  "brier_calibrated": 0.21896540642816872,
+  "brier_linear_old": 0.22151687352053548,
+  "brier_improvement_vs_linear": 0.002551467092366755,
+  "prob_cap": 0.85,
+  "train_size": 5343,
+  "test_size": 944,
+  "features": 167
+}
