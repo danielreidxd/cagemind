@@ -190,13 +190,16 @@ COMPRESSION = 0.75   # Factor de compresión (1.0 = sin cambio, 0.5 = muy conser
 PROB_CAP = 0.85
 
 
+PROB_CAP = 0.85
+
+
 def calibrate_proba(prob_a: float, prob_b: float) -> tuple[float, float]:
     """
-    Aplica cap de seguridad a probabilidades ya calibradas por Platt Scaling.
-    El modelo calibrado produce probs realistas; solo limitamos extremos.
+    Aplica cap simétrico de seguridad.
+    Ninguna probabilidad puede superar 85% ni bajar de 15%.
     """
-    ca = min(prob_a, PROB_CAP)
-    cb = min(prob_b, PROB_CAP)
+    ca = max(1 - PROB_CAP, min(prob_a, PROB_CAP))
+    cb = max(1 - PROB_CAP, min(prob_b, PROB_CAP))
     total = ca + cb
     ca = ca / total
     cb = cb / total
