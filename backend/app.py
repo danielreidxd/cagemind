@@ -183,26 +183,26 @@ PROB_CAP = 0.85      # Probabilidad máxima permitida
 COMPRESSION = 0.75   # Factor de compresión (1.0 = sin cambio, 0.5 = muy conservador)
 
 
-# El modelo winner ahora usa Platt Scaling (CalibratedClassifierCV).
-# Las probabilidades ya salen calibradas — solo aplicamos cap de seguridad.
-# En MMA cualquier peleador puede ganar, así que ninguna prob supera 85%.
-
-PROB_CAP = 0.85
-
-
-PROB_CAP = 0.85
-
-
 def calibrate_proba(prob_a: float, prob_b: float) -> tuple[float, float]:
     """
-    Aplica cap simétrico de seguridad.
-    Ninguna probabilidad puede superar 85% ni bajar de 15%.
+    Calibra probabilidades binarias para hacerlas más realistas.
+    1. Comprime hacia 50% usando el factor COMPRESSION.
+    2. Aplica cap duro de PROB_CAP.
+    3. Re-normaliza para que sumen 1.0.
     """
-    ca = max(1 - PROB_CAP, min(prob_a, PROB_CAP))
-    cb = max(1 - PROB_CAP, min(prob_b, PROB_CAP))
+    # Paso 1: Comprimir hacia 0.5
+    ca = 0.5 + (prob_a - 0.5) * COMPRESSION
+    cb = 0.5 + (prob_b - 0.5) * COMPRESSION
+
+    # Paso 2: Aplicar cap
+    ca = min(ca, PROB_CAP)
+    cb = min(cb, PROB_CAP)
+
+    # Paso 3: Re-normalizar para que sumen 1.0
     total = ca + cb
     ca = ca / total
     cb = cb / total
+
     return round(ca, 4), round(cb, 4)
 
 
@@ -332,6 +332,9 @@ class PredictionResponse(BaseModel):
     round_prediction: dict
     fighter_a_profile: dict
     fighter_b_profile: dict
+    confidence: str = "HIGH"
+    confidence_score: float = 1.0
+    confidence_reason: str = ""
 
 
 # ============================================================
@@ -423,6 +426,115 @@ def compute_live_features(name_a: str, name_b: str) -> np.ndarray:
             feature_vector.append(0)
 
     return np.array(feature_vector).reshape(1, -1)
+
+
+# ============================================================
+# DETECCIÓN DE NEWCOMERS + CONFIDENCE SCORE
+# ============================================================
+
+MIN_UFC_FIGHTS_FOR_RELIABLE = 3
+
+
+def assess_data_quality(name_a: str, name_b: str) -> dict:
+    """
+    Evalúa la calidad de datos de ambos peleadores.
+    Retorna confidence level (HIGH/MEDIUM/LOW) y score numérico.
+    """
+    conn = get_db()
+
+    fights_a = conn.execute(
+        "SELECT COUNT(*) FROM fights WHERE fighter_a_name = ? OR fighter_b_name = ?",
+        (name_a, name_a)
+    ).fetchone()[0]
+
+    fights_b = conn.execute(
+        "SELECT COUNT(*) FROM fights WHERE fighter_a_name = ? OR fighter_b_name = ?",
+        (name_b, name_b)
+    ).fetchone()[0]
+
+    fighters = load_fighter_cache()
+    info_a = fighters.get(name_a, {})
+    info_b = fighters.get(name_b, {})
+    has_stats_a = (info_a.get("slpm") or 0) > 0
+    has_stats_b = (info_b.get("slpm") or 0) > 0
+
+    has_sherdog_a = False
+    has_sherdog_b = False
+    try:
+        sherdog_a = conn.execute(
+            "SELECT pre_ufc_fights FROM sherdog_features WHERE name = ?", (name_a,)
+        ).fetchone()
+        sherdog_b = conn.execute(
+            "SELECT pre_ufc_fights FROM sherdog_features WHERE name = ?", (name_b,)
+        ).fetchone()
+        has_sherdog_a = sherdog_a is not None and (sherdog_a[0] or 0) > 0
+        has_sherdog_b = sherdog_b is not None and (sherdog_b[0] or 0) > 0
+    except Exception:
+        pass
+
+    conn.close()
+
+    is_newcomer_a = fights_a < MIN_UFC_FIGHTS_FOR_RELIABLE
+    is_newcomer_b = fights_b < MIN_UFC_FIGHTS_FOR_RELIABLE
+
+    score_a = min(fights_a / 5, 1.0) * 0.4 + (0.3 if has_stats_a else 0) + (0.15 if has_sherdog_a else 0)
+    score_b = min(fights_b / 5, 1.0) * 0.4 + (0.3 if has_stats_b else 0) + (0.15 if has_sherdog_b else 0)
+    combined_score = min(score_a, score_b)
+
+    if score_a > 0.7 and score_b > 0.7:
+        combined_score = min(combined_score + 0.15, 1.0)
+
+    if combined_score >= 0.70:
+        confidence = "HIGH"
+        reason = "Ambos peleadores tienen historial UFC solido"
+    elif combined_score >= 0.40:
+        confidence = "MEDIUM"
+        if is_newcomer_a or is_newcomer_b:
+            newcomer = name_a if is_newcomer_a else name_b
+            reason = f"{newcomer} tiene pocas peleas UFC ({min(fights_a, fights_b)})"
+        else:
+            reason = "Datos limitados para uno o ambos peleadores"
+    else:
+        confidence = "LOW"
+        if is_newcomer_a and is_newcomer_b:
+            reason = f"Ambos tienen muy pocas peleas UFC ({fights_a} y {fights_b})"
+        elif is_newcomer_a or is_newcomer_b:
+            newcomer = name_a if is_newcomer_a else name_b
+            n_fights = fights_a if is_newcomer_a else fights_b
+            reason = f"{newcomer} tiene {n_fights} peleas UFC - prediccion poco confiable"
+        else:
+            reason = "Datos insuficientes"
+
+    return {
+        "confidence": confidence,
+        "confidence_score": round(combined_score, 3),
+        "is_newcomer_a": is_newcomer_a,
+        "is_newcomer_b": is_newcomer_b,
+        "ufc_fights_a": fights_a,
+        "ufc_fights_b": fights_b,
+        "reason": reason,
+    }
+
+
+def apply_newcomer_adjustment(prob_a: float, prob_b: float, quality: dict) -> tuple:
+    """
+    Comprime probabilidades hacia 50/50 cuando hay datos insuficientes.
+    HIGH confidence = sin cambio. LOW = máxima compresión.
+    """
+    if quality["confidence"] == "HIGH":
+        return prob_a, prob_b
+
+    score = quality["confidence_score"]
+    compression = max(0, min(1, score / 0.7))
+
+    adj_a = 0.5 + (prob_a - 0.5) * compression
+    adj_b = 0.5 + (prob_b - 0.5) * compression
+
+    total = adj_a + adj_b
+    adj_a = adj_a / total
+    adj_b = adj_b / total
+
+    return round(adj_a, 4), round(adj_b, 4)
 
 
 def get_fight_history(conn, fighter_name):
@@ -755,12 +867,16 @@ async def predict_fight(request: PredictionRequest):
     # Calcular features
     X = compute_live_features(name_a, name_b)
 
+    # Evaluar calidad de datos
+    quality = assess_data_quality(name_a, name_b)
+
     # === Modelo 1: Quién gana ===
     winner_model = bundle["winner_model"]
     winner_proba = winner_model.predict_proba(X)[0]
     raw_a = float(winner_proba[1])  # P(A gana) raw
     raw_b = float(winner_proba[0])  # P(B gana) raw
     prob_a, prob_b = calibrate_proba(raw_a, raw_b)
+    prob_a, prob_b = apply_newcomer_adjustment(prob_a, prob_b, quality)
     winner = name_a if prob_a > prob_b else name_b
     winner_prob = max(prob_a, prob_b)
     loser_prob = min(prob_a, prob_b)
@@ -822,6 +938,9 @@ async def predict_fight(request: PredictionRequest):
             "stance": info_b.get("stance"),
             "win_probability": prob_b,
         },
+        confidence=quality["confidence"],
+        confidence_score=quality["confidence_score"],
+        confidence_reason=quality["reason"],
     )
 
 
@@ -886,11 +1005,13 @@ async def get_events(
             if fa in fighters and fb in fighters:
                 X = compute_live_features(fa, fb)
                 bundle = load_models()
+                quality = assess_data_quality(fa, fb)
 
                 winner_proba = bundle["winner_model"].predict_proba(X)[0]
                 raw_a = float(winner_proba[1])
                 raw_b = float(winner_proba[0])
                 prob_a, prob_b = calibrate_proba(raw_a, raw_b)
+                prob_a, prob_b = apply_newcomer_adjustment(prob_a, prob_b, quality)
                 predicted_winner = fa if prob_a > prob_b else fb
 
                 method_proba = bundle["method_model"].predict_proba(X)[0]
@@ -904,7 +1025,8 @@ async def get_events(
                     "predicted_winner": predicted_winner,
                     "prob_a": prob_a,
                     "prob_b": prob_b,
-                    "confidence": round(max(prob_a, prob_b), 4),
+                    "confidence": quality["confidence"],
+                    "confidence_score": quality["confidence_score"],
                     "method_prediction": method_dict,
                     "correct": predicted_winner == fight["winner_name"] if fight["winner_name"] else None,
                 }
@@ -986,11 +1108,13 @@ async def get_upcoming():
             try:
                 if fa in fighters and fb in fighters:
                     X = compute_live_features(fa, fb)
+                    quality = assess_data_quality(fa, fb)
 
                     winner_proba = bundle["winner_model"].predict_proba(X)[0]
                     raw_a = float(winner_proba[1])
                     raw_b = float(winner_proba[0])
                     prob_a, prob_b = calibrate_proba(raw_a, raw_b)
+                    prob_a, prob_b = apply_newcomer_adjustment(prob_a, prob_b, quality)
                     predicted_winner = fa if prob_a > prob_b else fb
 
                     method_proba = bundle["method_model"].predict_proba(X)[0]
@@ -1013,7 +1137,8 @@ async def get_upcoming():
                         "predicted_winner": predicted_winner,
                         "prob_a": prob_a,
                         "prob_b": prob_b,
-                        "confidence": round(max(prob_a, prob_b), 4),
+                        "confidence": quality["confidence"],
+                        "confidence_score": quality["confidence_score"],
                         "method_prediction": method_dict,
                         "goes_to_decision": {
                             "finish": round(float(dist_proba[0]), 4),
