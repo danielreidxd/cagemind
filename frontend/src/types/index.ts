@@ -30,6 +30,9 @@ export interface PredictionResponse {
   round_prediction: Record<string, number>;
   fighter_a_profile: FighterProfile;
   fighter_b_profile: FighterProfile;
+  confidence?: string;
+  confidence_score?: number;
+  confidence_reason?: string;
 }
 
 export interface FighterSearchResult {

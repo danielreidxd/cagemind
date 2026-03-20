@@ -11,7 +11,8 @@ interface UpcomingFight {
     predicted_winner: string;
     prob_a: number;
     prob_b: number;
-    confidence: number;
+    confidence: string;
+    confidence_score?: number;
     method_prediction: Record<string, number>;
   } | null;
 }
@@ -279,6 +280,13 @@ export default function NextEventsPage() {
                       <span className="text-xs text-ufc-muted font-medium">vs</span>
                       {fight.weight_class && (
                         <p className="text-[10px] text-ufc-muted/50 mt-0.5">{fight.weight_class}</p>
+                      )}
+                      {pred && pred.confidence && typeof pred.confidence === 'string' && pred.confidence !== 'HIGH' && (
+                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full mt-0.5 inline-block ${
+                          pred.confidence === 'LOW' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'
+                        }`}>
+                          {pred.confidence}
+                        </span>
                       )}
                     </div>
 

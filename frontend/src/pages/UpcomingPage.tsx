@@ -5,7 +5,8 @@ interface FightPrediction {
   predicted_winner: string;
   prob_a: number;
   prob_b: number;
-  confidence: number;
+  confidence: string | number;
+  confidence_score?: number;
   method_prediction: Record<string, number>;
   correct: boolean | null;
 }
