@@ -183,26 +183,23 @@ PROB_CAP = 0.85      # Probabilidad máxima permitida
 COMPRESSION = 0.75   # Factor de compresión (1.0 = sin cambio, 0.5 = muy conservador)
 
 
+# El modelo winner ahora usa Platt Scaling (CalibratedClassifierCV).
+# Las probabilidades ya salen calibradas — solo aplicamos cap de seguridad.
+# En MMA cualquier peleador puede ganar, así que ninguna prob supera 85%.
+
+PROB_CAP = 0.85
+
+
 def calibrate_proba(prob_a: float, prob_b: float) -> tuple[float, float]:
     """
-    Calibra probabilidades binarias para hacerlas más realistas.
-    1. Comprime hacia 50% usando el factor COMPRESSION.
-    2. Aplica cap duro de PROB_CAP.
-    3. Re-normaliza para que sumen 1.0.
+    Aplica cap de seguridad a probabilidades ya calibradas por Platt Scaling.
+    El modelo calibrado produce probs realistas; solo limitamos extremos.
     """
-    # Paso 1: Comprimir hacia 0.5
-    ca = 0.5 + (prob_a - 0.5) * COMPRESSION
-    cb = 0.5 + (prob_b - 0.5) * COMPRESSION
-
-    # Paso 2: Aplicar cap
-    ca = min(ca, PROB_CAP)
-    cb = min(cb, PROB_CAP)
-
-    # Paso 3: Re-normalizar para que sumen 1.0
+    ca = min(prob_a, PROB_CAP)
+    cb = min(prob_b, PROB_CAP)
     total = ca + cb
     ca = ca / total
     cb = cb / total
-
     return round(ca, 4), round(cb, 4)
 
 
