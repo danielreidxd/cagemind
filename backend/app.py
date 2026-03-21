@@ -1397,7 +1397,7 @@ async def get_upcoming():
                 value_a = (cm_a / imp_a) - 1 if imp_a > 0 else 0
                 value_b = (cm_b / imp_b) - 1 if imp_b > 0 else 0
                 best_value = max(value_a, value_b)
-                if best_value > VALUE_THRESHOLD and pred.get("confidence") != "LOW":
+                if best_value > VALUE_THRESHOLD and pred.get("confidence") == "HIGH":
                     vb_fighter = fa if value_a > value_b else fb
                     vb_value = value_a if value_a > value_b else value_b
                     vb_odds = fight_odds["odds_a"] if value_a > value_b else fight_odds["odds_b"]
@@ -2143,7 +2143,7 @@ async def get_value_bets():
                     # Calcular value
                     value = (cagemind_prob / implied_prob) - 1
 
-                    if value > VALUE_THRESHOLD and quality["confidence"] != "LOW":
+                    if value > VALUE_THRESHOLD and quality["confidence"] == "HIGH":
                         value_bets.append({
                             "fighter": matched,
                             "opponent": name_b if matched == name_a else name_a,
