@@ -69,11 +69,6 @@
         "fighter_a": "Shanelle Dyer",
         "fighter_b": "Ravena Oliveira",
         "weight_class": "Women's Strawweight"
-      },
-      {
-        "fighter_a": "Melissa Mullins",
-        "fighter_b": "Luana Carolina",
-        "weight_class": "Women's Bantamweight"
       }
     ]
   },
@@ -125,7 +120,7 @@
       },
       {
         "fighter_a": "Marcin Tybura",
-        "fighter_b": "Valter Walker",
+        "fighter_b": "Tyrell Fortune",
         "weight_class": "Heavyweight"
       },
       {
@@ -137,6 +132,11 @@
         "fighter_a": "Navajo Stirling",
         "fighter_b": "Bruno Lopes",
         "weight_class": "Light Heavyweight"
+      },
+      {
+        "fighter_a": "Ricky Simon",
+        "fighter_b": "Adrian Yanez",
+        "weight_class": "Bantamweight"
       },
       {
         "fighter_a": "Alexia Thainara",
@@ -435,6 +435,11 @@
         "fighter_a": "King Green",
         "fighter_b": "Jeremy Stephens",
         "weight_class": "Lightweight"
+      },
+      {
+        "fighter_a": "Clayton Carpenter",
+        "fighter_b": "Jose Ochoa",
+        "weight_class": "Flyweight"
       }
     ]
   },
