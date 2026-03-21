@@ -15,6 +15,19 @@ interface UpcomingFight {
     confidence_score?: number;
     method_prediction: Record<string, number>;
   } | null;
+  odds?: {
+    bookmaker: string;
+    odds_a: number;
+    odds_b: number;
+    implied_a: number;
+    implied_b: number;
+  } | null;
+  value_bet?: {
+    fighter: string;
+    value_pct: number;
+    american_odds: number;
+    bookmaker: string;
+  } | null;
 }
 
 interface UpcomingEvent {
@@ -260,8 +273,14 @@ export default function NextEventsPage() {
                     className={'px-4 py-3 flex items-center gap-3 select-none ' +
                       (pred ? 'cursor-pointer' : '')}
                   >
-                    <div className={'w-2.5 h-2.5 rounded-full flex-shrink-0 ' +
-                      (pred ? 'bg-ufc-gold' : 'bg-ufc-border')} />
+                    {fight.value_bet ? (
+                      <span className="text-[8px] font-black bg-green-500/20 text-green-400 border border-green-500/30 px-1.5 py-0.5 rounded flex-shrink-0 leading-tight">
+                        VALUE
+                      </span>
+                    ) : (
+                      <div className={'w-2.5 h-2.5 rounded-full flex-shrink-0 ' +
+                        (pred ? 'bg-ufc-gold' : 'bg-ufc-border')} />
+                    )}
 
                     <div className="flex-1 text-right">
                       <span className={'text-sm font-medium ' +
@@ -376,6 +395,10 @@ export default function NextEventsPage() {
             <div className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-ufc-gold" />
               <span>Con prediccion</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[8px] font-black bg-green-500/20 text-green-400 border border-green-500/30 px-1 py-0.5 rounded leading-tight">VALUE</span>
+              <span>Value bet detectado</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-ufc-border" />

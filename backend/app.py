@@ -22,8 +22,9 @@ import os
 import pickle
 import sqlite3
 import sys
+import requests as http_requests
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from typing import Optional
 
 import numpy as np
@@ -1286,6 +1287,39 @@ async def get_upcoming():
     fighters = load_fighter_cache()
     bundle = load_models()
 
+    # Fetch odds una vez para todo el endpoint
+    odds_data = fetch_odds()
+    odds_by_fight = {}  # "fighter_a|fighter_b" -> {bookmaker, odds_a, odds_b, implied_a, implied_b}
+    for od in odds_data:
+        home = od.get("home_team", "")
+        away = od.get("away_team", "")
+        matched_home = match_fighter_names(home, fighters)
+        matched_away = match_fighter_names(away, fighters)
+        if matched_home and matched_away:
+            # Promediar odds de primer bookmaker disponible
+            for bk in od.get("bookmakers", [])[:1]:
+                for mkt in bk.get("markets", []):
+                    if mkt.get("key") != "h2h":
+                        continue
+                    outcomes = {normalize_name(o["name"]): o["price"] for o in mkt.get("outcomes", [])}
+                    odds_home = outcomes.get(normalize_name(home), 0)
+                    odds_away = outcomes.get(normalize_name(away), 0)
+                    if odds_home and odds_away:
+                        key1 = f"{matched_home}|{matched_away}"
+                        key2 = f"{matched_away}|{matched_home}"
+                        prob_home = american_to_prob(odds_home)
+                        prob_away = american_to_prob(odds_away)
+                        odds_by_fight[key1] = {
+                            "bookmaker": bk.get("title", ""),
+                            "odds_a": odds_home, "odds_b": odds_away,
+                            "implied_a": round(prob_home, 4), "implied_b": round(prob_away, 4),
+                        }
+                        odds_by_fight[key2] = {
+                            "bookmaker": bk.get("title", ""),
+                            "odds_a": odds_away, "odds_b": odds_home,
+                            "implied_a": round(prob_away, 4), "implied_b": round(prob_home, 4),
+                        }
+
     result_events = []
     for event in events:
         fights_with_pred = []
@@ -1352,11 +1386,35 @@ async def get_upcoming():
             except Exception:
                 pass
 
+            # Value bet info
+            fight_odds = odds_by_fight.get(f"{fa}|{fb}")
+            value_bet = None
+            if fight_odds and pred:
+                cm_a = pred["prob_a"]
+                cm_b = pred["prob_b"]
+                imp_a = fight_odds["implied_a"]
+                imp_b = fight_odds["implied_b"]
+                value_a = (cm_a / imp_a) - 1 if imp_a > 0 else 0
+                value_b = (cm_b / imp_b) - 1 if imp_b > 0 else 0
+                best_value = max(value_a, value_b)
+                if best_value > VALUE_THRESHOLD and pred.get("confidence") != "LOW":
+                    vb_fighter = fa if value_a > value_b else fb
+                    vb_value = value_a if value_a > value_b else value_b
+                    vb_odds = fight_odds["odds_a"] if value_a > value_b else fight_odds["odds_b"]
+                    value_bet = {
+                        "fighter": vb_fighter,
+                        "value_pct": round(vb_value * 100, 1),
+                        "american_odds": vb_odds,
+                        "bookmaker": fight_odds["bookmaker"],
+                    }
+
             fights_with_pred.append({
                 "fighter_a": fa,
                 "fighter_b": fb,
                 "weight_class": fight.get("weight_class"),
                 "prediction": pred,
+                "odds": fight_odds,
+                "value_bet": value_bet,
             })
 
         result_events.append({
@@ -1939,4 +1997,178 @@ async def admin_picks_stats(user: dict = Depends(require_admin)):
         "total_users": total_users,
         "by_event": [dict(r) for r in by_event],
         "top_fights": [dict(r) for r in top_fights],
+    }
+
+
+# ============================================================
+# VALUE BET ENGINE
+# ============================================================
+
+ODDS_API_KEY = os.environ.get("ODDS_API_KEY", "")
+ODDS_API_URL = "https://api.the-odds-api.com/v4/sports/mma_mixed_martial_arts/odds"
+VALUE_THRESHOLD = 0.10  # 10% edge mínimo para considerar value bet
+
+
+def fetch_odds() -> list:
+    """Obtiene odds actuales de The Odds API."""
+    if not ODDS_API_KEY:
+        return []
+    try:
+        resp = http_requests.get(ODDS_API_URL, params={
+            "apiKey": ODDS_API_KEY,
+            "regions": "us",
+            "markets": "h2h",
+            "oddsFormat": "american",
+        }, timeout=10)
+        if resp.status_code == 200:
+            return resp.json()
+    except Exception:
+        pass
+    return []
+
+
+def american_to_prob(odds: int) -> float:
+    """Convierte odds americanas a probabilidad implícita."""
+    if odds < 0:
+        return abs(odds) / (abs(odds) + 100)
+    else:
+        return 100 / (odds + 100)
+
+
+def normalize_name(name: str) -> str:
+    """Normaliza nombre para matching entre APIs."""
+    return name.strip().lower().replace(".", "").replace("'", "")
+
+
+def match_fighter_names(api_name: str, db_fighters: dict) -> str | None:
+    """Intenta matchear un nombre de la API de odds con un nombre de la BD."""
+    norm = normalize_name(api_name)
+    for db_name in db_fighters:
+        if normalize_name(db_name) == norm:
+            return db_name
+    # Partial match: apellido
+    parts = norm.split()
+    if len(parts) >= 2:
+        last = parts[-1]
+        first = parts[0]
+        for db_name in db_fighters:
+            db_norm = normalize_name(db_name)
+            db_parts = db_norm.split()
+            if len(db_parts) >= 2 and db_parts[-1] == last and db_parts[0] == first:
+                return db_name
+    return None
+
+
+@app.get("/odds")
+async def get_odds():
+    """Retorna odds actuales de casas de apuestas para peleas UFC próximas."""
+    odds_data = fetch_odds()
+    if not odds_data:
+        return {"odds": [], "source": "the-odds-api", "error": "No odds available or API key not configured"}
+    return {"odds": odds_data, "source": "the-odds-api", "count": len(odds_data)}
+
+
+@app.get("/value-bets")
+async def get_value_bets():
+    """
+    Compara predicciones de CageMind con odds de casas de apuestas.
+    Retorna peleas donde CageMind ve una ventaja > 10% sobre las odds implícitas.
+    """
+    odds_data = fetch_odds()
+    if not odds_data:
+        return {
+            "value_bets": [],
+            "total_fights_analyzed": 0,
+            "source": "the-odds-api",
+            "error": "No odds available. Configure ODDS_API_KEY in environment variables."
+        }
+
+    fighters = load_fighter_cache()
+    bundle = load_models()
+    value_bets = []
+    fights_analyzed = 0
+
+    for event in odds_data:
+        home = event.get("home_team", "")
+        away = event.get("away_team", "")
+        commence = event.get("commence_time", "")
+
+        # Matchear nombres con BD
+        name_a = match_fighter_names(home, fighters)
+        name_b = match_fighter_names(away, fighters)
+
+        if not name_a or not name_b:
+            continue
+
+        # Obtener predicción CageMind
+        try:
+            X = compute_live_features(name_a, name_b)
+            quality = assess_data_quality(name_a, name_b)
+
+            winner_proba = bundle["winner_model"].predict_proba(X)[0]
+            raw_a = float(winner_proba[1])
+            raw_b = float(winner_proba[0])
+            prob_a, prob_b = calibrate_proba(raw_a, raw_b)
+            prob_a, prob_b = apply_newcomer_adjustment(prob_a, prob_b, quality)
+        except Exception:
+            continue
+
+        fights_analyzed += 1
+
+        # Promediar odds de todas las casas
+        for bookmaker in event.get("bookmakers", []):
+            book_name = bookmaker.get("title", "Unknown")
+            markets = bookmaker.get("markets", [])
+
+            for market in markets:
+                if market.get("key") != "h2h":
+                    continue
+
+                outcomes = market.get("outcomes", [])
+                if len(outcomes) < 2:
+                    continue
+
+                # Matchear outcomes con fighters
+                for outcome in outcomes:
+                    out_name = outcome.get("name", "")
+                    out_price = outcome.get("price", 0)
+
+                    matched = match_fighter_names(out_name, fighters)
+                    if not matched or out_price == 0:
+                        continue
+
+                    implied_prob = american_to_prob(out_price)
+                    cagemind_prob = prob_a if matched == name_a else prob_b
+
+                    # Calcular value
+                    value = (cagemind_prob / implied_prob) - 1
+
+                    if value > VALUE_THRESHOLD and quality["confidence"] != "LOW":
+                        value_bets.append({
+                            "fighter": matched,
+                            "opponent": name_b if matched == name_a else name_a,
+                            "bookmaker": book_name,
+                            "american_odds": out_price,
+                            "implied_prob": round(implied_prob, 4),
+                            "cagemind_prob": round(cagemind_prob, 4),
+                            "value_pct": round(value * 100, 1),
+                            "confidence": quality["confidence"],
+                            "commence_time": commence,
+                        })
+
+    # Deduplicate: keep best value per fighter across bookmakers
+    best_bets = {}
+    for bet in value_bets:
+        key = bet["fighter"]
+        if key not in best_bets or bet["value_pct"] > best_bets[key]["value_pct"]:
+            best_bets[key] = bet
+
+    final_bets = sorted(best_bets.values(), key=lambda x: x["value_pct"], reverse=True)
+
+    return {
+        "value_bets": final_bets,
+        "total_fights_analyzed": fights_analyzed,
+        "total_value_bets": len(final_bets),
+        "threshold": f"{VALUE_THRESHOLD*100:.0f}%",
+        "source": "the-odds-api",
     }
