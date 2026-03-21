@@ -121,6 +121,23 @@ export default function FightDetailInline({ fighterA, fighterB, realWinner, real
         <span className="text-xs font-bold text-blue-400 w-12">{formatProbability(b.win_probability)}</span>
       </div>
 
+      {/* Explanations */}
+      {prediction.explanations && prediction.explanations.length > 0 && (
+        <div className="bg-ufc-dark/50 rounded-lg p-3">
+          <p className="text-[10px] text-ufc-muted font-bold uppercase mb-2">Por que gana {winner}</p>
+          <div className="space-y-1.5">
+            {prediction.explanations.map((exp, i) => (
+              <div key={i} className="flex items-center gap-2">
+                <span className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
+                  i === 0 ? 'bg-ufc-gold/20 text-ufc-gold' : 'bg-ufc-dark text-ufc-muted'
+                }`}>{i + 1}</span>
+                <p className="text-xs text-white/80">{exp.reason}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Fighter comparison side by side compact */}
       <div className="grid grid-cols-2 gap-3">
         <div className={'rounded-lg p-3 text-center ' + (aIsWinner ? 'bg-ufc-red/10 border border-ufc-red/30' : 'bg-ufc-dark/50')}>

@@ -33,6 +33,7 @@ export interface PredictionResponse {
   confidence?: string;
   confidence_score?: number;
   confidence_reason?: string;
+  explanations?: { reason: string; feature: string; impact: number }[];
 }
 
 export interface FighterSearchResult {

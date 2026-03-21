@@ -41,7 +41,40 @@ export default function PredictionResult({ prediction, eventName }: Props) {
         <p className="text-ufc-gold text-2xl font-bold mt-1 relative">
           {formatProbability(prediction.winner_probability)}
         </p>
+        {prediction.confidence && prediction.confidence !== 'HIGH' && (
+          <span className={`text-xs font-bold px-3 py-1 rounded-full mt-2 inline-block relative ${
+            prediction.confidence === 'LOW'
+              ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+              : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+          }`}>
+            {prediction.confidence === 'LOW' ? 'Confianza baja' : 'Confianza media'}
+            {prediction.confidence_reason && (
+              <span className="block text-[10px] font-normal mt-0.5 opacity-75">{prediction.confidence_reason}</span>
+            )}
+          </span>
+        )}
       </div>
+
+      {/* Explanations - Why does the winner win? */}
+      {prediction.explanations && prediction.explanations.length > 0 && (
+        <div className="glass-card p-4">
+          <p className="text-xs text-ufc-muted font-bold uppercase tracking-wider mb-3">
+            Por que gana {winner}
+          </p>
+          <div className="space-y-2">
+            {prediction.explanations.map((exp, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                  i === 0 ? 'bg-ufc-gold/20 text-ufc-gold' :
+                  i === 1 ? 'bg-ufc-gold/10 text-ufc-gold/70' :
+                  'bg-ufc-dark text-ufc-muted'
+                }`}>{i + 1}</span>
+                <p className="text-sm text-white/90">{exp.reason}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Fighter Comparison */}
       <div className="grid grid-cols-[1fr_auto_1fr] gap-4 items-start">
