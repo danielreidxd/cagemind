@@ -17,7 +17,7 @@
       },
       {
         "fighter_a": "Michael Chiesa",
-        "fighter_b": "Carlston Harris",
+        "fighter_b": "Niko Price",
         "weight_class": "Welterweight"
       },
       {
@@ -69,11 +69,6 @@
         "fighter_a": "Alexia Thainara",
         "fighter_b": "Bruna Brasil",
         "weight_class": "Women's Strawweight"
-      },
-      {
-        "fighter_a": "Zhu Kangjie",
-        "fighter_b": "Marcio Barbosa",
-        "weight_class": "Featherweight"
       }
     ]
   },
@@ -263,6 +258,11 @@
         "fighter_a": "JJ Aldrich",
         "fighter_b": "Jamey-Lyn Horth",
         "weight_class": "Women's Flyweight"
+      },
+      {
+        "fighter_a": "Kyler Phillips",
+        "fighter_b": "Charles Jourdain",
+        "weight_class": "Bantamweight"
       }
     ]
   },
@@ -281,6 +281,41 @@
         "fighter_a": "Davey Grant",
         "fighter_b": "Juan Adrian Martinetti",
         "weight_class": "Bantamweight"
+      },
+      {
+        "fighter_a": "Norma Dumont",
+        "fighter_b": "Joselyne Edwards",
+        "weight_class": "Women's Bantamweight"
+      },
+      {
+        "fighter_a": "Montel Jackson",
+        "fighter_b": "Raoni Barcelos",
+        "weight_class": "Bantamweight"
+      },
+      {
+        "fighter_a": "Talita Alencar",
+        "fighter_b": "Julia Polastri",
+        "weight_class": "Women's Strawweight"
+      },
+      {
+        "fighter_a": "Rodolfo Vieira",
+        "fighter_b": "Eric McConico",
+        "weight_class": "Middleweight"
+      },
+      {
+        "fighter_a": "Jafel Filho",
+        "fighter_b": "Lucas Rocha",
+        "weight_class": "Flyweight"
+      },
+      {
+        "fighter_a": "Mayra Bueno Silva",
+        "fighter_b": "Michelle Montague",
+        "weight_class": "Women's Bantamweight"
+      },
+      {
+        "fighter_a": "Jackson McVey",
+        "fighter_b": "Sedriques Dumas",
+        "weight_class": "Middleweight"
       }
     ]
   },
