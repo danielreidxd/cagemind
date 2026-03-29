@@ -1,78 +1,5 @@
 [
   {
-    "name": "UFC Fight Night: Adesanya vs. Pyfer",
-    "date": "March 28, 2026",
-    "url": "http://www.ufcstats.com/event-details/5c38639f860a5542",
-    "location": "Seattle, Washington, USA",
-    "fights": [
-      {
-        "fighter_a": "Israel Adesanya",
-        "fighter_b": "Joe Pyfer",
-        "weight_class": "Middleweight"
-      },
-      {
-        "fighter_a": "Alexa Grasso",
-        "fighter_b": "Maycee Barber",
-        "weight_class": "Women's Flyweight"
-      },
-      {
-        "fighter_a": "Michael Chiesa",
-        "fighter_b": "Niko Price",
-        "weight_class": "Welterweight"
-      },
-      {
-        "fighter_a": "Julian Erosa",
-        "fighter_b": "Lerryan Douglas",
-        "weight_class": "Featherweight"
-      },
-      {
-        "fighter_a": "Mansur Abdul-Malik",
-        "fighter_b": "Yousri Belgaroui",
-        "weight_class": "Middleweight"
-      },
-      {
-        "fighter_a": "Terrance McKinney",
-        "fighter_b": "Kyle Nelson",
-        "weight_class": "Lightweight"
-      },
-      {
-        "fighter_a": "Ignacio Bahamondes",
-        "fighter_b": "Tofiq Musayev",
-        "weight_class": "Lightweight"
-      },
-      {
-        "fighter_a": "Chase Hooper",
-        "fighter_b": "Lance Gibson Jr.",
-        "weight_class": "Lightweight"
-      },
-      {
-        "fighter_a": "Marcin Tybura",
-        "fighter_b": "Tyrell Fortune",
-        "weight_class": "Heavyweight"
-      },
-      {
-        "fighter_a": "Casey O'Neill",
-        "fighter_b": "Gabriella Fernandes",
-        "weight_class": "Women's Flyweight"
-      },
-      {
-        "fighter_a": "Navajo Stirling",
-        "fighter_b": "Bruno Lopes",
-        "weight_class": "Light Heavyweight"
-      },
-      {
-        "fighter_a": "Ricky Simon",
-        "fighter_b": "Adrian Yanez",
-        "weight_class": "Bantamweight"
-      },
-      {
-        "fighter_a": "Alexia Thainara",
-        "fighter_b": "Bruna Brasil",
-        "weight_class": "Women's Strawweight"
-      }
-    ]
-  },
-  {
     "name": "UFC Fight Night: Moicano vs. Duncan",
     "date": "April 04, 2026",
     "url": "http://www.ufcstats.com/event-details/9a70f67ad2187fa3",
@@ -263,6 +190,11 @@
         "fighter_a": "Kyler Phillips",
         "fighter_b": "Charles Jourdain",
         "weight_class": "Bantamweight"
+      },
+      {
+        "fighter_a": "Mandel Nallo",
+        "fighter_b": "Jai Herbert",
+        "weight_class": "Lightweight"
       }
     ]
   },
