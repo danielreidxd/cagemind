@@ -383,6 +383,11 @@
         "fighter_a": "Belal Muhammad",
         "fighter_b": "Gabriel Bonfim",
         "weight_class": "Welterweight"
+      },
+      {
+        "fighter_a": "Iwo Baraniewski",
+        "fighter_b": "Billy Elekana",
+        "weight_class": "Light Heavyweight"
       }
     ]
   },
