@@ -31,14 +31,14 @@
         "weight_class": "Featherweight"
       },
       {
-        "fighter_a": "Guilherme Pat",
-        "fighter_b": "Thomas Petersen",
-        "weight_class": "Heavyweight"
-      },
-      {
         "fighter_a": "Jose Delano",
         "fighter_b": "Robert Ruchala",
         "weight_class": "Featherweight"
+      },
+      {
+        "fighter_a": "Guilherme Pat",
+        "fighter_b": "Thomas Petersen",
+        "weight_class": "Heavyweight"
       },
       {
         "fighter_a": "Alessandro Costa",
@@ -64,6 +64,11 @@
         "fighter_a": "Dione Barbosa",
         "fighter_b": "Melissa Gatto",
         "weight_class": "Women's Flyweight"
+      },
+      {
+        "fighter_a": "Kai Kamaka III",
+        "fighter_b": "Dakota Hope",
+        "weight_class": "Lightweight"
       }
     ]
   },
@@ -370,6 +375,26 @@
         "fighter_a": "Alex Perez",
         "fighter_b": "Sumudaerji",
         "weight_class": "Flyweight"
+      },
+      {
+        "fighter_a": "Loma Lookboonmee",
+        "fighter_b": "Jaqueline Amorim",
+        "weight_class": "Women's Strawweight"
+      },
+      {
+        "fighter_a": "Yi Sak Lee",
+        "fighter_b": "Luis Felipe Dias",
+        "weight_class": "Middleweight"
+      },
+      {
+        "fighter_a": "Rei Tsuruya",
+        "fighter_b": "Jesus Aguilar",
+        "weight_class": "Flyweight"
+      },
+      {
+        "fighter_a": "Aoriqileng",
+        "fighter_b": "Cody Haddon",
+        "weight_class": "Bantamweight"
       }
     ]
   },
@@ -388,6 +413,21 @@
         "fighter_a": "Iwo Baraniewski",
         "fighter_b": "Billy Elekana",
         "weight_class": "Light Heavyweight"
+      },
+      {
+        "fighter_a": "Imanol Rodriguez",
+        "fighter_b": "Matt Schnell",
+        "weight_class": "Flyweight"
+      },
+      {
+        "fighter_a": "Bruno Silva",
+        "fighter_b": "Edgar Chairez",
+        "weight_class": "Flyweight"
+      },
+      {
+        "fighter_a": "Jeisla Chaves",
+        "fighter_b": "Yuneisy Duben",
+        "weight_class": "Women's Flyweight"
       }
     ]
   },
