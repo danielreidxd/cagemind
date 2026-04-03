@@ -291,6 +291,11 @@
         "fighter_a": "Steve Erceg",
         "fighter_b": "Tim Elliott",
         "weight_class": "Flyweight"
+      },
+      {
+        "fighter_a": "Dom Mar Fan",
+        "fighter_b": "Kody Steele",
+        "weight_class": "Lightweight"
       }
     ]
   },
@@ -334,6 +339,16 @@
         "fighter_a": "Clayton Carpenter",
         "fighter_b": "Jose Ochoa",
         "weight_class": "Flyweight"
+      },
+      {
+        "fighter_a": "Roman Kopylov",
+        "fighter_b": "Marco Tulio",
+        "weight_class": "Middleweight"
+      },
+      {
+        "fighter_a": "Baisangur Susurkaev",
+        "fighter_b": "Djorden Santos",
+        "weight_class": "Middleweight"
       }
     ]
   },
@@ -347,6 +362,41 @@
         "fighter_a": "Arnold Allen",
         "fighter_b": "Melquizael Costa",
         "weight_class": "Featherweight"
+      },
+      {
+        "fighter_a": "Shauna Bannon",
+        "fighter_b": "Nicolle Caliari",
+        "weight_class": "Women's Strawweight"
+      },
+      {
+        "fighter_a": "Ketlen Vieira",
+        "fighter_b": "Jacqueline Cavalcanti",
+        "weight_class": "Women's Bantamweight"
+      },
+      {
+        "fighter_a": "Daniel Barez",
+        "fighter_b": "Luis Gurule",
+        "weight_class": "Flyweight"
+      },
+      {
+        "fighter_a": "Timmy Cuamba",
+        "fighter_b": "Benardo Sopaj",
+        "weight_class": "Bantamweight"
+      },
+      {
+        "fighter_a": "Tuco Tokkos",
+        "fighter_b": "Ivan Erslan",
+        "weight_class": "Light Heavyweight"
+      },
+      {
+        "fighter_a": "Modestas Bukauskas",
+        "fighter_b": "Rodolfo Bellato",
+        "weight_class": "Light Heavyweight"
+      },
+      {
+        "fighter_a": "Alice Ardelean",
+        "fighter_b": "Polyana Viana",
+        "weight_class": "Women's Strawweight"
       }
     ]
   },
