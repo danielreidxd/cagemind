@@ -1,78 +1,5 @@
 [
   {
-    "name": "UFC Fight Night: Moicano vs. Duncan",
-    "date": "April 04, 2026",
-    "url": "http://www.ufcstats.com/event-details/9a70f67ad2187fa3",
-    "location": "Las Vegas, Nevada, USA",
-    "fights": [
-      {
-        "fighter_a": "Renato Moicano",
-        "fighter_b": "Chris Duncan",
-        "weight_class": "Lightweight"
-      },
-      {
-        "fighter_a": "Virna Jandiroba",
-        "fighter_b": "Tabatha Ricci",
-        "weight_class": "Women's Strawweight"
-      },
-      {
-        "fighter_a": "Abdul Rakhman Yakhyaev",
-        "fighter_b": "Brendson Ribeiro",
-        "weight_class": "Light Heavyweight"
-      },
-      {
-        "fighter_a": "Ethyn Ewing",
-        "fighter_b": "Rafael Estevam",
-        "weight_class": "Bantamweight"
-      },
-      {
-        "fighter_a": "Tommy McMillen",
-        "fighter_b": "Manolo Zecchini",
-        "weight_class": "Featherweight"
-      },
-      {
-        "fighter_a": "Jose Delano",
-        "fighter_b": "Robert Ruchala",
-        "weight_class": "Featherweight"
-      },
-      {
-        "fighter_a": "Guilherme Pat",
-        "fighter_b": "Thomas Petersen",
-        "weight_class": "Heavyweight"
-      },
-      {
-        "fighter_a": "Alessandro Costa",
-        "fighter_b": "Stewart Nicoll",
-        "weight_class": "Flyweight"
-      },
-      {
-        "fighter_a": "Lando Vannata",
-        "fighter_b": "Darrius Flowers",
-        "weight_class": "Lightweight"
-      },
-      {
-        "fighter_a": "Alice Pereira",
-        "fighter_b": "Hailey Cowan",
-        "weight_class": "Women's Bantamweight"
-      },
-      {
-        "fighter_a": "Azamat Bekoev",
-        "fighter_b": "Tresean Gore",
-        "weight_class": "Middleweight"
-      },
-      {
-        "fighter_a": "Dione Barbosa",
-        "fighter_b": "Melissa Gatto",
-        "weight_class": "Women's Flyweight"
-      },
-      {
-        "fighter_a": "Kai Kamaka III",
-        "fighter_b": "Dakota Hope",
-        "weight_class": "Lightweight"
-      }
-    ]
-  },
-  {
     "name": "UFC 327: Prochazka vs. Ulberg",
     "date": "April 11, 2026",
     "url": "http://www.ufcstats.com/event-details/f3eb664db7fb1df3",
@@ -147,14 +74,29 @@
         "weight_class": "Welterweight"
       },
       {
+        "fighter_a": "Kyler Phillips",
+        "fighter_b": "Charles Jourdain",
+        "weight_class": "Bantamweight"
+      },
+      {
         "fighter_a": "Jasmine Jasudavicius",
         "fighter_b": "Karine Silva",
         "weight_class": "Women's Flyweight"
       },
       {
-        "fighter_a": "Melissa Croden",
-        "fighter_b": "Daria Zhelezniakova",
-        "weight_class": "Women's Bantamweight"
+        "fighter_a": "Dennis Buzukja",
+        "fighter_b": "Marcio Barbosa",
+        "weight_class": "Featherweight"
+      },
+      {
+        "fighter_a": "Mandel Nallo",
+        "fighter_b": "Jai Herbert",
+        "weight_class": "Lightweight"
+      },
+      {
+        "fighter_a": "JJ Aldrich",
+        "fighter_b": "Jamey-Lyn Horth",
+        "weight_class": "Women's Flyweight"
       },
       {
         "fighter_a": "Julien Leblanc",
@@ -167,34 +109,19 @@
         "weight_class": "Heavyweight"
       },
       {
-        "fighter_a": "DongHun Choi",
-        "fighter_b": "Andre Lima",
-        "weight_class": "Flyweight"
-      },
-      {
         "fighter_a": "Mitch Raposo",
         "fighter_b": "Allan Nascimento",
         "weight_class": "Flyweight"
       },
       {
-        "fighter_a": "John Castaneda",
-        "fighter_b": "Mark Vologdin",
-        "weight_class": "Bantamweight"
+        "fighter_a": "Melissa Croden",
+        "fighter_b": "Daria Zhelezniakova",
+        "weight_class": "Women's Bantamweight"
       },
       {
-        "fighter_a": "JJ Aldrich",
-        "fighter_b": "Jamey-Lyn Horth",
-        "weight_class": "Women's Flyweight"
-      },
-      {
-        "fighter_a": "Kyler Phillips",
-        "fighter_b": "Charles Jourdain",
-        "weight_class": "Bantamweight"
-      },
-      {
-        "fighter_a": "Mandel Nallo",
-        "fighter_b": "Jai Herbert",
-        "weight_class": "Lightweight"
+        "fighter_a": "DongHun Choi",
+        "fighter_b": "Andre Lima",
+        "weight_class": "Flyweight"
       }
     ]
   },
@@ -444,6 +371,11 @@
       {
         "fighter_a": "Aoriqileng",
         "fighter_b": "Cody Haddon",
+        "weight_class": "Bantamweight"
+      },
+      {
+        "fighter_a": "Kai Asakura",
+        "fighter_b": "Cameron Smotherman",
         "weight_class": "Bantamweight"
       }
     ]
