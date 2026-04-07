@@ -51,9 +51,19 @@
         "weight_class": "Women's Strawweight"
       },
       {
+        "fighter_a": "Chris Padilla",
+        "fighter_b": "MarQuel Mederos",
+        "weight_class": "Lightweight"
+      },
+      {
         "fighter_a": "Kelvin Gastelum",
         "fighter_b": "Vicente Luque",
         "weight_class": "Middleweight"
+      },
+      {
+        "fighter_a": "Charles Radtke",
+        "fighter_b": "Francisco Prado",
+        "weight_class": "Welterweight"
       }
     ]
   },
