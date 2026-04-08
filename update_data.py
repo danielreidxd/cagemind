@@ -168,7 +168,7 @@ def update_upcoming():
         json.dump(events, f, indent=2, ensure_ascii=False)
 
     total = sum(len(e.get("fights", [])) for e in events)
-    log(f"  ✅ {len(events)} eventos, {total} peleas → {UPCOMING_FILE}")
+    log(f"   {len(events)} eventos, {total} peleas → {UPCOMING_FILE}")
     return events
 
 
@@ -229,7 +229,7 @@ def find_new_completed_events():
     log("🔍 Buscando eventos nuevos completados...")
 
     if not DB_PATH.exists():
-        log("  ⚠️ No existe la BD. Ejecuta run_phase1.py primero.")
+        log("   No existe la BD. Ejecuta run_phase1.py primero.")
         return []
 
     url = "http://www.ufcstats.com/statistics/events/completed"
@@ -279,7 +279,7 @@ def find_new_completed_events():
         conn.close()
 
     if not new_events:
-        log("  ✅ No hay eventos nuevos — la BD está al día")
+        log("   No hay eventos nuevos — la BD está al día")
 
     return new_events
 
@@ -331,6 +331,14 @@ def scrape_event_results(event_url):
             elif r_a == "d":
                 is_draw = True
             elif r_a == "nc":
+                is_nc = True
+        elif len(result_ps) == 1:
+            r_text = clean(result_ps[0].text).lower()
+            if r_text == "win" or r_text == "w":
+                winner = fa
+            elif r_text in ("draw", "d"):
+                is_draw = True
+            elif r_text in ("nc", "no contest"):
                 is_nc = True
 
         wc = clean(cols[6].text) if len(cols) > 6 else None
@@ -533,7 +541,7 @@ def scrape_fighter_profile(profile_url):
 
 def process_new_event(event):
     """Procesa un evento nuevo: resultados + stats round-by-round + perfiles."""
-    log(f"\n🥊 Procesando: {event['name']}")
+    log(f"\n Procesando: {event['name']}")
 
     fights = scrape_event_results(event["url"])
     log(f"  {len(fights)} peleas con resultados")
@@ -654,10 +662,10 @@ def process_new_event(event):
                 fighters_to_update.add((fb_id, fb, fb_row["profile_url"]))
 
         conn.commit()
-        log(f"  ✅ {len(fights)} peleas insertadas con stats")
+        log(f"   {len(fights)} peleas insertadas con stats")
 
         # Actualizar perfiles de peleadores
-        log(f"\n  👤 Actualizando {len(fighters_to_update)} perfiles...")
+        log(f"\n   Actualizando {len(fighters_to_update)} perfiles...")
         for fighter_id, fighter_name, profile_url in fighters_to_update:
             time.sleep(1)
             try:
@@ -680,12 +688,12 @@ def process_new_event(event):
                         details.get("td_def"), details.get("sub_avg"),
                         fighter_id,
                     ))
-                    log(f"    ✅ {fighter_name}")
+                    log(f"     {fighter_name}")
             except Exception as e:
-                log(f"    ⚠️ Error en {fighter_name}: {e}")
+                log(f"     Error en {fighter_name}: {e}")
 
         conn.commit()
-        log(f"  ✅ Perfiles actualizados")
+        log(f"   Perfiles actualizados")
 
     finally:
         conn.close()
@@ -695,7 +703,7 @@ def process_new_event(event):
 # GIT COMMIT + PUSH
 # ============================================================
 def git_commit_and_push():
-    log("📤 Verificando cambios...")
+    log(" Verificando cambios...")
     try:
         result = subprocess.run(["git", "status", "--porcelain"],
                                 capture_output=True, text=True, timeout=30)
@@ -705,13 +713,13 @@ def git_commit_and_push():
 
         subprocess.run(["git", "add", "-A"], check=True, timeout=30)
         date_str = datetime.now().strftime("%Y-%m-%d %H:%M")
-        subprocess.run(["git", "commit", "-m", f"🤖 Auto-update: {date_str}"],
+        subprocess.run(["git", "commit", "-m", f" Auto-update: {date_str}"],
                         check=True, timeout=30)
         subprocess.run(["git", "push"], check=True, timeout=60)
-        log("  ✅ Push exitoso")
+        log("   Push exitoso")
         return True
     except (subprocess.CalledProcessError, FileNotFoundError) as e:
-        log(f"  ⚠️ Error git: {e}")
+        log(f"   Error git: {e}")
         return False
 
 
@@ -753,9 +761,9 @@ def main():
     if changes:
         git_commit_and_push()
     else:
-        log("📭 Sin cambios")
+        log(" Sin cambios")
 
-    print(f"\n{'='*60}\n✅ Completado en {time.time()-start:.1f}s\n{'='*60}")
+    print(f"\n{'='*60}\n Completado en {time.time()-start:.1f}s\n{'='*60}")
 
 
 if __name__ == "__main__":
