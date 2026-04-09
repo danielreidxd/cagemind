@@ -31,7 +31,7 @@
         "weight_class": "Featherweight"
       },
       {
-        "fighter_a": "Patricio Freire",
+        "fighter_a": "Patricio Pitbull",
         "fighter_b": "Aaron Pico",
         "weight_class": "Featherweight"
       },
@@ -94,6 +94,11 @@
         "weight_class": "Women's Flyweight"
       },
       {
+        "fighter_a": "Thiago Moises",
+        "fighter_b": "Gauge Young",
+        "weight_class": "Lightweight"
+      },
+      {
         "fighter_a": "Dennis Buzukja",
         "fighter_b": "Marcio Barbosa",
         "weight_class": "Featherweight"
@@ -114,19 +119,19 @@
         "weight_class": "Women's Bantamweight"
       },
       {
-        "fighter_a": "JJ Aldrich",
-        "fighter_b": "Jamey-Lyn Horth",
-        "weight_class": "Women's Flyweight"
-      },
-      {
         "fighter_a": "Mitch Raposo",
         "fighter_b": "Allan Nascimento",
         "weight_class": "Flyweight"
       },
       {
-        "fighter_a": "DongHun Choi",
-        "fighter_b": "Andre Lima",
-        "weight_class": "Flyweight"
+        "fighter_a": "JJ Aldrich",
+        "fighter_b": "Jamey-Lyn Horth",
+        "weight_class": "Women's Flyweight"
+      },
+      {
+        "fighter_a": "John Castaneda",
+        "fighter_b": "Mark Vologdin",
+        "weight_class": "Bantamweight"
       }
     ]
   },
