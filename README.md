@@ -85,6 +85,28 @@ cagemind/
 
 ---
 
+---
+
+## 🧠 Machine Learning Models
+
+CageMind uses a multi-model ensemble approach to predict different facets of a fight. Each model is optimized for its specific task, significantly outperforming baseline random probabilities.
+
+### 📊 Model Performance & Benchmarks
+
+| Model | Algorithm | Accuracy | Benchmark |
+| :--- | :--- | :--- | :--- |
+| **Winner (Win/Loss)** | XGBoost | **64.8%** | 65-70% (Oddsmakers) |
+| **Method of Victory** | Logistic Reg. | **51.2%** | 33.3% (Random) |
+| **Finish vs. Decision** | Random Forest | **59.9%** | 50.0% (Random) |
+| **Round Prediction** | XGBoost | **44.5%** | 25.0% (Random) |
+
+### 🛠️ Model Strategy
+* **XGBoost (Winner & Round):** Leverages gradient boosting to handle non-linear relationships between fighter stats (e.g., reach advantage vs. takedown accuracy).
+* **Logistic Regression (Method):** Provides well-calibrated probabilities for categorical outcomes (KO/TKO, Submission, Decision).
+* **Random Forest (Duration):** Excellent at capturing feature importance to determine if a fight's style matchup leads to a finish.
+
+---
+
 ## 🛠️ Technology Stack
 
 ### 🔙 Backend & Data Engineering
