@@ -10,7 +10,10 @@
 > CageMind combines web scraping, data analysis, and predictive modeling to deliver statistical insights and win probability forecasts for MMA fights.
 
 🌐 **Live Demo**: [cagemind.app](https://cagemind.app)  
-📊 **Data Source**: UFC Stats • Sherdog • Official UFC Records
+📊 **Data Source**: UFC Stats • Sherdog • Official UFC Records  
+🌎 *[Read in Spanish](README.es.md)*
+
+---
 
 ## ✨ Key Features
 
@@ -44,14 +47,15 @@
 - **Interactive Visualizations**: Charts and comparisons powered by Recharts/D3
 - **Dark Mode Support**: User-preference aware design for comfortable viewing
 
+---
 
 ## 🗂️ Project Structure
 
 <details>
-<summary><b>📁 Ver estructura completa del proyecto</b></summary>
+<summary><b>📁 View complete project structure</b></summary>
 cagemind/
 ├── 📁 config/ # Configuration & environment variables
-├── data/
+├── 📁 data/
 │ ├── 📁 scrapers/ # UFC Stats & Sherdog scrapers
 │ ├── 📁 raw/ # Raw HTML/JSON downloads
 │ ├── 📁 processed/ # Cleaned datasets
@@ -62,21 +66,24 @@ cagemind/
 │ ├── 📁 api/ # Routes & endpoints
 │ ├── 📁 core/ # Config & security
 │ └── 📁 schemas/ # Pydantic models
-├── frontend/ # React + TypeScript app
+├── 📁 frontend/ # React + TypeScript app
 │ ├── 📁 src/
 │ │ ├── 📁 components/
 │ │ ├── 📁 pages/
 │ │ ├── 📁 services/
-│ │ └── utils/
+│ │ └── 📁 utils/
 │ └── 📁 public/
 ├── 📁 notebooks/ # Jupyter notebooks (EDA)
-├── tests/ # Unit & integration tests
+├── 📁 tests/ # Unit & integration tests
 ├── 📁 docs/ # Documentation
-├── requirements.txt
+├── 📄 requirements.txt
 ├── 📄 package.json
-├── run_phase1.py
-── 📄 README.md
+├── 📄 run_phase1.py
+└── 📄 README.md
+
 </details>
+
+---
 
 ## 🛠️ Technology Stack
 
@@ -118,12 +125,13 @@ cagemind/
 | **Black + isort** | Code formatting and import sorting |
 | **Flake8 / Ruff** | Linting for PEP8 compliance |
 
+---
 
 ## ⚡ Quick Start
 
 Get the project running locally in 3 steps.
 
-###  Prerequisites
+### 🔧 Prerequisites
 Ensure you have the following installed:
 - **Python 3.10+** (for Backend & ML)
 - **Node.js 18+** (for Frontend)
@@ -131,7 +139,7 @@ Ensure you have the following installed:
 
 ---
 
-### 🛠️ 1. Installation
+### 🛠️ Step 1: Installation
 
 #### Backend (Python)
 ```bash
@@ -145,63 +153,96 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
-
+```
+Frontend (React)
+```bash
 cd frontend
 
 # Install dependencies
 npm install
+```
 
+⚙️ Step 2: Configuration
+Create a .env file in the root directory:
+```bash
 # Database configuration
 DATABASE_URL=sqlite:///./cagemind.db
 
 # API Settings
 API_KEY=your_secret_api_key
 ENV=development
+```
 
-# Run the complete scraper pipeline (Phase 1)
+🚀 Step 3: Run the Application
+A) Run the Data Pipeline (Scraping)
+```bash
 python run_phase1.py
-
+```
+B) Start the Backend API
+```bash
 uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
-
+```
+✅ API: http://localhost:8000 | 📚 Docs: http://localhost:8000/docs
+C) Start the Frontend
+```bash
 cd frontend
 npm run dev
 ```
+✅ App: http://localhost:5173
+📊 Database Schema & Data Flow
+🗄️ Schema Overview
 
-## 📊 Database Schema & Data Flow
+## Estructura de la Base de Datos
 
-### 🗄️ Schema Overview
-CageMind uses a relational SQLite database optimized for fast lookups, statistical queries, and ML feature extraction.
+| Tabla | Descripción | Campos Clave |
+| :--- | :--- | :--- |
+| `fighters` | Perfiles de luchadores y atributos físicos | `id`, `name`, `nickname`, `height`, `weight`, `reach`, `stance`, `record` |
+| `events` | Metadatos de eventos de la UFC | `id`, `name`, `date`, `location`, `venue` |
+| `fights` | Resultados de los combates y metadatos | `id`, `event_id`, `fighter_a_id`, `fighter_b_id`, `winner_id`, `method`, `round`, `time` |
+| `fight_stats` | Datos de rendimiento por asalto | `fight_id`, `fighter_id`, `sig_strikes`, `takedowns`, `submissions`, `control_time` |
+| `predictions` | Pronósticos de ML (Machine Learning) | `id`, `fight_id`, `fighter_a_prob`, `fighter_b_prob`, `model_version`, `confidence` |
 
-| Table | Description | Key Fields |
-|-------|-------------|------------|
-| `fighters` | Fighter profiles & physical attributes | `id`, `name`, `nickname`, `height`, `weight`, `reach`, `stance`, `record` |
-| `events` | UFC event metadata | `id`, `name`, `date`, `location`, `venue` |
-| `fights` | Matchup results & metadata | `id`, `event_id`, `fighter_a_id`, `fighter_b_id`, `winner_id`, `method`, `round`, `time` |
-| `fight_stats` | Round-by-round performance data | `fight_id`, `fighter_id`, `sig_strikes`, `takedowns`, `submissions`, `control_time`, `knockdowns` |
-| `predictions` | Historical & live ML forecasts | `id`, `fight_id`, `fighter_a_prob`, `fighter_b_prob`, `model_version`, `confidence` |
+🔗 Relationships: events → fights → fighters → fight_stats
+📖 Full schema: db/schema.sql
 
-🔗 **Relationships**: `events` → `fights` → `fighters` → `fight_stats`
+🔄 Data Flow Pipeline
+```mermaid
+graph TD
+    A["[UFC Stats / Sherdog]"] -->|Parallel Scraping + Rate Limiting| B["[Raw HTML/JSON]"]
+    B -->|Cleaning & Validation| C["[Normalized Data]"]
+    C -->|Transaction-Safe Bulk Insert| D[("SQLite Database")]
 
-> 📖 Full schema definition: [`db/schema.sql`](db/schema.sql)
+D --> E{ }
+    E --- E1[ ]
+    E --- E2[ ]
+    E --- E3[ ]
 
-### 🔄 Data Flow Pipeline
+E1 --> F["[REST API Layer]"]
+    E2 --> G["[ML Feature Store]"]
+    E3 --> H["[Frontend Queries]"]
 
-## 🔮 ML Predictions & API Usage
+style E fill:none,stroke:none
+    style E1 fill:none,stroke:none
+    style E2 fill:none,stroke:none
+    style E3 fill:none,stroke:none
+```
 
-CageMind exposes its prediction engine via a clean REST API. Whether you're building a dashboard, a mobile app, or just experimenting with fight data, integration takes minutes.
+🔮 ML Predictions & API Usage
+🌐 Core Endpoints
 
-### 🌐 Core Endpoints
+## Documentación de la API
+
 | Method | Endpoint | Description |
-|--------|----------|-------------|
+| :--- | :--- | :--- |
 | `GET` | `/api/fighters` | Search & filter fighter profiles |
 | `GET` | `/api/fights/{id}` | Retrieve fight details, stats & history |
 | `POST` | `/api/predict` | Get ML-powered win probabilities |
 | `GET` | `/api/events` | Browse past & upcoming UFC cards |
 | `GET` | `/api/stats/trends` | Aggregate performance trends by weight class |
 
-📖 Interactive Swagger UI: `https://cagemind.app/api/docs`
+📖 Swagger UI: https://cagemind.app/api/docs
+💻 Python Example
 
-### 💻 Python Quick Example
 ```python
 import requests
 
@@ -218,8 +259,10 @@ response = requests.post(
 
 result = response.json()
 print(f"Pereira win prob: {result['predictions']['fighter_a']['win_probability']:.1%}")
-print(f"Model confidence: {result['predictions']['fighter_a']['confidence'].upper()}")
-
+print(f"Confidence: {result['predictions']['fighter_a']['confidence'].upper()}")
+```
+🌐 cURL Example
+```bash
 curl -X POST "https://cagemind.app/api/predict" \
      -H "Content-Type: application/json" \
      -d '{
@@ -227,273 +270,10 @@ curl -X POST "https://cagemind.app/api/predict" \
        "fighter_b": "Charles Oliveira",
        "weight_class": "Lightweight"
      }'
-
-     {
-  "fight_id": "ufc-294-pereira-vs-ankalaev",
-  "predictions": {
-    "fighter_a": {
-      "name": "Alex Pereira",
-      "win_probability": 0.58,
-      "confidence": "high",
-      "key_advantages": ["striking_power", "takedown_defense"]
-    },
-    "fighter_b": {
-      "name": "Magomed Ankalaev",
-      "win_probability": 0.42,
-      "confidence": "high",
-      "key_advantages": ["wrestling_volume", "cardio"]
-    }
-  },
-  "model_version": "xgboost_v2.3",
-  "features_used": 47,
-  "generated_at": "2026-04-11T14:22:00Z"
-}
 ```
 
-## 🧪 Testing, CI/CD & Deployment
-
-### ✅ Testing Strategy
-CageMind includes comprehensive testing to ensure data integrity, model reliability, and API stability.
-
-| Component | Command | Coverage Focus |
-|-----------|---------|----------------|
-| **Backend Unit Tests** | `pytest backend/tests/ -v` | API routes, DB queries, validation |
-| **ML Pipeline Tests** | `pytest ml/tests/ -v` | Feature extraction, prediction consistency |
-| **Frontend Tests** | `cd frontend && npm test` | Component rendering, API mocking, routing |
-| **Integration Tests** | `pytest tests/integration/ -v` | Full flow: scrape → store → predict → serve |
-
-📊 Generate coverage report:  
-```bash
-pytest --cov=backend --cov=ml --cov-report=html
-
-# .github/workflows/ci.yml (simplified)
-name: CI/CD
-on: [push, pull_request]
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: '3.10' }
-      - run: pip install -r requirements.txt
-      - run: pytest --cov=backend --cov=ml
-
-      # Build & run entire stack
-docker-compose up --build
-
-# Run in detached mode
-docker-compose up -d
-
-# View live logs
-docker-compose logs -f api frontend
-```
-
-## 🤝 Contributing
-
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-### How to Contribute
-1. **Fork** the Project
-2. **Create your Feature Branch** (`git checkout -b feature/AmazingFeature`)
-3. **Commit your Changes** (`git commit -m 'feat: add AmazingFeature'`)
-4. **Push to the Branch** (`git push origin feature/AmazingFeature`)
-5. **Open a Pull Request**
-
-### Development Guidelines
-- Follow the [PEP 8](https://www.python.org/dev/peps/pep-0008/) style guide for Python.
-- Use [Conventional Commits](https://www.conventionalcommits.org/) for clear commit history.
-- Update tests and documentation for any new feature or bug fix.
-
----
-
-## 🗺️ Roadmap
-
-Current project status and future goals:
-
-| Status | Feature | Description |
-|:------:|---------|-------------|
-| ✅ | **Data Pipeline** | Scraping from UFC Stats & Sherdog with error handling |
-| ✅ | **Machine Learning** | XGBoost models with calibration and feature importance |
-| ✅ | **API Backend** | FastAPI REST service with Swagger documentation |
-| ✅ | **Web Interface** | React + TypeScript dashboard with visualizations |
-| 🔄 | **Live Predictions** | Real-time inference for upcoming UFC events |
-| 📅 | **Mobile App** | React Native companion app for on-the-go stats |
-| 📅 | **Advanced Metrics** | Proprietary "CageScore" ranking algorithm |
-
----
-
-## 👨‍💻 Author
-
-**Daniel Reid**
-- GitHub: [@danielreidxd](https://github.com/danielreidxd)
-- LinkedIn: [danielreid](https://www.linkedin.com/in/juan-daniel-galvan-moctezuma-0b1b1428a/) 
-
----
-
-## 📄 License
-
-Distributed under the MIT License. See [`LICENSE`](LICENSE) for more information.
-
----
-
-> ⚠️ **Disclaimer**: This project is for educational and entertainment purposes only. The predictions provided by CageMind are based on historical data and statistical models; they do not guarantee future results. Do not use this software for gambling or financial decisions.
-
-
-# 🥊 CageMind — Inteligencia para Peleas de MMA
-
-[![Python](https://img.shields.io/badge/Python-3.10+-blue?logo=python)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-009688?logo=fastapi)](https://fastapi.tiangolo.com)
-[![React](https://img.shields.io/badge/React-18+-61DAFB?logo=react)](https://react.dev)
-[![License](https://img.shields.io/badge/Licencia-MIT-green.svg)](LICENSE)
-[![Deploy](https://img.shields.io/badge/Deploy-Producción-0B0D0E?logo=vercel)](https://cagemind.app)
-
-> **Sistema de predicción de peleas UFC impulsado por Machine Learning**  
-> CageMind combina web scraping, análisis de datos y modelado predictivo para ofrecer insights estadísticos y pronósticos de probabilidad de victoria en combates de MMA.
-
-🌐 **Demo en vivo**: [cagemind.app](https://cagemind.app)  
-📊 **Fuentes de datos**: UFC Stats • Sherdog • Registros oficiales de la UFC
-
-## ✨ Características Principales
-
-### 🔮 Predicciones Inteligentes de Peleas
-- **Predicción mediante Machine Learning**: Modelos basados en XGBoost con calibración de Platt para estimar probabilidades de victoria reales y fiables.
-- **Métricas de Confianza**: Cada predicción incluye un índice de fiabilidad y destaca los factores clave que influyen en el resultado.
-- **Comparativa Cara a Cara**: Análisis detallado que contrasta estadísticas de golpeo, grappling y cardio entre ambos oponentes.
-
-### 📊 Analítica Avanzada
-- **Perfiles de Luchadores**: Desglose exhaustivo de métricas físicas y de rendimiento (alcance, alcance efectivo, defensa de derribos, etc.).
-- **Detección de Tendencias**: Identificación de patrones de rendimiento a lo largo del tiempo y por categorías de peso.
-- **Insights de Eventos**: Resumen pre-combate y análisis post-evento para cada tarjeta de la UFC.
-
-### 🔄 Pipeline de Datos Automatizado
-- **Recolección Multi-Fuente**: Obtención automática de datos desde UFCStats.com, Sherdog y registros oficiales.
-- **Sistema de Checkpoints**: Capacidad de reanudar el proceso de recolección si se interrumpe, evitando duplicados y pérdidas.
-- **Rate Limiting y Logs**: Rastreo responsable de los sitios fuente con registros completos de ejecución para auditoría.
-
-### 🗄️ Capa de Datos Estructurada
-- **Base de Datos SQLite**: Esquema optimizado para consultas rápidas sobre historiales de luchadores y resultados de combates.
-- **Estadísticas Normalizadas**: Datos limpios y estandarizados (golpes significativos, tiempos de control, sumisiones) listos para análisis.
-- **Exportación**: Opciones para descargar conjuntos de datos procesados en formato CSV.
-
-### 🌐 API RESTful para Desarrolladores
-- **Endpoints JSON**: Consulta luchadores, eventos y predicciones directamente vía HTTP.
-- **Documentación Interactiva**: Explora la API fácilmente usando Swagger UI (disponible en `/docs`).
-- **Seguridad**: Soporte para autenticación JWT y validación de datos de entrada para proteger el servicio.
-
-### 🎨 Interfaz de Usuario Moderna
-- **React + TypeScript**: Interfaz rápida, responsiva y con seguridad de tipos en el desarrollo.
-- **Visualizaciones Interactivas**: Gráficos dinámicos para comparar el rendimiento de los atletas de forma visual.
-- **Modo Oscuro**: Diseño que respeta las preferencias del sistema del usuario para una visualización cómoda.
-
-## ⚡ Inicio Rápido
-
-Pon el proyecto en marcha en tu entorno local en 3 pasos.
-
-### 🔧 Prerrequisitos
-Asegúrate de tener instalados:
-- **Python 3.10+** (para Backend y ML)
-- **Node.js 18+** (para Frontend)
-- **Git**
-
----
-
-### 🛠️ 1. Instalación
-
-#### Backend (Python)
-```bash
-# Clonar el repositorio
-git clone https://github.com/danielreidxd/cagemind.git
-cd cagemind
-
-# Crear y activar entorno virtual
-python -m venv venv
-source venv/bin/activate  # En Windows: venv\Scripts\activate
-
-# Instalar dependencias
-pip install -r requirements.txt
-
-cd frontend
-
-# Instalar dependencias
-npm install
-
-# Configuración de base de datos
-DATABASE_URL=sqlite:///./cagemind.db
-
-# Configuración de API
-API_KEY=tu_clave_secreta
-ENV=development
-
-# Ejecutar el pipeline completo de scraping (Fase 1)
-python run_phase1.py
-
-uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
-
-cd frontend
-npm run dev
-```
-## 📊 Esquema de Base de Datos y Flujo de Datos
-
-### 🗄️ Visión General del Esquema
-CageMind utiliza una base de datos relacional SQLite optimizada para consultas rápidas, análisis estadísticos y extracción de características para ML.
-
-| Tabla | Descripción | Campos Clave |
-|-------|-------------|--------------|
-| `fighters` | Perfiles y atributos físicos de luchadores | `id`, `name`, `nickname`, `height`, `weight`, `reach`, `stance`, `record` |
-| `events` | Metadatos de eventos de la UFC | `id`, `name`, `date`, `location`, `venue` |
-| `fights` | Resultados y metadatos de combates | `id`, `event_id`, `fighter_a_id`, `fighter_b_id`, `winner_id`, `method`, `round`, `time` |
-| `fight_stats` | Datos de rendimiento round por round | `fight_id`, `fighter_id`, `sig_strikes`, `takedowns`, `submissions`, `control_time`, `knockdowns` |
-| `predictions` | Pronósticos históricos y en vivo del ML | `id`, `fight_id`, `fighter_a_prob`, `fighter_b_prob`, `model_version`, `confidence` |
-
-🔗 **Relaciones**: `events` → `fights` → `fighters` → `fight_stats`
-
-> 📖 Definición completa del esquema: [`db/schema.sql`](db/schema.sql)
-
-### 🔄 Flujo del Pipeline de Datos
-
-## 🔮 Predicciones ML y Uso de la API
-
-CageMind expone su motor de predicción mediante una API REST limpia y documentada. Ya sea que estés construyendo un dashboard, una app móvil o simplemente experimentando con datos de peleas, la integración toma minutos.
-
-### 🌐 Endpoints Principales
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| `GET` | `/api/fighters` | Buscar y filtrar perfiles de luchadores |
-| `GET` | `/api/fights/{id}` | Obtener detalles, estadísticas e historial de un combate |
-| `POST` | `/api/predict` | Obtener probabilidades de victoria impulsadas por ML |
-| `GET` | `/api/events` | Explorar tarjetas de la UFC pasadas y próximas |
-| `GET` | `/api/stats/trends` | Tendencias agregadas de rendimiento por categoría de peso |
-
-📖 Documentación interactiva Swagger: `https://cagemind.app/api/docs`
-
-### 💻 Ejemplo Rápido en Python
-```python
-import requests
-
-API_BASE = "https://cagemind.app/api"
-
-response = requests.post(
-    f"{API_BASE}/predict",
-    json={
-        "fighter_a": "Alex Pereira",
-        "fighter_b": "Magomed Ankalaev",
-        "weight_class": "Light Heavyweight"
-    }
-)
-
-result = response.json()
-print(f"Prob. victoria Pereira: {result['predictions']['fighter_a']['win_probability']:.1%}")
-print(f"Confianza del modelo: {result['predictions']['fighter_a']['confidence'].upper()}")
-
-curl -X POST "https://cagemind.app/api/predict" \
-     -H "Content-Type: application/json" \
-     -d '{
-       "fighter_a": "Islam Makhachev",
-       "fighter_b": "Charles Oliveira",
-       "weight_class": "Lightweight"
-     }'
-
+📤 Sample Response
+```json
 {
   "fight_id": "ufc-294-pereira-vs-ankalaev",
   "predictions": {
@@ -514,26 +294,27 @@ curl -X POST "https://cagemind.app/api/predict" \
   "features_used": 47,
   "generated_at": "2026-04-11T14:22:00Z"
 }
-
 ```
 
-## 🧪 Pruebas, CI/CD y Despliegue
+🧪 Testing, CI/CD & Deployment
+✅ Testing Strategy
 
-### ✅ Estrategia de Pruebas
-CageMind incluye un conjunto de pruebas automatizadas para garantizar la integridad de los datos, la fiabilidad del modelo y la estabilidad de la API.
+## Testing & Quality Assurance
 
-| Componente | Comando | Enfoque de Cobertura |
-|------------|---------|----------------------|
-| **Pruebas Unitarias (Backend)** | `pytest backend/tests/ -v` | Rutas API, consultas DB, validación de esquemas |
-| **Pruebas del Pipeline ML** | `pytest ml/tests/ -v` | Extracción de features, consistencia de inferencia |
-| **Pruebas Frontend** | `cd frontend && npm test` | Renderizado de componentes, mocking de API, navegación |
-| **Pruebas de Integración** | `pytest tests/integration/ -v` | Flujo completo: scrape → almacenar → predecir → servir |
+| Component | Command | Coverage |
+| :--- | :--- | :--- |
+| **Backend Unit Tests** | `pytest backend/tests/ -v` | API routes, DB queries |
+| **ML Pipeline Tests** | `pytest ml/tests/ -v` | Feature extraction, inference |
+| **Frontend Tests** | `cd frontend && npm test` | Components, routing |
+| **Integration Tests** | `pytest tests/integration/ -v` | Full flow: scrape → predict |
 
-📊 Generar reporte de cobertura:  
+📊 Coverage report:
 ```bash
 pytest --cov=backend --cov=ml --cov-report=html
-
-# .github/workflows/ci.yml (simplificado)
+```
+🔄 CI/CD Pipeline (GitHub Actions)
+```yaml
+# .github/workflows/ci.yml
 name: CI/CD
 on: [push, pull_request]
 jobs:
@@ -545,68 +326,62 @@ jobs:
         with: { python-version: '3.10' }
       - run: pip install -r requirements.txt
       - run: pytest --cov=backend --cov=ml
-
-# Construir y levantar todo el stack
-docker-compose up --build
-
-# Ejecutar en modo detached
-docker-compose up -d
-
-# Ver logs en tiempo real
-docker-compose logs -f api frontend
-
 ```
 
-## 🤝 Cómo Contribuir
+🚀 Deployment
 
-Las contribuciones son lo que hacen de la comunidad open-source un lugar increíble para aprender, inspirar y crear. ¡Cualquier aporte que hagas es **muy apreciado**!
+## Deployment & Infrastructure
 
-### Pasos para Contribuir
-1. **Haz un Fork** del Proyecto
-2. **Crea tu Rama de Feature** (`git checkout -b feature/AmazingFeature`)
-3. **Commit tus Cambios** (`git commit -m 'feat: add AmazingFeature'`)
-4. **Push a la Rama** (`git push origin feature/AmazingFeature`)
-5. **Abre un Pull Request**
+| Service | Role | URL |
+| :--- | :--- | :--- |
+| **Frontend** | Vercel (Edge React) | `https://cagemind.app` |
+| **Backend API** | Railway/Render | `https://api.cagemind.app` |
+| **Database** | SQLite/PostgreSQL | Attached to backend |
 
-### Guías de Desarrollo
-- Sigue la guía de estilo [PEP 8](https://www.python.org/dev/peps/pep-0008/) para Python.
-- Usa [Conventional Commits](https://www.conventionalcommits.org/) para un historial de commits claro.
-- Actualiza pruebas y documentación para cualquier nueva funcionalidad o corrección de bugs.
+🐳 Local Docker
+```bash
+docker-compose up --build    # Build & run
+docker-compose up -d         # Detached mode
+docker-compose logs -f       # View logs
+```
+## 🤝 Contributing
 
----
+Contributions are greatly appreciated! If you have a suggestion that would make this better, please fork the repo and create a pull request.
+
+### How to Contribute
+
+1. **Fork the Project**
+2. **Create your Feature Branch**
+```bash
+   git checkout -b feature/AmazingFeature
+```
+3.Commit your Changes
+```bash
+    git commit -m 'feat: add AmazingFeature'
+```
+4.Push to the Branch
+```bash
+    git push origin feature/AmazingFeature
+```
+5.Open a Pull Request
+
+📜 Guidelines
+To maintain project quality, please follow these standards:
+
+Python: Follow PEP 8 style guidelines.
+
+Commits: Use Conventional Commits (e.g., feat:, fix:, docs:).
+
+Quality: Always update tests and documentation for any new features or significant changes.
 
 ## 🗺️ Roadmap
 
-Estado actual del proyecto y metas futuras:
-
-| Estado | Funcionalidad | Descripción |
-|:------:|--------------|-------------|
-| ✅ | **Pipeline de Datos** | Scraping desde UFC Stats y Sherdog con manejo de errores |
-| ✅ | **Machine Learning** | Modelos XGBoost con calibración e importancia de features |
-| ✅ | **API Backend** | Servicio REST FastAPI con documentación Swagger |
-| ✅ | **Interfaz Web** | Dashboard en React + TypeScript con visualizaciones |
-| 🔄 | **Predicciones en Vivo** | Inferencia en tiempo real para eventos próximos de la UFC |
-| 📅 | **App Móvil** | App complementaria en React Native para stats en movimiento |
-| 📅 | **Métricas Avanzadas** | Algoritmo propietario de ranking "CageScore" |
-
----
-
-## 👨‍💻 Autor
-
-**Daniel Reid**
-- GitHub: [@danielreidxd](https://github.com/danielreidxd)
-- LinkedIn: [danielreid](https://www.linkedin.com/in/juan-daniel-galvan-moctezuma-0b1b1428a/)
-
----
-
-## 📄 Licencia
-
-Distribuido bajo la Licencia MIT. Consulta [`LICENSE`](LICENSE) para más información.
-
----
-
-> ⚠️ **Descargo de responsabilidad**: Este proyecto es únicamente con fines educativos y de entretenimiento. Las predicciones proporcionadas por CageMind se basan en datos históricos y modelos estadísticos; no garantizan resultados futuros. No utilices este software para apuestas o decisiones financieras.
-
-<p align="right">(<a href="#readme-top">volver arriba</a>)</p>
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+| Status | Feature | Description |
+| :---: | :--- | :--- |
+| ✅ | **Data Pipeline** | Scraping from UFC Stats & Sherdog |
+| ✅ | **Machine Learning** | XGBoost models with calibration |
+| ✅ | **API Backend** | FastAPI REST service + Swagger |
+| ✅ | **Web Interface** | React + TypeScript dashboard |
+| 🔄 | **Live Predictions** | Real-time inference for upcoming events |
+| 📅 | **Mobile App** | React Native companion app |
+| 📅 | **Advanced Metrics** | Proprietary "CageScore" algorithm |
