@@ -132,6 +132,11 @@
         "fighter_a": "John Castaneda",
         "fighter_b": "Mark Vologdin",
         "weight_class": "Bantamweight"
+      },
+      {
+        "fighter_a": "Jamie Siraj",
+        "fighter_b": "John Yannis",
+        "weight_class": "Bantamweight"
       }
     ]
   },
@@ -185,6 +190,16 @@
         "fighter_a": "Jackson McVey",
         "fighter_b": "Sedriques Dumas",
         "weight_class": "Middleweight"
+      },
+      {
+        "fighter_a": "Rafa Garcia",
+        "fighter_b": "Alexander Hernandez",
+        "weight_class": "Lightweight"
+      },
+      {
+        "fighter_a": "Marcus Buchecha",
+        "fighter_b": "Ryan Spann",
+        "weight_class": "Heavyweight"
       }
     ]
   },
@@ -233,6 +248,26 @@
         "fighter_a": "Dom Mar Fan",
         "fighter_b": "Kody Steele",
         "weight_class": "Lightweight"
+      },
+      {
+        "fighter_a": "Shamil Gaziev",
+        "fighter_b": "Brando Pericic",
+        "weight_class": "Heavyweight"
+      },
+      {
+        "fighter_a": "Jonathan Micallef",
+        "fighter_b": "Themba Gorimbo",
+        "weight_class": "Welterweight"
+      },
+      {
+        "fighter_a": "Colby Thicknesse",
+        "fighter_b": "Vince Morales",
+        "weight_class": "Bantamweight"
+      },
+      {
+        "fighter_a": "Benjamin Johnston",
+        "fighter_b": "Wes Schultz",
+        "weight_class": "Middleweight"
       }
     ]
   },
@@ -291,6 +326,11 @@
         "fighter_a": "Baisangur Susurkaev",
         "fighter_b": "Djorden Santos",
         "weight_class": "Middleweight"
+      },
+      {
+        "fighter_a": "Joel Alvarez",
+        "fighter_b": "Yaroslav Amosov",
+        "weight_class": "Welterweight"
       }
     ]
   },
