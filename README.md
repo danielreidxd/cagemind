@@ -84,7 +84,19 @@ cagemind/
 </details>
 
 ---
+## 📺 Project Demos
 
+### 🔮 Predictive Intelligence in Action
+![Image](https://github.com/user-attachments/assets/37e89934-bdb4-4251-ba75-fbc879204e42)
+
+)
+
+
+<br />
+
+| 🔍 SandBox | 📊 soon |
+| :---: | :---: |
+| ![Image](https://github.com/user-attachments/assets/32279e9c-850d-4dbd-9c29-ad5b21917588) | ![Image](https://github.com/user-attachments/assets/e82ea534-b8ca-4a51-bd43-e132174d25aa) |
 ---
 
 ## 🧠 Machine Learning Models
