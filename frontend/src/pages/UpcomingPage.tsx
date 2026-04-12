@@ -171,8 +171,13 @@ export default function UpcomingPage() {
               const isExpanded = expandedIdx === idx;
 
               let dotColor = 'bg-ufc-border';
-              if (pred && pred.correct === true) dotColor = 'bg-green-500';
-              if (pred && pred.correct === false) dotColor = 'bg-red-500';
+              if (fight.is_draw || fight.is_no_contest) {
+                dotColor = 'bg-yellow-500';
+              } else if (pred && pred.correct === true) {
+                dotColor = 'bg-green-500';
+              } else if (pred && pred.correct === false) {
+                dotColor = 'bg-red-500';
+              }
 
               const aWon = fight.winner === fight.fighter_a;
               const bWon = fight.winner === fight.fighter_b;
@@ -191,8 +196,16 @@ export default function UpcomingPage() {
 
               const hasWinner = fight.winner && !fight.is_draw && !fight.is_no_contest;
 
-              const pctA = pred ? Math.round(pred.prob_a * 100) : 0;
-              const pctB = pred ? 100 - pctA : 0;
+              let pctA = pred ? Math.round(pred.prob_a * 100) : 0;
+              let pctB = pred ? 100 - pctA : 0;
+
+              if (pred && pctA === 50 && pctB === 50) {
+                if (pred.prob_a >= pred.prob_b) {
+                  pctA = 51; pctB = 49;
+                } else {
+                  pctA = 49; pctB = 51;
+                }
+              }
 
               return (
                 <div key={idx} className={'glass-card overflow-hidden transition-all duration-200 ' +
@@ -228,8 +241,10 @@ export default function UpcomingPage() {
                     </div>
                     <div className="flex-shrink-0 w-16 text-right flex items-center justify-end gap-2">
                       {pred ? (
-                        <span className={'text-xs font-bold ' + (pred.correct ? 'text-green-400' : 'text-red-400')}>
-                          {pred.correct ? 'OK' : 'MISS'}
+                        <span className={'text-xs font-bold ' +
+                          (fight.is_draw || fight.is_no_contest ? 'text-yellow-400' :
+                            pred.correct ? 'text-green-400' : 'text-red-400')}>
+                          {fight.is_draw ? 'DRAW' : fight.is_no_contest ? 'NC' : pred.correct ? 'OK' : 'MISS'}
                         </span>
                       ) : <span className="text-xs text-ufc-muted/40">--</span>}
                       <svg className={'w-3.5 h-3.5 text-ufc-muted transition-transform duration-200 ' + (isExpanded ? 'rotate-180' : '')}

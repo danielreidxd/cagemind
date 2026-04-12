@@ -262,8 +262,16 @@ export default function NextEventsPage() {
               const myPick = picks[fightKey];
               const isSubmitting = pickLoading === fightKey;
 
-              const pctA = pred ? Math.round(pred.prob_a * 100) : 0;
-              const pctB = pred ? 100 - pctA : 0;
+              let pctA = pred ? Math.round(pred.prob_a * 100) : 0;
+              let pctB = pred ? 100 - pctA : 0;
+
+              if (pred && pctA === 50 && pctB === 50) {
+                if (pred.prob_a >= pred.prob_b) {
+                  pctA = 51; pctB = 49;
+                } else {
+                  pctA = 49; pctB = 51;
+                }
+              }
 
               return (
                 <div key={idx} className={'glass-card overflow-hidden transition-all duration-200 ' +
