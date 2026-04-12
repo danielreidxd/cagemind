@@ -58,6 +58,10 @@ FEATURE_TRANSLATIONS = {
     "b_career_sig_def": "Defensa de striking",
     "a_recent_win_rate": "Forma reciente",
     "b_recent_win_rate": "Forma reciente",
+    "a_reach": "Alcance",
+    "b_reach": "Alcance",
+    "a_height": "Altura",
+    "b_height": "Altura",
 }
 
 
@@ -104,8 +108,15 @@ def explain_prediction(X: np.ndarray, winner_name: str, name_a: str, name_b: str
         if not winner_is_a:
             contributions = [(f, -c, v) for f, c, v in contributions]
 
-        # Filtrar: solo contribuciones positivas (que favorecen al ganador)
-        positive = [(f, c, v) for f, c, v in contributions if c > 0]
+        # Ignorar caracteristicas de base absoluta que confunden (edad, alcance).
+        # El modelo debe explicar basado en los `diff_` (diferencias reales).
+        IGNORE_FEATURES = {
+            "a_age", "b_age", "a_height", "b_height", 
+            "a_reach", "b_reach", "a_weight", "b_weight"
+        }
+
+        # Filtrar: solo contribuciones positivas (que favorecen al ganador) y permitidas
+        positive = [(f, c, v) for f, c, v in contributions if c > 0 and f not in IGNORE_FEATURES]
         positive.sort(key=lambda x: x[1], reverse=True)
 
         # Generar razones legibles
