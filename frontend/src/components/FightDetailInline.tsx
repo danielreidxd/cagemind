@@ -55,6 +55,17 @@ export default function FightDetailInline({ fighterA, fighterB, realWinner, real
   const aIsWinner = winner === prediction.fighter_a;
   const predictionCorrect = realWinner ? winner === realWinner : null;
 
+  let pctA = Math.round(a.win_probability * 100);
+  let pctB = 100 - pctA;
+
+  if (pctA === 50 && pctB === 50) {
+    if (a.win_probability >= b.win_probability) {
+      pctA = 51; pctB = 49;
+    } else {
+      pctA = 49; pctB = 51;
+    }
+  }
+
   const methodData = Object.entries(prediction.method_prediction).map(([name, value]) => ({
     name, value: Math.round(value * 100),
   }));
@@ -108,17 +119,17 @@ export default function FightDetailInline({ fighterA, fighterB, realWinner, real
         </div>
         <p className="text-xs text-ufc-muted">Prediccion del modelo</p>
         <p className="text-lg font-black text-white">{winner}</p>
-        <p className="text-ufc-gold text-xl font-bold">{formatProbability(prediction.winner_probability)}</p>
+        <p className="text-ufc-gold text-xl font-bold">{winner === prediction.fighter_a ? pctA : pctB}%</p>
       </div>
 
       {/* Probability bar */}
       <div className="flex items-center gap-2">
-        <span className="text-xs font-bold text-ufc-red w-12 text-right">{formatProbability(a.win_probability)}</span>
+        <span className="text-xs font-bold text-ufc-red w-12 text-right">{pctA}%</span>
         <div className="flex-1 h-3 bg-ufc-dark rounded-full overflow-hidden flex">
-          <div className="h-full bg-ufc-red transition-all duration-500" style={{ width: (a.win_probability * 100) + '%' }} />
-          <div className="h-full bg-blue-500 transition-all duration-500" style={{ width: (b.win_probability * 100) + '%' }} />
+          <div className="h-full bg-ufc-red transition-all duration-500" style={{ width: pctA + '%' }} />
+          <div className="h-full bg-blue-500 transition-all duration-500" style={{ width: pctB + '%' }} />
         </div>
-        <span className="text-xs font-bold text-blue-400 w-12">{formatProbability(b.win_probability)}</span>
+        <span className="text-xs font-bold text-blue-400 w-12">{pctB}%</span>
       </div>
 
       {/* Explanations */}
@@ -128,9 +139,8 @@ export default function FightDetailInline({ fighterA, fighterB, realWinner, real
           <div className="space-y-1.5">
             {prediction.explanations.map((exp, i) => (
               <div key={i} className="flex items-center gap-2">
-                <span className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${
-                  i === 0 ? 'bg-ufc-gold/20 text-ufc-gold' : 'bg-ufc-dark text-ufc-muted'
-                }`}>{i + 1}</span>
+                <span className={`flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold ${i === 0 ? 'bg-ufc-gold/20 text-ufc-gold' : 'bg-ufc-dark text-ufc-muted'
+                  }`}>{i + 1}</span>
                 <p className="text-xs text-white/80">{exp.reason}</p>
               </div>
             ))}
