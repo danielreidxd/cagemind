@@ -37,7 +37,7 @@ jobs:
           python-version: '3.11'
       
       - name: Install dependencies
-        run: pip install requests beautifulsoup4 lxml pandas numpy
+        run: pip install requests beautifulsoup4 lxml pandas numpy thefuzz python-Levenshtein
       
       - name: Configure Git
         run: |
