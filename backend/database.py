@@ -31,6 +31,53 @@ def load_models():
     return models_bundle
 
 
+class AliasDict(dict):
+    """Diccionario que resuelve distintos casings y alias comunes (ej: Patricio Pitbull)."""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.aliases = {
+            "patricio pitbull": "Patricio Freire",
+            "pitbull freire": "Patricio Freire",
+            "dricus duplessis": "Dricus Du Plessis",
+            "islam makachev": "Islam Makhachev",
+            "khabib nurmagomedov": "Khabib Nurmagomedov",
+            "khamzat chimaev": "Khamzat Chimaev",
+            "magomed ankalaev": "Magomed Ankalaev",
+            "zhang weili": "Weili Zhang",
+        }
+        self.lower_map = {str(k).lower(): k for k in self.keys()}
+
+    def get(self, key, default=None):
+        if not isinstance(key, str):
+            return super().get(key, default)
+        
+        # 1. Exact match
+        if super().__contains__(key):
+            return super().get(key)
+            
+        key_lower = key.lower().strip()
+        
+        # 2. Alias match
+        if key_lower in self.aliases:
+            real_name = self.aliases[key_lower]
+            if super().__contains__(real_name):
+                return super().get(real_name)
+                
+        # 3. Case-insensitive match 
+        if key_lower in self.lower_map:
+            return super().get(self.lower_map[key_lower])
+            
+        return default
+
+    def __contains__(self, key):
+        return self.get(key) is not None
+
+    def __getitem__(self, key):
+        res = self.get(key)
+        if res is None:
+            raise KeyError(key)
+        return res
+
 def load_fighter_cache():
     """Carga todos los peleadores en memoria para búsquedas rápidas."""
     global fighter_cache
@@ -45,7 +92,7 @@ def load_fighter_cache():
             ORDER BY name
         """).fetchall()
         conn.close()
-        fighter_cache = {row["name"]: dict(row) for row in rows}
+        fighter_cache = AliasDict({row["name"]: dict(row) for row in rows})
     return fighter_cache
 
 
@@ -77,5 +124,5 @@ def load_fighter_stats_cache():
             GROUP BY fs.fighter_name
         """).fetchall()
         conn.close()
-        fighter_stats_cache = {row["fighter_name"]: dict(row) for row in stats}
+        fighter_stats_cache = AliasDict({row["fighter_name"]: dict(row) for row in stats})
     return fighter_stats_cache

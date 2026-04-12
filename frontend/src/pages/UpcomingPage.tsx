@@ -191,6 +191,9 @@ export default function UpcomingPage() {
 
               const hasWinner = fight.winner && !fight.is_draw && !fight.is_no_contest;
 
+              const pctA = pred ? Math.round(pred.prob_a * 100) : 0;
+              const pctB = pred ? 100 - pctA : 0;
+
               return (
                 <div key={idx} className={'glass-card overflow-hidden transition-all duration-200 ' +
                   (isExpanded ? 'border-ufc-gold/40' : 'hover:border-ufc-gold/20')}>
@@ -202,7 +205,7 @@ export default function UpcomingPage() {
                     <div className={'w-2.5 h-2.5 rounded-full flex-shrink-0 ' + dotColor} />
                     <div className="flex-1 text-right">
                       <span className={'text-sm font-medium ' + (aWon ? 'text-white' : 'text-ufc-muted')}>{fight.fighter_a}</span>
-                      {pred && <span className="text-xs text-ufc-muted ml-2">{(pred.prob_a * 100).toFixed(0)}%</span>}
+                      {pred && <span className="text-xs text-ufc-muted ml-2">{pctA}%</span>}
                     </div>
                     <div className="flex-shrink-0 text-center w-28">
                       {hasWinner ? (
@@ -220,7 +223,7 @@ export default function UpcomingPage() {
                       {fight.weight_class && <p className="text-[10px] text-ufc-muted/60 mt-0.5">{fight.weight_class}</p>}
                     </div>
                     <div className="flex-1 text-left">
-                      {pred && <span className="text-xs text-ufc-muted mr-2">{(pred.prob_b * 100).toFixed(0)}%</span>}
+                      {pred && <span className="text-xs text-ufc-muted mr-2">{pctB}%</span>}
                       <span className={'text-sm font-medium ' + (bWon ? 'text-white' : 'text-ufc-muted')}>{fight.fighter_b}</span>
                     </div>
                     <div className="flex-shrink-0 w-16 text-right flex items-center justify-end gap-2">

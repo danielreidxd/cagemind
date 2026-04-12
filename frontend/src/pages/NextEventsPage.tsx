@@ -262,6 +262,9 @@ export default function NextEventsPage() {
               const myPick = picks[fightKey];
               const isSubmitting = pickLoading === fightKey;
 
+              const pctA = pred ? Math.round(pred.prob_a * 100) : 0;
+              const pctB = pred ? 100 - pctA : 0;
+
               return (
                 <div key={idx} className={'glass-card overflow-hidden transition-all duration-200 ' +
                   (isExpanded ? 'border-ufc-gold/40' : pred ? 'hover:border-ufc-gold/20' : 'opacity-60')}>
@@ -288,7 +291,7 @@ export default function NextEventsPage() {
                       {pred && (
                         <span className={'text-xs ml-2 font-bold ' +
                           (pred.prob_a > pred.prob_b ? 'text-ufc-gold' : 'text-ufc-muted')}>
-                          {(pred.prob_a * 100).toFixed(0)}%
+                          {pctA}%
                         </span>
                       )}
                     </div>
@@ -310,7 +313,7 @@ export default function NextEventsPage() {
                       {pred && (
                         <span className={'text-xs mr-2 font-bold ' +
                           (pred.prob_b > pred.prob_a ? 'text-ufc-gold' : 'text-ufc-muted')}>
-                          {(pred.prob_b * 100).toFixed(0)}%
+                          {pctB}%
                         </span>
                       )}
                       <span className={'text-sm font-medium ' +
