@@ -1,0 +1,81 @@
+"""
+Conexión a base de datos y caches en memoria.
+"""
+from __future__ import annotations
+
+import pickle
+import sqlite3
+
+from backend.config import DB_PATH, MODELS_PATH
+
+# ============================================================
+# CARGA DE MODELOS Y DATOS (al iniciar)
+# ============================================================
+
+models_bundle = None
+fighter_cache = None
+fighter_stats_cache = None
+
+
+def get_db():
+    conn = sqlite3.connect(str(DB_PATH))
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def load_models():
+    global models_bundle
+    if models_bundle is None:
+        with open(MODELS_PATH, "rb") as f:
+            models_bundle = pickle.load(f)
+    return models_bundle
+
+
+def load_fighter_cache():
+    """Carga todos los peleadores en memoria para búsquedas rápidas."""
+    global fighter_cache
+    if fighter_cache is None:
+        conn = get_db()
+        rows = conn.execute("""
+            SELECT name, height_inches, reach_inches, weight_lbs, stance,
+                   wins, losses, draws, dob,
+                   slpm, str_acc, sapm, str_def,
+                   td_avg, td_acc, td_def, sub_avg
+            FROM fighters
+            ORDER BY name
+        """).fetchall()
+        conn.close()
+        fighter_cache = {row["name"]: dict(row) for row in rows}
+    return fighter_cache
+
+
+def load_fighter_stats_cache():
+    """Carga stats agregadas por peleador."""
+    global fighter_stats_cache
+    if fighter_stats_cache is None:
+        conn = get_db()
+        # Stats agregadas por peleador (todas sus peleas)
+        stats = conn.execute("""
+            SELECT
+                fs.fighter_name,
+                COUNT(DISTINCT fs.fight_id) as total_fights,
+                SUM(fs.knockdowns) as total_kd,
+                SUM(fs.sig_strikes_landed) as total_sig_landed,
+                SUM(fs.sig_strikes_attempted) as total_sig_attempted,
+                SUM(fs.takedowns_landed) as total_td_landed,
+                SUM(fs.takedowns_attempted) as total_td_attempted,
+                SUM(fs.submission_attempts) as total_sub_att,
+                SUM(fs.control_time_seconds) as total_ctrl,
+                SUM(fs.head_landed) as total_head,
+                SUM(fs.body_landed) as total_body,
+                SUM(fs.leg_landed) as total_leg,
+                SUM(fs.distance_landed) as total_distance,
+                SUM(fs.clinch_landed) as total_clinch,
+                SUM(fs.ground_landed) as total_ground,
+                MAX(fs.round) as max_rounds
+            FROM fight_stats fs
+            GROUP BY fs.fighter_name
+        """).fetchall()
+        conn.close()
+        fighter_stats_cache = {row["fighter_name"]: dict(row) for row in stats}
+    return fighter_stats_cache

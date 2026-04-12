@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import FightDetailInline from '../components/FightDetailInline';
 import EventCardGenerator from '../components/EventCardGenerator';
 import { useAuth } from '../contexts/AuthContext';
+import { API_BASE } from '../config';
 
 interface UpcomingFight {
   fighter_a: string;
@@ -39,9 +40,6 @@ interface UpcomingEvent {
   predicted_fights: number;
 }
 
-const API_BASE = import.meta.env.PROD
-  ? 'https://web-production-2bc52.up.railway.app'
-  : '/api';
 
 export default function NextEventsPage() {
   const [events, setEvents] = useState<UpcomingEvent[]>([]);
@@ -117,7 +115,7 @@ export default function NextEventsPage() {
       if (res.ok) {
         setPicks(prev => ({ ...prev, [key]: pickedWinner }));
       }
-    } catch {}
+    } catch { }
     setPickLoading(null);
   }, [token, currentEvent]);
 
@@ -224,7 +222,7 @@ export default function NextEventsPage() {
       {currentEvent && (
         <div className={'transition-all duration-200 ' + (
           transitioning === 'left' ? 'translate-x-[-20px] opacity-0' :
-          transitioning === 'right' ? 'translate-x-[20px] opacity-0' : 'translate-x-0 opacity-100'
+            transitioning === 'right' ? 'translate-x-[20px] opacity-0' : 'translate-x-0 opacity-100'
         )}>
           {/* Event Header */}
           <div className="glass-card p-6 mb-4">
@@ -301,9 +299,8 @@ export default function NextEventsPage() {
                         <p className="text-[10px] text-ufc-muted/50 mt-0.5">{fight.weight_class}</p>
                       )}
                       {pred && pred.confidence && typeof pred.confidence === 'string' && pred.confidence !== 'HIGH' && (
-                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full mt-0.5 inline-block ${
-                          pred.confidence === 'LOW' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'
-                        }`}>
+                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full mt-0.5 inline-block ${pred.confidence === 'LOW' ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'
+                          }`}>
                           {pred.confidence}
                         </span>
                       )}
@@ -344,22 +341,20 @@ export default function NextEventsPage() {
                           <button
                             onClick={(e) => { e.stopPropagation(); submitPick(fight, fight.fighter_a); }}
                             disabled={isSubmitting}
-                            className={`text-xs px-3 py-1 rounded-full font-medium transition-all ${
-                              myPick === fight.fighter_a
-                                ? 'bg-ufc-red text-white'
-                                : 'bg-ufc-dark text-ufc-muted hover:text-white hover:bg-ufc-red/30 border border-ufc-border'
-                            }`}
+                            className={`text-xs px-3 py-1 rounded-full font-medium transition-all ${myPick === fight.fighter_a
+                              ? 'bg-ufc-red text-white'
+                              : 'bg-ufc-dark text-ufc-muted hover:text-white hover:bg-ufc-red/30 border border-ufc-border'
+                              }`}
                           >
                             {fight.fighter_a}
                           </button>
                           <button
                             onClick={(e) => { e.stopPropagation(); submitPick(fight, fight.fighter_b); }}
                             disabled={isSubmitting}
-                            className={`text-xs px-3 py-1 rounded-full font-medium transition-all ${
-                              myPick === fight.fighter_b
-                                ? 'bg-blue-500 text-white'
-                                : 'bg-ufc-dark text-ufc-muted hover:text-white hover:bg-blue-500/30 border border-ufc-border'
-                            }`}
+                            className={`text-xs px-3 py-1 rounded-full font-medium transition-all ${myPick === fight.fighter_b
+                              ? 'bg-blue-500 text-white'
+                              : 'bg-ufc-dark text-ufc-muted hover:text-white hover:bg-blue-500/30 border border-ufc-border'
+                              }`}
                           >
                             {fight.fighter_b}
                           </button>

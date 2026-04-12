@@ -1,10 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-
-const API_BASE = import.meta.env.PROD
-  ? 'https://web-production-2bc52.up.railway.app'
-  : '/api';
+import { API_BASE } from '../config';
 
 export default function RegisterPage() {
   const [username, setUsername] = useState('');
@@ -65,9 +62,9 @@ export default function RegisterPage() {
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
             <svg width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-              <polygon points="50,5 93,27.5 93,72.5 50,95 7,72.5 7,27.5" fill="none" stroke="#C8102E" strokeWidth="4"/>
-              <polygon points="50,20 76,35 76,65 50,80 24,65 24,35" fill="none" stroke="#D4AF37" strokeWidth="2" opacity="0.5"/>
-              <circle cx="50" cy="50" r="4" fill="#D4AF37"/>
+              <polygon points="50,5 93,27.5 93,72.5 50,95 7,72.5 7,27.5" fill="none" stroke="#C8102E" strokeWidth="4" />
+              <polygon points="50,20 76,35 76,65 50,80 24,65 24,35" fill="none" stroke="#D4AF37" strokeWidth="2" opacity="0.5" />
+              <circle cx="50" cy="50" r="4" fill="#D4AF37" />
             </svg>
             <span className="font-extrabold text-2xl tracking-wide">
               <span className="text-ufc-red">CAGE</span><span className="gold-gradient">MIND</span>

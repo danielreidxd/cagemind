@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { API_BASE } from '../config';
 
 // ── Types ──
 interface DashboardData {
@@ -33,9 +34,6 @@ interface UpdateLog {
   finished_at: string | null;
 }
 
-const API_BASE = import.meta.env.PROD
-  ? 'https://web-production-2bc52.up.railway.app'
-  : '/api';
 
 type Tab = 'dashboard' | 'analytics' | 'system';
 
@@ -104,9 +102,8 @@ export default function AdminPage() {
   const tabBtn = (t: Tab, label: string, icon: string) => (
     <button
       onClick={() => setTab(t)}
-      className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${
-        tab === t ? 'bg-ufc-red text-white' : 'text-ufc-muted hover:text-white hover:bg-ufc-border/50'
-      }`}
+      className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all ${tab === t ? 'bg-ufc-red text-white' : 'text-ufc-muted hover:text-white hover:bg-ufc-border/50'
+        }`}
     >
       <span>{icon}</span> {label}
     </button>
@@ -378,9 +375,8 @@ export default function AdminPage() {
               </button>
             </div>
             {updateResult && (
-              <div className={`mt-4 p-3 rounded-lg text-sm ${
-                updateResult.startsWith('Error') ? 'bg-red-500/10 text-red-400 border border-red-500/30' : 'bg-green-500/10 text-green-400 border border-green-500/30'
-              }`}>
+              <div className={`mt-4 p-3 rounded-lg text-sm ${updateResult.startsWith('Error') ? 'bg-red-500/10 text-red-400 border border-red-500/30' : 'bg-green-500/10 text-green-400 border border-green-500/30'
+                }`}>
                 {updateResult}
               </div>
             )}
@@ -399,17 +395,15 @@ export default function AdminPage() {
               <div className="space-y-2">
                 {logs.map((log) => (
                   <div key={log.id} className="flex items-start gap-3 py-3 border-b border-ufc-border/30 last:border-0">
-                    <div className={`w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0 ${
-                      log.status === 'success' ? 'bg-green-500' :
+                    <div className={`w-2.5 h-2.5 rounded-full mt-1.5 flex-shrink-0 ${log.status === 'success' ? 'bg-green-500' :
                       log.status === 'running' ? 'bg-yellow-500 animate-pulse' : 'bg-red-500'
-                    }`} />
+                      }`} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-white font-medium">{log.action}</span>
-                        <span className={`text-xs px-2 py-0.5 rounded ${
-                          log.status === 'success' ? 'bg-green-500/10 text-green-400' :
+                        <span className={`text-xs px-2 py-0.5 rounded ${log.status === 'success' ? 'bg-green-500/10 text-green-400' :
                           log.status === 'running' ? 'bg-yellow-500/10 text-yellow-400' : 'bg-red-500/10 text-red-400'
-                        }`}>
+                          }`}>
                           {log.status}
                         </span>
                       </div>

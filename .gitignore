@@ -48,3 +48,7 @@ inspect_*.py
 test_*.py
 count_*.py
 check_*.py
+# Additions to ignore large files
+*.db
+data/checkpoints/
+ml/models/*.pkl.*

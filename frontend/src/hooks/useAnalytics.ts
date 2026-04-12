@@ -1,16 +1,13 @@
 import { useEffect, useCallback } from 'react';
 import { useLocation } from 'react-router-dom';
-
-const API_BASE = import.meta.env.PROD
-  ? 'https://web-production-2bc52.up.railway.app'
-  : '/api';
+import { API_BASE } from '../config';
 
 function sendTrack(event_type: string, page?: string, detail?: string) {
   fetch(`${API_BASE}/analytics/track`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ event_type, page, detail }),
-  }).catch(() => {}); // Fire and forget
+  }).catch(() => { }); // Fire and forget
 }
 
 /**
@@ -23,7 +20,7 @@ export function useAnalytics() {
   // Auto-track page views
   useEffect(() => {
     const page = location.pathname === '/' ? 'proximamente' :
-                 location.pathname.replace('/', '');
+      location.pathname.replace('/', '');
     sendTrack('page_view', page);
   }, [location.pathname]);
 

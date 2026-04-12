@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { API_BASE } from '../config';
 
 interface User {
   username: string;
@@ -19,14 +20,12 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   token: null,
   isAdmin: false,
-  login: async () => {},
-  logout: () => {},
+  login: async () => { },
+  logout: () => { },
   loading: true,
 });
 
-const API_BASE = import.meta.env.PROD
-  ? 'https://web-production-2bc52.up.railway.app'
-  : '/api';
+
 
 const TOKEN_KEY = 'cagemind_token';
 

@@ -1,8 +1,5 @@
 import { useState, useEffect } from 'react';
-
-const API_BASE = import.meta.env.PROD
-  ? 'https://web-production-2bc52.up.railway.app'
-  : '/api';
+import { API_BASE } from '../config';
 
 interface LeaderboardEntry {
   username: string;
@@ -54,7 +51,7 @@ export default function LeaderboardPage() {
       {!hasData ? (
         <div className="glass-card p-10 text-center">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#525252" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="mx-auto mb-4 opacity-40">
-            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6" /><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18" /><path d="M4 22h16" /><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22" /><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22" /><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z" />
           </svg>
           <p className="text-[16px] text-white mb-2">Sin datos todavia</p>
           <p className="text-ufc-muted text-[13px]">
@@ -70,8 +67,8 @@ export default function LeaderboardPage() {
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full bg-ufc-gold/10 flex items-center justify-center">
                     <svg width="16" height="16" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                      <polygon points="50,5 93,27.5 93,72.5 50,95 7,72.5 7,27.5" fill="none" stroke="#C9A227" strokeWidth="6"/>
-                      <circle cx="50" cy="50" r="8" fill="#C9A227"/>
+                      <polygon points="50,5 93,27.5 93,72.5 50,95 7,72.5 7,27.5" fill="none" stroke="#C9A227" strokeWidth="6" />
+                      <circle cx="50" cy="50" r="8" fill="#C9A227" />
                     </svg>
                   </div>
                   <div>

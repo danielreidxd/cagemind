@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import FightDetailInline from '../components/FightDetailInline';
+import { API_BASE } from '../config';
 
 interface FightPrediction {
   predicted_winner: string;
@@ -44,7 +45,6 @@ export default function UpcomingPage() {
     setLoading(true);
     setExpandedIdx(null);
     try {
-      const API_BASE = import.meta.env.PROD ? 'https://web-production-2bc52.up.railway.app' : '/api';
       const res = await fetch(API_BASE + '/events?page=' + p);
       const json = await res.json();
       setData(json);
@@ -141,7 +141,7 @@ export default function UpcomingPage() {
       {!loading && data?.event && (
         <div className={'transition-all duration-200 ' + (
           transitioning === 'left' ? 'translate-x-[-20px] opacity-0' :
-          transitioning === 'right' ? 'translate-x-[20px] opacity-0' : 'translate-x-0 opacity-100'
+            transitioning === 'right' ? 'translate-x-[20px] opacity-0' : 'translate-x-0 opacity-100'
         )}>
           {/* Event Header */}
           <div className="glass-card p-6 mb-4">
