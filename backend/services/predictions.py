@@ -125,6 +125,17 @@ def compute_live_features(name_a: str, name_b: str) -> np.ndarray:
     except Exception:
         pass  # Si no existe la tabla, seguir sin Sherdog
 
+    # --- Ajuste de Edad (Regla de Prime MMA) ---
+    # Evita penalizar diferencias pequeñas de edad a menos que uno sea viejo (35+)
+    # Todo peleador entre 25 y 34 años es tratado como si tuviera exactamente 28 años (Prime)
+    def get_effective_age(age):
+        if not age: return 30
+        if 25 <= age <= 34: return 28
+        return age
+
+    if "age" in feats_a: feats_a["age"] = get_effective_age(feats_a["age"])
+    if "age" in feats_b: feats_b["age"] = get_effective_age(feats_b["age"])
+
     # Construir vector de features en el orden correcto
     feature_vector = []
     for fname in feature_names:
