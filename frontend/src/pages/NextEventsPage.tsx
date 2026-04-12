@@ -298,7 +298,7 @@ export default function NextEventsPage() {
                       </span>
                       {pred && (
                         <span className={'text-xs ml-2 font-bold ' +
-                          (pred.prob_a > pred.prob_b ? 'text-ufc-gold' : 'text-ufc-muted')}>
+                          (pctA > pctB ? 'text-ufc-gold' : 'text-ufc-muted')}>
                           {pctA}%
                         </span>
                       )}
@@ -320,7 +320,7 @@ export default function NextEventsPage() {
                     <div className="flex-1 text-left">
                       {pred && (
                         <span className={'text-xs mr-2 font-bold ' +
-                          (pred.prob_b > pred.prob_a ? 'text-ufc-gold' : 'text-ufc-muted')}>
+                          (pctB > pctA ? 'text-ufc-gold' : 'text-ufc-muted')}>
                           {pctB}%
                         </span>
                       )}

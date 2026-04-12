@@ -213,8 +213,17 @@ function drawCard(
 
   fights.forEach((fight) => {
     const pred = fight.prediction;
-    const probA = pred ? Math.round(pred.prob_a * 100) : null;
-    const probB = pred ? Math.round(pred.prob_b * 100) : null;
+    let probA = pred ? Math.round(pred.prob_a * 100) : null;
+    let probB = pred && probA !== null ? 100 - probA : null;
+
+    if (pred && probA === 50 && probB === 50) {
+      if (pred.prob_a > pred.prob_b) {
+        probA = 51; probB = 49;
+      } else {
+        probA = 49; probB = 51;
+      }
+    }
+
     const aWins = pred ? pred.prob_a > pred.prob_b : false;
     const rowAlpha = pred ? 1 : 0.45;
 
