@@ -53,9 +53,18 @@ export default function CardGenerator({ prediction, eventName }: Props) {
 
   const { fighter_a_profile: a, fighter_b_profile: b, winner } = prediction;
   const aIsWinner = winner === prediction.fighter_a;
-  const probA = Math.round(a.win_probability * 100);
-  const probB = Math.round(b.win_probability * 100);
-  const winnerProb = Math.round(prediction.winner_probability * 100);
+  let probA = Math.round(a.win_probability * 100);
+  let probB = 100 - probA;
+
+  if (probA === 50 && probB === 50) {
+    if (a.win_probability > b.win_probability) {
+      probA = 51; probB = 49;
+    } else {
+      probA = 49; probB = 51;
+    }
+  }
+
+  const winnerProb = aIsWinner ? probA : probB;
 
   const methodEntries = Object.entries(prediction.method_prediction).map(
     ([name, value]) => ({ name, pct: Math.round(value * 100) })
@@ -534,21 +543,19 @@ export default function CardGenerator({ prediction, eventName }: Props) {
             <div className="flex gap-2 mb-5">
               <button
                 onClick={() => setFormat('vertical')}
-                className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
-                  format === 'vertical'
+                className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${format === 'vertical'
                     ? 'bg-ufc-red text-white'
                     : 'bg-ufc-border/50 text-ufc-muted hover:text-white'
-                }`}
+                  }`}
               >
                 📱 Vertical (IG Story)
               </button>
               <button
                 onClick={() => setFormat('horizontal')}
-                className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${
-                  format === 'horizontal'
+                className={`flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-all ${format === 'horizontal'
                     ? 'bg-ufc-red text-white'
                     : 'bg-ufc-border/50 text-ufc-muted hover:text-white'
-                }`}
+                  }`}
               >
                 🖥️ Horizontal (Twitter)
               </button>
