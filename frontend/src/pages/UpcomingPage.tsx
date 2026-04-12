@@ -200,7 +200,7 @@ export default function UpcomingPage() {
               let pctB = pred ? 100 - pctA : 0;
 
               if (pred && pctA === 50 && pctB === 50) {
-                if (pred.prob_a >= pred.prob_b) {
+                if (pred.prob_a > pred.prob_b) {
                   pctA = 51; pctB = 49;
                 } else {
                   pctA = 49; pctB = 51;

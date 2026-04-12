@@ -59,7 +59,7 @@ export default function FightDetailInline({ fighterA, fighterB, realWinner, real
   let pctB = 100 - pctA;
 
   if (pctA === 50 && pctB === 50) {
-    if (a.win_probability >= b.win_probability) {
+    if (a.win_probability > b.win_probability) {
       pctA = 51; pctB = 49;
     } else {
       pctA = 49; pctB = 51;
