@@ -4,7 +4,7 @@ Router de eventos: históricos y upcoming.
 from __future__ import annotations
 
 import json as _json
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from pathlib import Path
 
 from fastapi import APIRouter, Query
@@ -159,13 +159,15 @@ async def get_upcoming():
     with open(upcoming_file, "r", encoding="utf-8") as f:
         all_events = _json.load(f)
 
-    # Filtrar solo eventos futuros (fecha >= hoy)
-    today = date.today()
+    # Filtrar solo eventos futuros y recientes (fecha >= hoy - 2 dias)
+    # Esto evita que desaparezcan el "dia de la pelea" por diferencias de zona horaria (limbo)
+    # y los mantiene "En vivo" hasta que el admin actualice el historico el lunes.
+    cutoff_date = date.today() - timedelta(days=2)
     events = []
     for ev in all_events:
         try:
             ev_date = datetime.strptime(ev["date"], "%B %d, %Y").date()
-            if ev_date >= today:
+            if ev_date >= cutoff_date:
                 events.append(ev)
         except (ValueError, KeyError, TypeError):
             events.append(ev)  # Si no se puede parsear la fecha, incluirlo
