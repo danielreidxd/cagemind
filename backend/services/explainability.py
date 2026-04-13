@@ -62,6 +62,25 @@ FEATURE_TRANSLATIONS = {
     "b_reach": "Alcance",
     "a_height": "Altura",
     "b_height": "Altura",
+    "a_abs_streak": "Racha ganadora",
+    "b_abs_streak": "Racha ganadora",
+    "diff_abs_streak": "Racha positiva",
+    "a_strike_efficiency": "Eficiencia de striking",
+    "b_strike_efficiency": "Eficiencia de striking",
+    "diff_strike_efficiency": "Eficiencia de striking",
+}
+
+# Modificadores legibles para caracteristicas base del ganador
+WINNER_ADJECTIVES = {
+    "Racha ganadora": "Excelente racha de victorias al hilo",
+    "Eficiencia de striking": "Mucha efectividad golpeando",
+    "Consistencia": "Alta consistencia tactica en sus peleas",
+    "Forma reciente": "Pico de rendimiento reciente muy superior",
+    "Win rate": "Historial solido de victorias profesionales",
+    "Peleas UFC": "Importante experiencia dentro del octagono",
+    "Poder de KO": "Peligroso poder de nocaut en sus manos",
+    "Takedowns/min": "Agresiva presion de derribos y lucha",
+    "Defensa de striking": "Defensa solida y baja absorcion de daño",
 }
 
 
@@ -142,20 +161,20 @@ def explain_prediction(X: np.ndarray, winner_name: str, name_a: str, name_b: str
                 if "age" in feat:
                     age_diff = abs(val)
                     if val < 0:
-                        reason = f"{int(age_diff)} anos mas joven"
+                        reason = f"{int(age_diff)} anos mas joven y vital"
                     else:
-                        reason = f"Ventaja de experiencia por edad"
+                        reason = f"Mayor colmillo y experiencia veterana"
                 elif val > 0:
-                    reason = f"Mejor {human_name.lower()}"
+                    reason = f"Ventaja en {human_name.lower()}"
                 else:
-                    reason = f"Mejor {human_name.lower()}"
+                    reason = f"Ventaja en {human_name.lower()}"
             elif feat.startswith("a_") or feat.startswith("b_"):
                 prefix = feat[:2]
                 is_winner_stat = (prefix == "a_" and winner_is_a) or (prefix == "b_" and not winner_is_a)
                 if is_winner_stat:
-                    reason = f"{human_name}: {val:.2f}" if val < 10 else f"{human_name}: {val:.0f}"
+                    reason = WINNER_ADJECTIVES.get(human_name, f"Gran nivel de {human_name.lower()}")
                 else:
-                    reason = f"Oponente debil en {human_name.lower()}"
+                    reason = f"El rival es vulnerable en {human_name.lower()}"
             else:
                 reason = human_name
 
