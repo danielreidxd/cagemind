@@ -54,31 +54,88 @@
 <details>
 <summary><b>📁 View complete project structure</b></summary>
 cagemind/
-├── 📁 config/ # Configuration & environment variables
+├── 📁 .github/
+│   └── 📁 workflows/          # CI/CD pipelines (GitHub Actions)
+├── 📁 config/                 # Configuration & environment variables
+│   ├── 📄 __init__.py
+│   └── 📄 settings.py
 ├── 📁 data/
-│ ├── 📁 scrapers/ # UFC Stats & Sherdog scrapers
-│ ├── 📁 raw/ # Raw HTML/JSON downloads
-│ ├── 📁 processed/ # Cleaned datasets
-│ └── 📁 exports/ # CSV exports
-├── 📁 db/ # SQLite schema & utilities
-├── 📁 ml/ # Models, training & predictions
-├── 📁 backend/ # FastAPI application
-│ ├── 📁 api/ # Routes & endpoints
-│ ├── 📁 core/ # Config & security
-│ └── 📁 schemas/ # Pydantic models
-├── 📁 frontend/ # React + TypeScript app
-│ ├── 📁 src/
-│ │ ├── 📁 components/
-│ │ ├── 📁 pages/
-│ │ ├── 📁 services/
-│ │ └── 📁 utils/
-│ └── 📁 public/
-├── 📁 notebooks/ # Jupyter notebooks (EDA)
-├── 📁 tests/ # Unit & integration tests
-├── 📁 docs/ # Documentation
+│   ├── 📄 __init__.py
+│   ├── 📁 checkpoints/        # Checkpoints para scrapers resumibles ⭐ NUEVO
+│   ├── 📁 exports/            # CSV exports
+│   ├── 📁 raw/                # Raw HTML/JSON downloads
+│   └── 📁 scrapers/           # UFC Stats & Sherdog scrapers
+├── 📁 db/                     # SQLite schema & utilities
+│   ├── 📄 __init__.py
+│   ├── 📄 schema.py
+│   └── 📄 ufc_predictor.db    # Base de datos SQLite
+├── 📁 ml/                     # Models, training & predictions
+│   ├── 📁 calibration/        # Platt scaling & model calibration ⭐ NUEVO
+│   ├── 📁 models/             # Modelos entrenados (.pkl, .json)
+│   ├── 📁 results/            # Métricas y logs de entrenamiento
+│   └── 📁 semana1/            # Notebooks/analisis por iteración
+├── 📁 backend/                # FastAPI application ⭐ REFACTORIZADO
+│   ├── 📄 __init__.py
+│   ├── 📄 app.py              # Entry point FastAPI
+│   ├── 📄 auth.py             # JWT authentication logic
+│   ├── 📄 config.py           # Backend-specific config
+│   ├── 📄 database.py         # DB connection & session management
+│   ├── 📄 schemas.py          # Pydantic models (consolidado)
+│   ├── 📁 routers/            # API endpoints modularizados ⭐ CAMBIO
+│   │   ├── 📄 __init__.py
+│   │   ├── 📄 admin.py
+│   │   ├── 📄 analytics.py
+│   │   ├── 📄 auth.py
+│   │   ├── 📄 events.py
+│   │   ├── 📄 fighters.py
+│   │   ├── 📄 odds.py
+│   │   ├── 📄 picks.py
+│   │   ├── 📄 predictions.py
+│   │   └── 📄 stats.py
+│   └── 📁 services/           # Business logic layer ⭐ NUEVO
+│       ├── 📄 __init__.py
+│       ├── 📄 explainability.py
+│       ├── 📄 fighters.py
+│       ├── 📄 odds.py
+│       └── 📄 predictions.py
+├── 📁 frontend/               # React + TypeScript app (Vite)
+│   ├── 📄 index.html
+│   ├── 📄 package.json
+│   ├── 📄 package-lock.json
+│   ├── 📄 postcss.config.js
+│   ├── 📄 tailwind.config.js
+│   ├── 📄 tsconfig.json
+│   ├── 📄 tsconfig.node.json
+│   ├── 📄 vercel.json         # Deploy config para Vercel
+│   ├── 📄 vite.config.ts
+│   ├── 📁 public/
+│   └── 📁 src/
+│       ├── 📄 App.tsx
+│       ├── 📄 main.tsx
+│       ├── 📄 index.css
+│       ├── 📄 config.ts
+│       ├── 📄 vite-env.d.ts
+│       ├── 📁 components/
+│       ├── 📁 contexts/       # React Context providers ⭐ NUEVO
+│       ├── 📁 hooks/          # Custom React hooks ⭐ NUEVO
+│       ├── 📁 pages/
+│       ├── 📁 services/       # API client services
+│       ├── 📁 types/          # TypeScript interfaces ⭐ NUEVO
+│       └── 📁 utils/
+├── 📁 notebooks/          
+│   ├── 📄 01_distribucion_peso.png
+│   ├── 📄 02_distribucion_stance.png
+│   ├── 📄 ... (más visualizaciones)
+│   └── 📁 deep/              
+├── 📁 scripts/                # Scripts utilitarios ⭐ NUEVO
+│   ├── 📁 scraping/           # Scripts de scraping standalone
+│   └── 📁 training/           # Scripts de entrenamiento ML
+├── 📄 .gitignore
+├── 📄 Procfile                # Deploy config (Railway/Heroku)
+├── 📄 nixpacks.toml           # Build config para Nixpacks
 ├── 📄 requirements.txt
-├── 📄 package.json
-├── 📄 run_phase1.py
+├── 📄 runtime.txt             # Python version pinning
+├── 📄 upload_to_supabase.py   # Script Supabase ⭐ NUEVO
 └── 📄 README.md
 
 </details>
@@ -126,7 +183,7 @@ CageMind uses a multi-model ensemble approach to predict different facets of a f
 |------------|---------|---------|
 | **Python** | Core language for scraping, ML, and API | 3.10+ |
 | **FastAPI** | High-performance REST API framework | 0.104+ |
-| **SQLite** | Lightweight, file-based relational database | 3.x |
+| **Supabase/PostgreSQL** | Lightweight, file-based relational database | 3.x |
 | **Pandas** | Data manipulation and analysis | 2.x |
 | **NumPy** | Numerical computing and array operations | 1.24+ |
 | **Scikit-learn** | ML utilities, preprocessing, model evaluation | 1.3+ |
