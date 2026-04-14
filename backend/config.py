@@ -8,7 +8,14 @@ from pathlib import Path
 # RUTAS
 # ============================================================
 
-SUPABASE_URL = os.environ.get("DATABASE_URL")
+DB_PATH = Path("db/ufc_predictor.db")
+SUPABASE_URL = os.environ.get("DATABASE_URL") 
+
+if SUPABASE_URL:
+    DATABASE_URL = SUPABASE_URL
+else:
+    DATABASE_URL = f"sqlite:///{DB_PATH}"
+
 MODELS_PATH = Path("ml/models/ufc_predictor_models.pkl")
 FEATURES_PATH = Path("ml/models/feature_names.json")
 
@@ -17,7 +24,7 @@ FEATURES_PATH = Path("ml/models/feature_names.json")
 # ============================================================
 
 
-PROB_CAP = 0.85      
+PROB_CAP = 0.85     
 COMPRESSION = 0.75   
 
 # ============================================================

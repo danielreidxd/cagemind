@@ -3,8 +3,9 @@ from __future__ import annotations
 
 import pickle
 import sqlite3
+import os
 
-from backend.config import DB_PATH, MODELS_PATH
+from backend.config import DATABASE_URL, MODELS_PATH
 
 # ============================================================
 # CARGA DE MODELOS Y DATOS (al iniciar)
@@ -15,10 +16,21 @@ fighter_cache = None
 fighter_stats_cache = None
 
 
+
+
 def get_db():
-    conn = sqlite3.connect(str(DB_PATH))
-    conn.row_factory = sqlite3.Row
-    return conn
+    """Retorna una conexión compatible. Soporta SQLite y PostgreSQL."""
+    if DATABASE_URL.startswith("postgresql"):
+        import psycopg2
+        import psycopg2.extras
+        conn = psycopg2.connect(DATABASE_URL)
+        return conn
+    else:
+
+        clean_path = DATABASE_URL.replace("sqlite:///", "")
+        conn = sqlite3.connect(clean_path)
+        conn.row_factory = sqlite3.Row
+        return conn
 
 
 def load_models():
