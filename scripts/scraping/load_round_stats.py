@@ -1,19 +1,4 @@
-"""
-CageMind — Cargar Round Stats a SQLite
 
-Después de correr scrape_round_stats.py, ejecuta este script para:
-1. Leer all_round_stats.json
-2. Limpiar la tabla fight_stats existente (solo tiene totals)
-3. Cargar las stats round-by-round con round numbers correctos
-4. Verificar integridad
-
-Uso:
-    cd cagemind
-    python load_round_stats.py
-
-IMPORTANTE: Haz backup de tu BD antes de correr esto.
-    copy db/ufc_predictor.db db/ufc_predictor_backup.db
-"""
 from __future__ import annotations
 
 import json

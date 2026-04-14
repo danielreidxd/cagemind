@@ -1,29 +1,3 @@
-"""
-CageMind — Semana 1: Feature Selection + Re-entrenamiento Completo
-
-Ejecuta las 2 tareas restantes de Semana 1 en un solo script:
-
-1. FEATURE SELECTION
-   - Elimina features 100% nulas (cardio_ratio)
-   - Elimina features redundantes (correlación > 0.95 entre sí)
-   - Rankea por importancia usando XGBoost feature importance
-   - Reduce de 167 a ~80-100 features
-
-2. RE-ENTRENAMIENTO (4 modelos)
-   - Modelo 1 (Winner): Mejor entre LogReg y XGBoost + Platt Scaling
-   - Modelo 2 (Método): XGBoost multiclase con Optuna (reemplaza LogReg)
-   - Modelo 3 (Finish vs Dec): Mejor entre RF y XGBoost con Optuna
-   - Modelo 4 (Round): XGBoost con Optuna
-
-Requisitos:
-    pip install scikit-learn xgboost optuna pandas numpy matplotlib
-
-Uso:
-    cd cagemind
-    python run_semana1_final.py
-
-Tiempo estimado: ~20-40 minutos (depende de N_TRIALS)
-"""
 from __future__ import annotations
 
 import json
@@ -72,15 +46,15 @@ OUTPUT_DIR = PROJECT_ROOT / "ml" / "semana1"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # Tuning config
-N_TRIALS = 60          # Trials por modelo (60 ≈ 15-25 min por modelo)
+N_TRIALS = 60          
 CV_FOLDS = 5
 RANDOM_STATE = 42
 PROB_CAP = 0.85
 
 # Feature selection config
-CORR_THRESHOLD = 0.95  # Eliminar features con correlación > 0.95
-MIN_IMPORTANCE = 0.001 # Mínima importancia para mantener feature
-TARGET_FEATURES = 90   # Meta: ~90 features (flexible)
+CORR_THRESHOLD = 0.95  
+MIN_IMPORTANCE = 0.001 
+TARGET_FEATURES = 90   
 
 
 # ============================================================

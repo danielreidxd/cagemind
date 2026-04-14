@@ -1,12 +1,4 @@
-"""
-Integración de datos de Sherdog al sistema CageMind.
-1. Parsea peleas pre-UFC de Sherdog
-2. Calcula features adicionales (pre-UFC record, finish rate, etc.)
-3. Guarda en tabla sherdog_history en SQLite
-4. Re-genera training dataset con features mejoradas
 
-Uso: python integrate_sherdog.py
-"""
 from __future__ import annotations
 
 import json

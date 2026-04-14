@@ -1,19 +1,4 @@
-"""
-CageMind — Actualización Automática de Datos
 
-Dos modos de ejecución:
-  1. --upcoming  : Scrapea carteleras futuras (rápido, ~1 min)
-  2. --post-event: Scrapea resultados + stats + perfiles del último evento (~5-10 min)
-
-GitHub Actions corre:
-  - --upcoming cada 2 días
-  - --post-event los lunes
-
-Uso:
-    python update_data.py --upcoming
-    python update_data.py --post-event
-    python update_data.py --all          (ambos)
-"""
 from __future__ import annotations
 
 import argparse

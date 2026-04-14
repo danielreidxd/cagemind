@@ -1,30 +1,4 @@
-"""
-CageMind — Scraper de Estadísticas Round-by-Round
 
-El scraper original solo capturó los TOTALES de cada pelea (Tabla 0 y Tabla 2).
-Las tablas de rounds individuales (Tabla 1 y Tabla 3, con clase 'js-fight-table')
-fueron ignoradas.
-
-Este script:
-1. Lee all_fights.json para obtener las URLs de cada pelea
-2. Visita cada página de detalles de pelea
-3. Captura las 4 tablas: Totals resumen, Totals por round, Sig Strikes resumen, Sig Strikes por round
-4. Guarda SOLO las tablas por round en all_round_stats.json
-5. Carga los datos a la tabla fight_stats de SQLite (reemplazando los totals existentes)
-
-Estructura de UFCStats (4 tablas por pelea):
-  Tabla 0: Totals resumen (sin clase CSS)          → Ya capturada (1 fila = total)
-  Tabla 1: Totals por round (clase js-fight-table)  → NUEVA (N filas = N rounds)
-  Tabla 2: Sig Strikes resumen (sin clase CSS)      → Ya capturada
-  Tabla 3: Sig Strikes por round (js-fight-table)   → NUEVA
-
-Uso:
-    cd cagemind
-    python scrape_round_stats.py
-
-Tiempo estimado: ~14 horas para 8,586 peleas (1-2 seg/pelea con rate limiting)
-Usa checkpoints — puedes interrumpir y reanudar sin perder progreso.
-"""
 from __future__ import annotations
 
 import json

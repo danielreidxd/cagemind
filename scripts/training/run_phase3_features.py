@@ -1,35 +1,4 @@
-"""
-UFC Fight Predictor — Fase 3: Feature Engineering
 
-Construye el dataset de entrenamiento con todas las features predictivas.
-
-Para cada pelea, genera features DESDE LA PERSPECTIVA PREVIA:
-- Solo usa datos de peleas ANTERIORES a la pelea que se predice
-- Aleatoriza quién es fighter_a y fighter_b para eliminar sesgo
-- Genera features diferenciales (A - B) y absolutas
-
-Features generadas (~80+):
-1.  Físicas (altura, reach, edad, diferencias)
-2.  Striking de carrera y reciente (últimas 5)
-3.  Grappling de carrera y reciente
-4.  Estilo de pelea (striker/grappler/mixto scores)
-5.  Timing (finish rate, round promedio)
-6.  Contexto (inactividad, racha, experiencia UFC)
-7.  Vulnerabilidades (% derrotas por KO, por sub)
-8.  Cardio (ratio R3/R1)
-9.  Eficiencia (precisión de striking y TD)
-10. Calidad de oponentes
-11. Matchup de estilos
-
-Targets:
-- winner: 1 si fighter_a ganó, 0 si fighter_b ganó
-- method: ko, sub, dec
-- finish_round: 1-5
-- goes_to_decision: 1 o 0
-
-Uso:
-    python run_phase3_features.py
-"""
 from __future__ import annotations
 
 import sqlite3

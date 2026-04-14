@@ -1,13 +1,4 @@
-"""
-Scraper de Sherdog para historial completo de peleadores UFC activos.
-Extrae peleas pre-UFC para mejorar features de peleadores con poco historial UFC.
 
-Uso:
-    python scrape_sherdog.py
-
-Tiempo estimado: ~1-2 horas para ~800 peleadores (2 seg entre requests).
-Sistema de checkpoints: se puede interrumpir y reanudar.
-"""
 from __future__ import annotations
 
 import json

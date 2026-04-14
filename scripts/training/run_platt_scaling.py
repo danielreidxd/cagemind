@@ -1,28 +1,3 @@
-"""
-CageMind — Semana 1: Platt Scaling (Calibración de Probabilidades)
-
-Reemplaza la calibración lineal actual (compresión 0.75 + cap 85%)
-por Platt Scaling (sigmoid fitting) que produce probabilidades
-más realistas.
-
-Qué hace:
-1. Carga el training dataset (v2 con Sherdog si existe)
-2. Entrena el modelo winner con Platt Scaling via CalibratedClassifierCV
-3. Genera reliability diagrams antes vs después
-4. Guarda el modelo calibrado
-5. Muestra tabla de conversión (raw → calibrado)
-
-Requisitos:
-- Tener data/processed/training_dataset_v2.csv (o training_dataset.csv)
-- pip install scikit-learn xgboost pandas numpy matplotlib
-
-Uso:
-    cd cagemind
-    python run_platt_scaling.py
-
-Después de correr esto, necesitas actualizar backend/app.py
-para usar el nuevo modelo calibrado (instrucciones al final).
-"""
 from __future__ import annotations
 
 import json
@@ -275,13 +250,9 @@ def main():
         total = lin + lin_b
         lin = lin / total
 
-        # Platt: necesitamos crear un input ficticio para predecir
-        # Usamos la relación inversa del sigmoid fit
-        # Aproximación: buscar en las predicciones existentes
         idx = np.argmin(np.abs(prob_uncal - raw_prob))
         platt = prob_cal[idx]
 
-        # Aplicar cap
         platt_capped = min(platt, PROB_CAP)
         platt_capped_b = max(1 - platt_capped, 1 - PROB_CAP)
         total_p = platt_capped + platt_capped_b

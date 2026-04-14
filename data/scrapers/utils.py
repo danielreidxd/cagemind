@@ -1,9 +1,3 @@
-"""
-Utilidades compartidas para todos los scrapers.
-- Cliente HTTP con reintentos y rate limiting
-- Sistema de checkpoints para reanudar scraping
-- Helpers de parseo comunes
-"""
 
 from __future__ import annotations
 import json

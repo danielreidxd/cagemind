@@ -1,19 +1,4 @@
-"""
-UFC Fight Predictor — Fase 2: Análisis Exploratorio de Datos (EDA)
 
-Genera visualizaciones y estadísticas para entender los datos
-antes de construir el modelo predictivo.
-
-Uso:
-    python run_phase2_eda.py
-
-Requisitos extra (instalar una vez):
-    python -m pip install matplotlib seaborn
-
-Salida:
-    - Gráficas en data/exports/charts/
-    - Reporte de texto en consola
-"""
 from __future__ import annotations
 
 import sqlite3

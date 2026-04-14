@@ -1,18 +1,4 @@
-"""
-CageMind — Hyperparameter Tuning con Optuna
 
-Optimiza los 4 modelos usando Optuna (búsqueda inteligente):
-  1. Quién gana (binario)
-  2. Cómo gana (multiclase: KO/Sub/Dec)
-  3. Finish vs Decisión (binario)
-  4. En qué round (multiclase, solo finishes)
-
-Para cada modelo prueba Logistic Regression, Random Forest y XGBoost
-con diferentes combinaciones de hyperparameters.
-
-Uso:
-    python run_hyperparameter_tuning.py
-"""
 from __future__ import annotations
 
 import json

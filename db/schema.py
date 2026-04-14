@@ -1,14 +1,3 @@
-"""
-Esquema y utilidades de la base de datos SQLite.
-
-Tablas:
-- fighters: Datos de peleadores
-- events: Eventos UFC
-- fights: Registro de cada pelea
-- fight_stats: Estadísticas round-by-round
-- organizations: Organizaciones (UFC, Bellator, etc.)
-- data_quality: Nivel de detalle por pelea
-"""
 
 import sqlite3
 from pathlib import Path

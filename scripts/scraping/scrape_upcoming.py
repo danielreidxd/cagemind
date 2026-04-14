@@ -1,10 +1,4 @@
-"""
-Scraper de eventos próximos de UFCStats.com.
-Extrae carteleras confirmadas y genera predicciones.
 
-Uso:
-    python scrape_upcoming.py
-"""
 from __future__ import annotations
 
 import json

@@ -1,17 +1,3 @@
-"""
-Scraper de peleadores desde UFCStats.com.
-
-Recorre las páginas alfabéticas (A-Z) y extrae:
-- Nombre completo
-- Apodo
-- Altura, peso, reach
-- Stance (Orthodox/Southpaw/Switch)
-- Récord (W-L-D)
-- URL del perfil para scraping posterior de detalles
-
-Uso:
-    python -m data.scrapers.ufcstats_fighters
-"""
 
 from __future__ import annotations
 import json

@@ -1,6 +1,4 @@
-"""
-Conexión a base de datos y caches en memoria.
-"""
+
 from __future__ import annotations
 
 import pickle

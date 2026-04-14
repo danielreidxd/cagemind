@@ -1,6 +1,4 @@
-"""
-Servicio de predicciones: calibración, features en vivo, confianza.
-"""
+
 from __future__ import annotations
 
 import numpy as np

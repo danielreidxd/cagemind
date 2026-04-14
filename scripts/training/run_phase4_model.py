@@ -1,23 +1,4 @@
-"""
-UFC Fight Predictor — Fase 4: Modelo Predictivo
 
-Entrena 4 modelos en capas:
-  Modelo 1: ¿Quién gana? (clasificación binaria)
-  Modelo 2: ¿Cómo gana? (KO, Sub, Decisión — multiclase)
-  Modelo 3: ¿Llega a decisión? (clasificación binaria)
-  Modelo 4: ¿En qué round termina? (regresión/clasificación)
-
-Para cada modelo:
-  1. Baseline con Logistic Regression
-  2. Random Forest
-  3. XGBoost (si disponible)
-  4. Cross-validation con 5 folds
-  5. Evaluación: accuracy, precision, recall, F1, ROC-AUC
-
-Uso:
-    python -m pip install scikit-learn xgboost
-    python run_phase4_model.py
-"""
 from __future__ import annotations
 
 import json

@@ -1,6 +1,4 @@
-"""
-Servicio de cálculo de features para peleadores.
-"""
+
 from __future__ import annotations
 
 from datetime import datetime

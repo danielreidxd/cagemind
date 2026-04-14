@@ -1,6 +1,4 @@
-"""
-Servicio de odds y value bets.
-"""
+
 from __future__ import annotations
 
 import requests as http_requests

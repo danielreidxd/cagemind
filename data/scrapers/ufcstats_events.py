@@ -1,13 +1,4 @@
-"""
-Scraper de eventos y peleas desde UFCStats.com.
 
-Recorre la lista de todos los eventos completados y para cada uno extrae:
-- Nombre del evento, fecha, ubicación
-- Lista de peleas con: peleadores, resultado, método, round, tiempo
-
-Uso:
-    python -m data.scrapers.ufcstats_events
-"""
 
 from __future__ import annotations
 import json

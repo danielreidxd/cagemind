@@ -1,13 +1,4 @@
-"""
-Pipeline de limpieza y carga de datos.
 
-Lee los archivos JSON crudos generados por los scrapers,
-limpia/normaliza los datos y los carga a SQLite.
-También exporta CSVs como respaldo.
-
-Uso:
-    python -m data.scrapers.pipeline
-"""
 from __future__ import annotations
 import json
 import re

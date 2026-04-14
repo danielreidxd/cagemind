@@ -1,20 +1,4 @@
-"""
-Scraper de estadísticas detalladas por pelea desde UFCStats.com.
 
-Para cada pelea, obtiene stats round-by-round:
-- Knockdowns (KD)
-- Significant Strikes (landed / attempted)
-- Significant Strikes por zona (head, body, leg)
-- Significant Strikes por posición (distance, clinch, ground)
-- Total Strikes
-- Takedowns (landed / attempted)
-- Submission Attempts
-- Reversals
-- Control Time
-
-Uso:
-    python -m data.scrapers.ufcstats_fight_stats
-"""
 
 from __future__ import annotations
 

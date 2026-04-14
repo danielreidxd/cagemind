@@ -1,6 +1,4 @@
-"""
-Autenticación: JWT, password hashing, dependencias de seguridad.
-"""
+
 from __future__ import annotations
 
 import os

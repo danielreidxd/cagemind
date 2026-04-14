@@ -1,22 +1,4 @@
-"""
-UFC Fight Predictor — Fase 2B: Análisis Profundo de Patrones
 
-Análisis avanzado de:
-1. Clasificación de estilos de pelea (striker / grappler / mixto)
-2. Matchups entre estilos (quién le gana a quién)
-3. Tendencias de victoria/derrota (KO, sumisión, decisión)
-4. Ritmo de pelea (finisher temprano vs peleador de distancia)
-5. Rendimiento reciente vs carrera completa
-6. Vulnerabilidades específicas (ser sometido, ser noqueado)
-7. Estabilidad/consistencia de racha
-
-Uso:
-    python run_phase2b_deep.py
-
-Salida:
-    - Gráficas en data/exports/charts/deep/
-    - Reporte completo en consola
-"""
 from __future__ import annotations
 
 import sqlite3

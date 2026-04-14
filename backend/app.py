@@ -1,6 +1,4 @@
 """
-UFC Fight Predictor — API Backend (FastAPI)
-
 Endpoints:
   GET  /                        → Health check
   GET  /fighters                → Lista de peleadores (con búsqueda)
@@ -23,12 +21,6 @@ Endpoints:
   GET  /odds                    → Odds de casas de apuestas
   GET  /value-bets              → Value bets calculados
 
-Uso:
-    cd ufc-fight-predictor
-    python -m pip install fastapi uvicorn[standard]
-    python -m uvicorn backend.app:app --reload --port 8000
-
-Docs automáticas: http://localhost:8000/docs
 """
 from __future__ import annotations
 

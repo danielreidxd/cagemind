@@ -1,16 +1,4 @@
-"""
-CageMind — Merge Híbrido de Modelos
 
-Combina los mejores modelos de cada fuente:
-  - Winner (Semana 1): LogReg + Platt Scaling, 65.15% accuracy
-  - Finish vs Dec (Semana 1): RF, 60.73% accuracy
-  - Método (Tuning anterior): LogReg, 51.19% accuracy
-  - Round (Tuning anterior): XGBoost, 44.46% accuracy
-
-Uso:
-    cd cagemind
-    python merge_models.py
-"""
 from __future__ import annotations
 
 import json

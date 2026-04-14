@@ -1,23 +1,3 @@
-#!/usr/bin/env python3
-"""
-UFC Fight Predictor — Fase 1: Recolección de Datos
-
-Ejecuta todo el pipeline de scraping de UFCStats.com:
-1. Scraping de peleadores (A-Z + perfiles individuales)
-2. Scraping de eventos y peleas
-3. Scraping de estadísticas detalladas (round-by-round)
-4. Limpieza + carga a SQLite + exportación a CSV
-
-Uso:
-    python run_phase1.py [--step N]
-
-Opciones:
-    --step 1    Solo scraping de peleadores
-    --step 2    Solo scraping de eventos/peleas
-    --step 3    Solo scraping de fight stats
-    --step 4    Solo pipeline de limpieza y carga
-    (sin --step) Ejecuta todos los pasos secuencialmente
-"""
 
 import argparse
 import sys

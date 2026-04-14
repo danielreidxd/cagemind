@@ -1,6 +1,4 @@
-"""
-Configuración del backend — rutas, constantes y parámetros.
-"""
+
 from __future__ import annotations
 
 import os

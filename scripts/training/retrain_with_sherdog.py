@@ -1,14 +1,4 @@
 
-
-"""
-Re-entrenar modelo CageMind con features de Sherdog integradas.
-1. Carga training_dataset.csv existente
-2. Mergea features pre-UFC de sherdog_features
-3. Re-entrena los 4 modelos
-4. Compara accuracy antes vs después
-
-Uso: python retrain_with_sherdog.py
-"""
 from __future__ import annotations
 
 import json

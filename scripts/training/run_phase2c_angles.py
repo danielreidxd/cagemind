@@ -1,19 +1,4 @@
-"""
-UFC Fight Predictor — Fase 2C: Angulos Adicionales
 
-Analiza:
-1. Edad y rendimiento (edad pico, declive)
-2. Diferencia de altura y resultado
-3. Inactividad (tiempo entre peleas)
-4. Cambios de categoria de peso
-5. Calidad de oponentes en racha
-6. Ventaja de experiencia (peleas UFC)
-7. Rendimiento por round (cardio / pacing)
-8. Eficiencia (precision vs volumen)
-
-Uso:
-    python run_phase2c_angles.py
-"""
 from __future__ import annotations
 
 import sqlite3
