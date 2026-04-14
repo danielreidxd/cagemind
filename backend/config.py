@@ -8,19 +8,17 @@ from pathlib import Path
 # RUTAS
 # ============================================================
 
-DB_PATH = Path("db/ufc_predictor.db")
+SUPABASE_URL = os.environ.get("DATABASE_URL")
 MODELS_PATH = Path("ml/models/ufc_predictor_models.pkl")
 FEATURES_PATH = Path("ml/models/feature_names.json")
 
 # ============================================================
 # CALIBRACIÓN DE PROBABILIDADES
 # ============================================================
-# El modelo raw produce probabilidades no calibradas (ej: 100%, 95%)
-# que no reflejan la realidad del MMA donde cualquiera puede ganar.
-# Se aplica: 1) compresión hacia 50% + 2) cap duro de 85%.
 
-PROB_CAP = 0.85      # Probabilidad máxima permitida
-COMPRESSION = 0.75   # Factor de compresión (1.0 = sin cambio, 0.5 = muy conservador)
+
+PROB_CAP = 0.85      
+COMPRESSION = 0.75   
 
 # ============================================================
 # NEWCOMERS
