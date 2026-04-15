@@ -9,11 +9,9 @@ from pathlib import Path
 # ============================================================
 
 DB_PATH = Path("db/ufc_predictor.db")
-SUPABASE_URL = os.environ.get("DATABASE_URL") 
+DATABASE_URL = os.environ.get("DATABASE_URL") 
 
-if SUPABASE_URL:
-    DATABASE_URL = SUPABASE_URL
-else:
+if not DATABASE_URL:
     DATABASE_URL = f"sqlite:///{DB_PATH}"
 
 MODELS_PATH = Path("ml/models/ufc_predictor_models.pkl")

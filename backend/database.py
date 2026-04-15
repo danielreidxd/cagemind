@@ -22,11 +22,10 @@ def get_db():
     """Retorna una conexión compatible. Soporta SQLite y PostgreSQL."""
     if DATABASE_URL.startswith("postgresql"):
         import psycopg2
-        import psycopg2.extras
+        import psycopg2.extras # Necesario para DictCursor
         conn = psycopg2.connect(DATABASE_URL)
         return conn
     else:
-
         clean_path = DATABASE_URL.replace("sqlite:///", "")
         conn = sqlite3.connect(clean_path)
         conn.row_factory = sqlite3.Row
@@ -93,15 +92,27 @@ def load_fighter_cache():
     global fighter_cache
     if fighter_cache is None:
         conn = get_db()
-        rows = conn.execute("""
+        
+        if DATABASE_URL.startswith("postgresql"):
+            import psycopg2.extras
+            cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        else:
+            cur = conn.cursor()
+
+        query = """
             SELECT name, height_inches, reach_inches, weight_lbs, stance,
                    wins, losses, draws, dob,
                    slpm, str_acc, sapm, str_def,
                    td_avg, td_acc, td_def, sub_avg
             FROM fighters
             ORDER BY name
-        """).fetchall()
+        """
+        cur.execute(query)
+        rows = cur.fetchall()
+        
+        cur.close()
         conn.close()
+        
         fighter_cache = AliasDict({row["name"]: dict(row) for row in rows})
     return fighter_cache
 
@@ -111,8 +122,14 @@ def load_fighter_stats_cache():
     global fighter_stats_cache
     if fighter_stats_cache is None:
         conn = get_db()
-        # Stats agregadas por peleador (todas sus peleas)
-        stats = conn.execute("""
+
+        if DATABASE_URL.startswith("postgresql"):
+            import psycopg2.extras
+            cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        else:
+            cur = conn.cursor()
+
+        query = """
             SELECT
                 fs.fighter_name,
                 COUNT(DISTINCT fs.fight_id) as total_fights,
@@ -132,7 +149,12 @@ def load_fighter_stats_cache():
                 MAX(fs.round) as max_rounds
             FROM fight_stats fs
             GROUP BY fs.fighter_name
-        """).fetchall()
+        """
+        cur.execute(query)
+        stats = cur.fetchall()
+        
+        cur.close()
         conn.close()
+        
         fighter_stats_cache = AliasDict({row["fighter_name"]: dict(row) for row in stats})
     return fighter_stats_cache
