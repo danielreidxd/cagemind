@@ -23,6 +23,8 @@ data/processed/sherdog_features.csv
 
 # ML models (large binary files)
 ml/models/*.pkl.bak
+ml/models/*.pkl
+ml/models/*.json
 
 # Checkpoints
 *.checkpoint
@@ -48,7 +50,9 @@ inspect_*.py
 test_*.py
 count_*.py
 check_*.py
-# Additions to ignore large files
+
+# SQLite databases
 *.db
+
+# Data checkpoints
 data/checkpoints/
-ml/models/*.pkl.*

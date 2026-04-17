@@ -1,16 +1,23 @@
 """
 Router de picks y leaderboard.
+Compatible con SQLite y PostgreSQL.
 """
 from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, Depends
 
 from backend.auth import get_current_user
-from backend.database import get_db, load_models, load_fighter_cache
+from db.connection import get_db, is_postgresql
+from backend.database import load_models, load_fighter_cache
 from backend.schemas import PickRequest
 from backend.services.predictions import compute_live_features
 
 router = APIRouter()
+
+
+def _p():
+    """Placeholder de parámetros según el tipo de BD."""
+    return "%s" if is_postgresql() else "?"
 
 
 @router.post("/picks")
@@ -20,7 +27,8 @@ async def submit_pick(pick: PickRequest, user: dict = Depends(get_current_user))
         raise HTTPException(status_code=400, detail="El pick debe ser uno de los dos peleadores")
 
     conn = get_db()
-    db_user = conn.execute("SELECT id FROM users WHERE username = ?", (user["sub"],)).fetchone()
+    ph = _p()
+    db_user = conn.execute(f"SELECT id FROM users WHERE username = {ph}", (user["sub"],)).fetchone()
     if not db_user:
         conn.close()
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -29,18 +37,18 @@ async def submit_pick(pick: PickRequest, user: dict = Depends(get_current_user))
 
     # Upsert: si ya existe el pick para esta pelea, actualizarlo
     existing = conn.execute(
-        "SELECT id FROM picks WHERE user_id = ? AND event_name = ? AND fighter_a = ? AND fighter_b = ?",
+        f"SELECT id FROM picks WHERE user_id = {ph} AND event_name = {ph} AND fighter_a = {ph} AND fighter_b = {ph}",
         (user_id, pick.event_name, pick.fighter_a, pick.fighter_b),
     ).fetchone()
 
     if existing:
         conn.execute(
-            "UPDATE picks SET picked_winner = ?, created_at = CURRENT_TIMESTAMP WHERE id = ?",
+            f"UPDATE picks SET picked_winner = {ph}, created_at = CURRENT_TIMESTAMP WHERE id = {ph}",
             (pick.picked_winner, existing["id"]),
         )
     else:
         conn.execute(
-            "INSERT INTO picks (user_id, event_name, fighter_a, fighter_b, picked_winner) VALUES (?, ?, ?, ?, ?)",
+            f"INSERT INTO picks (user_id, event_name, fighter_a, fighter_b, picked_winner) VALUES ({ph}, {ph}, {ph}, {ph}, {ph})",
             (user_id, pick.event_name, pick.fighter_a, pick.fighter_b, pick.picked_winner),
         )
 
@@ -53,13 +61,14 @@ async def submit_pick(pick: PickRequest, user: dict = Depends(get_current_user))
 async def get_picks(event_name: str, user: dict = Depends(get_current_user)):
     """Obtener los picks del usuario para un evento."""
     conn = get_db()
-    db_user = conn.execute("SELECT id FROM users WHERE username = ?", (user["sub"],)).fetchone()
+    ph = _p()
+    db_user = conn.execute(f"SELECT id FROM users WHERE username = {ph}", (user["sub"],)).fetchone()
     if not db_user:
         conn.close()
         return {"picks": []}
 
     picks = conn.execute(
-        "SELECT fighter_a, fighter_b, picked_winner FROM picks WHERE user_id = ? AND event_name = ?",
+        f"SELECT fighter_a, fighter_b, picked_winner FROM picks WHERE user_id = {ph} AND event_name = {ph}",
         (db_user["id"], event_name),
     ).fetchall()
     conn.close()

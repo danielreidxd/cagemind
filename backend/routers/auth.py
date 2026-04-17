@@ -1,23 +1,30 @@
 """
 Router de autenticación: login, register, me.
+Compatible con SQLite y PostgreSQL.
 """
 from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException, Depends
 
 from backend.auth import pwd_context, create_token, get_current_user
-from backend.database import get_db
+from db.connection import get_db, is_postgresql
 from backend.schemas import LoginRequest, RegisterRequest
 
 router = APIRouter(prefix="/auth")
+
+
+def _p():
+    """Placeholder de parámetros según el tipo de BD."""
+    return "%s" if is_postgresql() else "?"
 
 
 @router.post("/login")
 async def login(req: LoginRequest):
     """Autenticación con username y password. Devuelve JWT."""
     conn = get_db()
+    placeholder = _p()
     user = conn.execute(
-        "SELECT id, username, password, role FROM users WHERE username = ?",
+        f"SELECT id, username, password, role FROM users WHERE username = {placeholder}",
         (req.username,),
     ).fetchone()
     conn.close()
@@ -55,16 +62,17 @@ async def register(req: RegisterRequest):
         raise HTTPException(status_code=400, detail="Email inválido")
 
     conn = get_db()
-    if conn.execute("SELECT id FROM users WHERE username = ?", (username,)).fetchone():
+    placeholder = _p()
+    if conn.execute(f"SELECT id FROM users WHERE username = {placeholder}", (username,)).fetchone():
         conn.close()
         raise HTTPException(status_code=409, detail="Ese usuario ya existe")
-    if conn.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone():
+    if conn.execute(f"SELECT id FROM users WHERE email = {placeholder}", (email,)).fetchone():
         conn.close()
         raise HTTPException(status_code=409, detail="Ese email ya está registrado")
 
     hashed = pwd_context.hash(req.password)
     conn.execute(
-        "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)",
+        f"INSERT INTO users (username, email, password, role) VALUES ({placeholder}, {placeholder}, {placeholder}, {placeholder})",
         (username, email, hashed, "user"),
     )
     conn.commit()
