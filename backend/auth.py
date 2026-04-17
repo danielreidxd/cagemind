@@ -11,21 +11,38 @@ from passlib.context import CryptContext
 from backend.config import JWT_SECRET, JWT_ALGORITHM, JWT_EXPIRE_HOURS
 from db.connection import get_db, is_postgresql, init_users_table as db_init_users_table
 
-# ============================================================
-# SEGURIDAD
-# ============================================================
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 security = HTTPBearer(auto_error=False)
 
 
-# ============================================================
-# INIT TABLES
-# ============================================================
-
 def init_users_table():
-    """Crea las tablas users, analytics, update_logs, y picks si no existen."""
+    """Crea las tablas y migra si es necesario."""
     db_init_users_table()
+    migrate_users_table()
+
+
+def migrate_users_table():
+    """Agrega columnas faltantes a la tabla users."""
+    conn = get_db()
+    try:
+        if not is_postgresql():
+            cur = conn.cursor()
+            cur.execute("PRAGMA table_info(users)")
+            columns = [row[1] for row in cur.fetchall()]
+            
+            if 'email' not in columns:
+                cur.execute("ALTER TABLE users ADD COLUMN email TEXT UNIQUE")
+                conn.commit()
+                print("  ✓ Added email column to users table")
+            
+            if 'verified' not in columns:
+                cur.execute("ALTER TABLE users ADD COLUMN verified BOOLEAN DEFAULT FALSE")
+                conn.commit()
+                print("  ✓ Added verified column to users table")
+            
+            cur.close()
+    finally:
+        conn.close()
 
 
 # ============================================================
