@@ -17,11 +17,7 @@ COMPRESSION = 0.75
 
 MIN_UFC_FIGHTS_FOR_RELIABLE = 3
 
-JWT_SECRET = os.environ.get("JWT_SECRET")
-if not JWT_SECRET:
-    import warnings
-    warnings.warn("JWT_SECRET not set, using default. Set this in production!")
-    JWT_SECRET = "dev_secret_change_in_production"
+JWT_SECRET = os.environ.get("JWT_SECRET", "cagemind_dev_secret_2026")
 
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRE_HOURS = 24
