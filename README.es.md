@@ -33,7 +33,7 @@
 - **Rate Limiting & Logging**: Crawling respetuoso con transparencia total de ejecución
 
 ### 🗄️ Capa de Datos Estructurada
-- **Base de Datos SQLite**: Esquema optimizado para consultas rápidas en historiales de luchadores y resultados
+- **Base de Datos PostgreSQL** (Supabase): Base de datos relacional lista para producción
 - **Estadísticas Normalizadas**: Datos ronda por ronda limpios y listos para análisis o entrenamiento de ML
 - **Opciones de Exportación**: Descarga datasets procesados en formato CSV para uso externo
 
@@ -64,10 +64,12 @@ cagemind/
 │ ├── exports/ # Exportaciones CSV
 │ ├── raw/ # Descargas HTML/JSON en crudo
 │ └── scrapers/ # Scrapers de UFC Stats y Sherdog
-├── db/ # Esquema SQLite y utilidades
+├── db/ # Esquema PostgreSQL y utilidades
 │ ├── init.py
 │ ├── schema.py
-│ └── ufc_predictor.db # Base de datos SQLite
+│ ├── schema_postgresql.sql # Schema PostgreSQL
+│ ├── connection.py # Conexión a BD
+│ └── db_helpers.py # Compatibilidad SQLite/PostgreSQL
 ├── ml/ # Modelos, entrenamiento y predicciones
 │ ├── calibration/ # Platt scaling y calibración de modelos
 │ ├── models/ # Modelos entrenados (.pkl, .json)
@@ -128,13 +130,13 @@ cagemind/
 │ └── deep/
 ├── scripts/ # Scripts utilitarios
 │ ├── scraping/ # Scripts de scraping standalone
-│ └── training/ # Scripts de entrenamiento ML
+│ ├── training/ # Scripts de entrenamiento ML
+│ └── migrate_*.py # Migración a Supabase
 ├── .gitignore
 ├── Procfile # Configuración de deploy (Railway/Heroku)
 ├── nixpacks.toml # Configuración de build para Nixpacks
 ├── requirements.txt
 ├── runtime.txt # Fijación de versión de Python
-├── upload_to_supabase.py # Script para Supabase
 └── README.md
 └── Readme.es.md
 </details>
@@ -181,7 +183,7 @@ CageMind utiliza un enfoque de ensemble multi-modelo para predecir diferentes fa
 |------------|-----------|---------|
 | **Python** | Lenguaje principal para scraping, ML y API | 3.10+ |
 | **FastAPI** | Framework REST API de alto rendimiento | 0.104+ |
-| **Supabase/PostgreSQL** | Base de datos relacional ligera basada en archivos | 3.x |
+| **PostgreSQL** (Supabase) | Base de datos relacional de producción | 15.x |
 | **Pandas** | Manipulación y análisis de datos | 2.x |
 | **NumPy** | Cómputo numérico y operaciones con arrays | 1.24+ |
 | **Scikit-learn** | Utilidades de ML, preprocesamiento, evaluación de modelos | 1.3+ |
@@ -253,12 +255,19 @@ npm install
 ⚙️ Paso 2: Configuración
 Crea un archivo .env en el directorio raíz:
 ```bash
-# Configuración de base de datos
-DATABASE_URL=sqlite:///./cagemind.db
+# Configuración de base de datos (Supabase PostgreSQL)
+DATABASE_URL=postgresql://postgres:password@host.supabase.com:6543/postgres?sslmode=require
+DATABASE_URL_NB=postgresql://postgres:password@host.supabase.com:5432/postgres
 
-# Configuración de API
-API_KEY=your_secret_api_key
-ENV=development
+# Supabase (opcional, para acceso API)
+SUPABASE_URL=https://tu-proyecto.supabase.co
+SUPABASE_KEY=tu-key
+
+# JWT Secret (requerido para autenticación)
+JWT_SECRET=tu-secret-key
+
+# Contraseña de admin
+ADMIN_PASSWORD=tu-admin-password
 ```
 
 🚀 Paso 3: Ejecutar la Aplicación
@@ -275,24 +284,30 @@ npm run dev
 ✅ App: http://localhost:5173
 📊 Esquema de Base de Datos y Flujo de Datos
 🗄️ Visión General del Esquema
-Estructura de la Base de Datos
+## Estructura de la Base de Datos (PostgreSQL)
 
 | Tabla | Descripción | Campos Clave |
 |---|---|---|
-| `fighters` | Perfiles de luchadores y atributos físicos | `id`, `name`, `nickname`, `height`, `weight`, `reach`, `stance`, `record` |
-| `events` | Metadatos de eventos de la UFC | `id`, `name`, `date`, `location`, `venue` |
-| `fights` | Resultados de los combates y metadatos | `id`, `event_id`, `fighter_a_id`, `fighter_b_id`, `winner_id`, `method`, `round`, `time` |
-| `fight_stats` | Datos de rendimiento por asalto | `fight_id`, `fighter_id`, `sig_strikes`, `takedowns`, `submissions`, `control_time` |
-| `predictions` | Pronósticos de ML (Machine Learning) | `id`, `fight_id`, `fighter_a_prob`, `fighter_b_prob`, `model_version`, `confidence` |
+| `organizations` | Organizaciones de MMA | `org_id`, `name`, `country` |
+| `fighters` | Perfiles de luchadores | `fighter_id`, `name`, `height`, `reach`, `stance`, `record`, stats |
+| `events` | Eventos UFC | `event_id`, `name`, `date`, `location` |
+| `fights` | Resultados de peleas | `fight_id`, `event_id`, `fighters`, `winner`, `method`, `round` |
+| `fight_stats` | Estadísticas por round | `stat_id`, `fight_id`, `fighter_id`, `sig_strikes`, `takedowns` |
+| `data_quality` | Calidad de datos | `fight_id`, `detail_level`, `has_round_stats` |
+| `users` | Autenticación | `id`, `username`, `email`, `password`, `role` |
+| `analytics_events` | Tracking | `id`, `event_type`, `page`, `detail` |
+| `update_logs` | Logs de scraping | `id`, `action`, `status`, `result` |
+| `picks` | Predicciones de usuarios | `id`, `user_id`, `event`, `picked_winner` |
+| `sherdog_features` | Datos pre-UFC | `id`, `name`, `pre_ufc_record`, `pre_ufc_stats` |
 
 🔗 Relaciones: events → fights → fighters → fight_stats
-📖 Esquema completo: db/schema.sql
+📖 Esquema completo: db/schema_postgresql.sql
 
 ```mermaid
 graph TD
     A["[UFC Stats / Sherdog]"] -->|Scraping Paralelo + Rate Limiting| B["[HTML/JSON Crudo]"]
     B -->|Limpieza y Validación| C["[Datos Normalizados]"]
-    C -->|Inserción Masiva con Transacciones| D[("Base de Datos SQLite")]
+    C -->|Inserción Masiva con Transacciones| D[("Base de Datos PostgreSQL")]
 
     D --> E{ }
         E --- E1[ ]
@@ -413,7 +428,7 @@ Deployment e Infraestructura
 |---|---|---|
 | Frontend | Vercel (Edge React) | `https://cagemind.app` |
 | Backend API | Railway/Render | `https://api.cagemind.app` |
-| Base de Datos | SQLite/PostgreSQL | Adjunto al backend |
+| Base de Datos | PostgreSQL (Supabase) | `https://*.supabase.co` |
 
 🐳 Docker Local
 ```bash
