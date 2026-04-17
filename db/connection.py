@@ -98,14 +98,14 @@ def init_users_table(conn=None):
     if conn is None:
         conn = get_db()
         should_close = True
-    
+
     try:
         if is_postgresql():
             import psycopg2.extras
             cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         else:
             cur = conn.cursor()
-        
+
         # Tabla users
         cur.execute("""
             CREATE TABLE IF NOT EXISTS users (
@@ -118,7 +118,7 @@ def init_users_table(conn=None):
                 created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        
+
         # Tabla analytics_events
         cur.execute("""
             CREATE TABLE IF NOT EXISTS analytics_events (
@@ -131,7 +131,7 @@ def init_users_table(conn=None):
                 created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         """)
-        
+
         # Tabla update_logs
         cur.execute("""
             CREATE TABLE IF NOT EXISTS update_logs (
@@ -143,7 +143,7 @@ def init_users_table(conn=None):
                 finished_at TIMESTAMP
             )
         """)
-        
+
         # Tabla picks
         cur.execute("""
             CREATE TABLE IF NOT EXISTS picks (
@@ -157,13 +157,25 @@ def init_users_table(conn=None):
                 UNIQUE(user_id, event_name, fighter_a, fighter_b)
             )
         """)
-        
-        # Índice para email (PostgreSQL usa IF NOT EXISTS)
-        cur.execute("""
-            CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email)
-        """)
-        
+
         conn.commit()
+
+        # Índices (solo si las columnas existen)
+        if not is_postgresql():
+            cur.execute("PRAGMA table_info(users)")
+            columns = [row[1] for row in cur.fetchall()]
+            if 'email' in columns:
+                try:
+                    cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email)")
+                    conn.commit()
+                except Exception:
+                    pass
+        else:
+            try:
+                cur.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email)")
+                conn.commit()
+            except Exception:
+                pass
 
         # Crear admin si no existe
         p = "%s" if is_postgresql() else "?"
@@ -176,7 +188,7 @@ def init_users_table(conn=None):
             pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
             admin_pass = os.environ.get("ADMIN_PASSWORD", "cagemind2026")
             hashed = pwd_context.hash(admin_pass)
-            
+
             if is_postgresql():
                 cur.execute(
                     "INSERT INTO users (username, password, role) VALUES (%s, %s, %s) RETURNING id",
@@ -189,9 +201,9 @@ def init_users_table(conn=None):
                     ("admin", hashed, "admin"),
                 )
                 admin_id = cur.lastrowid
-            
+
             conn.commit()
-            print(f"Usuario admin creado (id: {admin_id}, password: {'***' if 'ADMIN_PASSWORD' in os.environ else admin_pass})")
+            print(f"Usuario admin creado (id: {admin_id})")
 
         cur.close()
     finally:

@@ -31,14 +31,20 @@ def migrate_users_table():
             columns = [row[1] for row in cur.fetchall()]
             
             if 'email' not in columns:
-                cur.execute("ALTER TABLE users ADD COLUMN email TEXT UNIQUE")
-                conn.commit()
-                print("  ✓ Added email column to users table")
+                try:
+                    cur.execute("ALTER TABLE users ADD COLUMN email TEXT")
+                    conn.commit()
+                    print("  ✓ Added email column to users table")
+                except Exception as e:
+                    print(f"  ⚠ Could not add email: {e}")
             
             if 'verified' not in columns:
-                cur.execute("ALTER TABLE users ADD COLUMN verified BOOLEAN DEFAULT FALSE")
-                conn.commit()
-                print("  ✓ Added verified column to users table")
+                try:
+                    cur.execute("ALTER TABLE users ADD COLUMN verified BOOLEAN DEFAULT FALSE")
+                    conn.commit()
+                    print("  ✓ Added verified column to users table")
+                except Exception as e:
+                    print(f"  ⚠ Could not add verified: {e}")
             
             cur.close()
     finally:
