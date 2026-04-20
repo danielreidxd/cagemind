@@ -42,10 +42,10 @@ app = FastAPI(
 )
 
 # CORS — permitir requests del frontend (producción + preview + local)
+# Nota: Usamos regex pattern para Vercel preview deployments
 ALLOWED_ORIGINS = [
     "https://cagemind.app",
     "https://www.cagemind.app",
-    "https://cagemind-*.vercel.app",  # Preview deployments
     "http://localhost:3000",
     "http://localhost:5173",
 ]
@@ -53,6 +53,7 @@ ALLOWED_ORIGINS = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
+    allow_origin_regex=r"https://cagemind-.*\.vercel\.app",  # Para preview deployments de Vercel
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
