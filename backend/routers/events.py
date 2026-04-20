@@ -34,11 +34,12 @@ async def get_events(
     p = param()  # Usar placeholder correcto según BD
 
     # Total de eventos
-    total = conn.execute("""
+    result = conn.execute("""
         SELECT COUNT(*) FROM events e
         WHERE e.date_parsed IS NOT NULL
         AND EXISTS (SELECT 1 FROM fights f WHERE f.event_id = e.event_id)
-    """).fetchone()[0]
+    """).fetchone()
+    total = result[0] if isinstance(result, tuple) else result["count"]
 
     # Obtener el evento de esta página (ordenado por fecha desc)
     offset = (page - 1)

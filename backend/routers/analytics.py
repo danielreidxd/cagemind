@@ -27,7 +27,8 @@ async def track_event(event: TrackEvent):
 async def get_analytics(user: dict = Depends(require_admin)):
     conn = get_db()
 
-    total_events = conn.execute("SELECT COUNT(*) FROM analytics_events").fetchone()[0]
+    result = conn.execute("SELECT COUNT(*) FROM analytics_events").fetchone()
+    total_events = result[0] if isinstance(result, tuple) else result["count"]
 
     by_type = conn.execute("""
         SELECT event_type, COUNT(*) as count

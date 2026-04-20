@@ -19,7 +19,8 @@ async def admin_dashboard(user: dict = Depends(require_admin)):
 
     db_stats = {}
     for table in ["fighters", "events", "fights", "fight_stats"]:
-        db_stats[table] = conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+        result = conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()
+        db_stats[table] = result[0] if isinstance(result, tuple) else result["count"]
 
     last_event = conn.execute("""
         SELECT name, date_parsed, location FROM events
@@ -27,9 +28,10 @@ async def admin_dashboard(user: dict = Depends(require_admin)):
         ORDER BY date_parsed DESC LIMIT 1
     """).fetchone()
 
-    total_fights_w_winner = conn.execute("""
+    result = conn.execute("""
         SELECT COUNT(*) FROM fights WHERE winner_name IS NOT NULL AND winner_name != ''
-    """).fetchone()[0]
+    """).fetchone()
+    total_fights_w_winner = result[0] if isinstance(result, tuple) else result["count"]
 
     recent_events = conn.execute("""
         SELECT e.name, e.date_parsed, e.location, COUNT(f.fight_id) as total_fights
@@ -117,9 +119,11 @@ async def trigger_update(user: dict = Depends(require_admin)):
     conn.commit()
 
     if is_postgresql():
-        log_id = conn.execute("SELECT LASTVAL()").fetchone()[0]
+        result = conn.execute("SELECT LASTVAL()").fetchone()
+        log_id = result[0] if isinstance(result, tuple) else result["lastval"]
     else:
-        log_id = conn.execute("SELECT last_insert_rowid()").fetchone()[0]
+        result = conn.execute("SELECT last_insert_rowid()").fetchone()
+        log_id = result[0] if isinstance(result, tuple) else result["last_insert_rowid()"]
     conn.close()
 
     try:
@@ -167,9 +171,13 @@ async def get_update_logs(user: dict = Depends(require_admin)):
 async def admin_picks_stats(user: dict = Depends(require_admin)):
     conn = get_db()
 
-    total_picks = conn.execute("SELECT COUNT(*) FROM picks").fetchone()[0]
-    total_voters = conn.execute("SELECT COUNT(DISTINCT user_id) FROM picks").fetchone()[0]
-    total_users = conn.execute("SELECT COUNT(*) FROM users WHERE role = 'user'").fetchone()[0]
+    def get_count(query):
+        result = conn.execute(query).fetchone()
+        return result[0] if isinstance(result, tuple) else result["count"]
+
+    total_picks = get_count("SELECT COUNT(*) FROM picks")
+    total_voters = get_count("SELECT COUNT(DISTINCT user_id) FROM picks")
+    total_users = get_count("SELECT COUNT(*) FROM users WHERE role = 'user'")
 
     by_event = conn.execute("""
         SELECT event_name, COUNT(*) as picks, COUNT(DISTINCT user_id) as voters

@@ -19,8 +19,8 @@ async def get_stats():
 
     stats = {}
     for table in ["fighters", "events", "fights", "fight_stats"]:
-        count = conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
-        stats[table] = count
+        result = conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()
+        stats[table] = result[0] if isinstance(result, tuple) else result["count"]
 
     # Último evento
     last_event = conn.execute(f"""
