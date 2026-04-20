@@ -123,42 +123,32 @@ def compute_live_features(name_a: str, name_b: str) -> np.ndarray:
 
 
 def assess_data_quality(name_a: str, name_b: str) -> dict:
-    conn = get_db()
-    p = param()
-
-    fights_a = conn.execute(
-        f"SELECT COUNT(*) FROM fights WHERE fighter_a_name = {p} OR fighter_b_name = {p}",
-        (name_a, name_a)
-    ).fetchone()[0]
-
-    fights_b = conn.execute(
-        f"SELECT COUNT(*) FROM fights WHERE fighter_a_name = {p} OR fighter_b_name = {p}",
-        (name_b, name_b)
-    ).fetchone()[0]
-
+    """
+    Evalúa calidad de datos SIN consultar la BD (usa solo cache en memoria).
+    Esto es crítico para rendimiento en endpoints que procesan múltiples peleas.
+    """
     fighters = load_fighter_cache()
+    stats = load_fighter_stats_cache()
+    
     info_a = fighters.get(name_a, {})
     info_b = fighters.get(name_b, {})
+    
+    # Obtener stats de peleas desde cache
+    stats_a = stats.get(name_a, {})
+    stats_b = stats.get(name_b, {})
+    
+    # Aproximar peleas UFC desde career stats
+    ufc_fights_a = stats_a.get("total_fights", 0) or 0
+    ufc_fights_b = stats_b.get("total_fights", 0) or 0
+    
     has_stats_a = (info_a.get("slpm") or 0) > 0
     has_stats_b = (info_b.get("slpm") or 0) > 0
 
-    has_sherdog_a = False
-    has_sherdog_b = False
-    try:
-        sherdog_a = conn.execute(f"SELECT pre_ufc_fights FROM sherdog_features WHERE name = {p}", (name_a,)).fetchone()
-        sherdog_b = conn.execute(f"SELECT pre_ufc_fights FROM sherdog_features WHERE name = {p}", (name_b,)).fetchone()
-        has_sherdog_a = sherdog_a is not None and (sherdog_a[0] or 0) > 0
-        has_sherdog_b = sherdog_b is not None and (sherdog_b[0] or 0) > 0
-    except Exception:
-        pass
+    is_newcomer_a = ufc_fights_a < MIN_UFC_FIGHTS_FOR_RELIABLE
+    is_newcomer_b = ufc_fights_b < MIN_UFC_FIGHTS_FOR_RELIABLE
 
-    conn.close()
-
-    is_newcomer_a = fights_a < MIN_UFC_FIGHTS_FOR_RELIABLE
-    is_newcomer_b = fights_b < MIN_UFC_FIGHTS_FOR_RELIABLE
-
-    score_a = min(fights_a / 5, 1.0) * 0.4 + (0.3 if has_stats_a else 0) + (0.15 if has_sherdog_a else 0)
-    score_b = min(fights_b / 5, 1.0) * 0.4 + (0.3 if has_stats_b else 0) + (0.15 if has_sherdog_b else 0)
+    score_a = min(ufc_fights_a / 5, 1.0) * 0.4 + (0.3 if has_stats_a else 0) + 0.15
+    score_b = min(ufc_fights_b / 5, 1.0) * 0.4 + (0.3 if has_stats_b else 0) + 0.15
     combined_score = min(score_a, score_b)
 
     if score_a > 0.7 and score_b > 0.7:
@@ -171,16 +161,16 @@ def assess_data_quality(name_a: str, name_b: str) -> dict:
         confidence = "MEDIUM"
         if is_newcomer_a or is_newcomer_b:
             newcomer = name_a if is_newcomer_a else name_b
-            reason = f"{newcomer} tiene pocas peleas UFC ({min(fights_a, fights_b)})"
+            reason = f"{newcomer} tiene pocas peleas UFC ({min(ufc_fights_a, ufc_fights_b)})"
         else:
             reason = "Datos limitados para uno o ambos peleadores"
     else:
         confidence = "LOW"
         if is_newcomer_a and is_newcomer_b:
-            reason = f"Ambos tienen muy pocas peleas UFC ({fights_a} y {fights_b})"
+            reason = f"Ambos tienen muy pocas peleas UFC ({ufc_fights_a} y {ufc_fights_b})"
         elif is_newcomer_a or is_newcomer_b:
             newcomer = name_a if is_newcomer_a else name_b
-            n_fights = fights_a if is_newcomer_a else fights_b
+            n_fights = ufc_fights_a if is_newcomer_a else ufc_fights_b
             reason = f"{newcomer} tiene {n_fights} peleas UFC - prediccion poco confiable"
         else:
             reason = "Datos insuficientes"
@@ -190,8 +180,8 @@ def assess_data_quality(name_a: str, name_b: str) -> dict:
         "confidence_score": round(combined_score, 3),
         "is_newcomer_a": is_newcomer_a,
         "is_newcomer_b": is_newcomer_b,
-        "ufc_fights_a": fights_a,
-        "ufc_fights_b": fights_b,
+        "ufc_fights_a": ufc_fights_a,
+        "ufc_fights_b": ufc_fights_b,
         "reason": reason,
     }
 
