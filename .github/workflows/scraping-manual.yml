@@ -1,0 +1,94 @@
+# Scraping Manual - UFC Fight Predictor
+# Se ejecuta solo cuando se dispara manualmente desde GitHub
+# Útil para actualizaciones extraordinarias
+
+name: 🖐️ Scraping Manual
+
+on:
+  # Solo trigger manual desde GitHub UI
+  workflow_dispatch:
+    inputs:
+      tipo:
+        description: 'Tipo de scraping a ejecutar'
+        required: true
+        default: 'completo'
+        type: choice
+        options:
+          - completo
+          - solo-eventos
+          - solo-upcoming
+      redeploy:
+        description: '¿Hacer redeploy en Railway después?'
+        required: false
+        default: 'false'
+        type: boolean
+
+env:
+  PYTHON_VERSION: '3.9'
+
+jobs:
+  scraping:
+    name: 🕷️ Ejecutar Scraping Manual
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout del código
+        uses: actions/checkout@v4
+
+      - name: 🐍 Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 📦 Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 🗄️ Configurar variables de entorno
+        run: |
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+          echo "DATABASE_URL_NB=${{ secrets.DATABASE_URL_NB }}" >> .env
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
+          echo "SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}" >> .env
+
+      - name: 🕷️ Scraping de Eventos
+        if: ${{ inputs.tipo == 'completo' || inputs.tipo == 'solo-eventos' }}
+        run: |
+          echo "Iniciando scraping de eventos..."
+          python scripts/scraping/scrape_events.py
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL_NB: ${{ secrets.DATABASE_URL_NB }}
+
+      - name: 🕷️ Scraping de Upcoming
+        if: ${{ inputs.tipo == 'completo' || inputs.tipo == 'solo-upcoming' }}
+        run: |
+          echo "Iniciando scraping de próximos eventos..."
+          python scripts/scraping/scrape_upcoming.py
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL_NB: ${{ secrets.DATABASE_URL_NB }}
+
+      - name: 📊 Subir datos procesados
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'data: actualizar eventos vía scraping manual (${{ inputs.tipo }})'
+          file_pattern: 'data/raw/ufcstats/*.json'
+          branch: main
+
+      - name: 🚀 Trigger Redeploy en Railway
+        if: ${{ inputs.redeploy == 'true' && secrets.RAILWAY_API_TOKEN != '' }}
+        run: |
+          echo "Trigger redeploy en Railway..."
+          curl -X POST "https://railway.app/api/v1/services/${{ secrets.RAILWAY_SERVICE_ID }}/redeploy" \
+            -H "Authorization: Bearer ${{ secrets.RAILWAY_API_TOKEN }}" \
+            -H "Content-Type: application/json"
+          echo "✅ Redeploy triggered"
+
+      - name: ✅ Resumen de ejecución
+        run: |
+          echo "✅ Scraping manual completado exitosamente"
+          echo "📅 Fecha: $(date)"
+          echo "📝 Tipo: ${{ inputs.tipo }}"
+          echo "🔄 Redeploy: ${{ inputs.redeploy }}"

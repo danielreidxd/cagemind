@@ -1,0 +1,81 @@
+# Scraping Automático Semanal - UFC Fight Predictor
+# Se ejecuta todos los domingos a las 6:00 AM UTC
+# para actualizar eventos pasados y próximos
+
+name: 🗓️ Scraping Semanal
+
+on:
+  schedule:
+    # Todos los domingos a las 6:00 AM UTC
+    # Equivale a: 2 AM EST / 12 AM PST (domingo)
+    - cron: '0 6 * * 0'
+  
+  # Permitir ejecución manual desde GitHub UI
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: '3.9'
+
+jobs:
+  scraping:
+    name: 🕷️ Ejecutar Scraping
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: 📥 Checkout del código
+        uses: actions/checkout@v4
+
+      - name: 🐍 Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: 📦 Instalar dependencias
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: 🗄️ Configurar variables de entorno
+        run: |
+          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" >> .env
+          echo "DATABASE_URL_NB=${{ secrets.DATABASE_URL_NB }}" >> .env
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
+          echo "SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}" >> .env
+
+      - name: 🕷️ Ejecutar Scraping de Eventos
+        run: |
+          echo "Iniciando scraping de eventos..."
+          python scripts/scraping/scrape_events.py
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL_NB: ${{ secrets.DATABASE_URL_NB }}
+
+      - name: 🕷️ Ejecutar Scraping de Upcoming
+        run: |
+          echo "Iniciando scraping de próximos eventos..."
+          python scripts/scraping/scrape_upcoming.py
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_URL_NB: ${{ secrets.DATABASE_URL_NB }}
+
+      - name: 📊 Subir datos procesados (opcional)
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'data: actualizar eventos vía scraping automático'
+          file_pattern: 'data/raw/ufcstats/*.json'
+          branch: main
+        if: ${{ github.event_name == 'schedule' }}
+
+      - name: 🚀 Trigger Redeploy en Railway (opcional)
+        run: |
+          echo "Trigger redeploy en Railway..."
+          curl -X POST "https://railway.app/api/v1/services/${{ secrets.RAILWAY_SERVICE_ID }}/redeploy" \
+            -H "Authorization: Bearer ${{ secrets.RAILWAY_API_TOKEN }}" \
+            -H "Content-Type: application/json"
+        if: ${{ secrets.RAILWAY_API_TOKEN != '' && secrets.RAILWAY_SERVICE_ID != '' }}
+
+      - name: ✅ Resumen de ejecución
+        run: |
+          echo "✅ Scraping completado exitosamente"
+          echo "📅 Fecha: $(date)"
+          echo "🔄 Trigger: ${{ github.event_name }}"
