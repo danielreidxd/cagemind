@@ -42,10 +42,10 @@ jobs:
           echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> .env
           echo "SUPABASE_KEY=${{ secrets.SUPABASE_KEY }}" >> .env
 
-      - name: 🕷️ Ejecutar Scraping de Eventos
+      - name: 🕷️ Ejecutar Scraping de Eventos (solo nuevos)
         run: |
-          echo "Iniciando scraping de eventos..."
-          python scripts/scraping/scrape_events.py
+          echo "Iniciando scraping de eventos completados..."
+          python scripts/scraping/update_data.py --post-event
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DATABASE_URL_NB: ${{ secrets.DATABASE_URL_NB }}
@@ -53,7 +53,7 @@ jobs:
       - name: 🕷️ Ejecutar Scraping de Upcoming
         run: |
           echo "Iniciando scraping de próximos eventos..."
-          python scripts/scraping/scrape_upcoming.py
+          python scripts/scraping/update_data.py --upcoming
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           DATABASE_URL_NB: ${{ secrets.DATABASE_URL_NB }}

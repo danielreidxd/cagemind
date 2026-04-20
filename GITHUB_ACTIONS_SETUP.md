@@ -9,6 +9,17 @@ Se crearon 2 workflows automáticos:
 | `scraping-weekly.yml` | Domingos 6 AM UTC | Actualización automática semanal |
 | `scraping-manual.yml` | Manual (on-demand) | Scraping extraordinario |
 
+### ⚡ ¿Qué se scrapea?
+
+**NO es un scraping masivo de todos los peleadores.** El sistema es inteligente:
+
+- ✅ **Solo eventos NUEVOS** que completaron desde el último scraping
+- ✅ **Solo carteleras futuras** para actualizar upcoming
+- ❌ **NO** rescrapea eventos viejos
+- ❌ **NO** recorre los 6k peleadores de la BD
+
+**Ejemplo:** Si el sábado hubo UFC con 12 peleas, el domingo solo se scrapean esas 12 peleas (24 peleadores máximo), no toda la BD.
+
 ---
 
 ## 🔑 Secrets Requeridos en GitHub
