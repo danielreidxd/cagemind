@@ -7,17 +7,19 @@ import numpy as np
 import pandas as pd
 
 from backend.database import get_db
+from db.db_helpers import param
 
 
 def get_fight_history(conn, fighter_name):
     """Obtiene el historial de peleas de un peleador."""
-    rows = conn.execute("""
+    p = param()  # Usar placeholder correcto según BD
+    rows = conn.execute(f"""
         SELECT f.fight_id, f.winner_name, f.method, f.round,
                f.fighter_a_name, f.fighter_b_name,
                e.date_parsed
         FROM fights f
         JOIN events e ON f.event_id = e.event_id
-        WHERE f.fighter_a_name = ? OR f.fighter_b_name = ?
+        WHERE f.fighter_a_name = {p} OR f.fighter_b_name = {p}
         ORDER BY e.date_parsed
     """, (fighter_name, fighter_name)).fetchall()
     return [dict(r) for r in rows]

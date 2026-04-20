@@ -6,6 +6,7 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException, Query
 
 from backend.database import get_db, load_fighter_cache, load_fighter_stats_cache
+from db.db_helpers import param
 
 router = APIRouter()
 
@@ -19,23 +20,24 @@ async def list_fighters(
 ):
     """Lista peleadores con búsqueda opcional."""
     conn = get_db()
+    p = param()  # Usar placeholder correcto según BD
 
     query = "SELECT name, wins, losses, draws, weight_lbs, stance, height_inches, reach_inches FROM fighters"
     params = []
     conditions = []
 
     if search:
-        conditions.append("LOWER(name) LIKE ?")
+        conditions.append(f"LOWER(name) LIKE {p}")
         params.append("%" + search.lower() + "%")
 
     if min_fights > 0:
-        conditions.append("(wins + losses + draws) >= ?")
+        conditions.append(f"(wins + losses + draws) >= {p}")
         params.append(min_fights)
 
     if conditions:
         query += " WHERE " + " AND ".join(conditions)
 
-    query += " ORDER BY (wins + losses + draws) DESC LIMIT ? OFFSET ?"
+    query += f" ORDER BY (wins + losses + draws) DESC LIMIT {p} OFFSET {p}"
     params.extend([limit, offset])
 
     rows = conn.execute(query, params).fetchall()
@@ -69,16 +71,17 @@ async def get_fighter(name: str):
     fighter_stats = stats.get(name, {})
 
     conn = get_db()
+    p = param()  # Usar placeholder correcto según BD
     # Últimas 5 peleas
-    recent_fights = conn.execute("""
+    recent_fights = conn.execute(f"""
         SELECT f.fighter_a_name, f.fighter_b_name, f.winner_name,
                f.method, f.round, f.weight_class, e.date_parsed
         FROM fights f
         JOIN events e ON f.event_id = e.event_id
-        WHERE f.fighter_a_name = ? OR f.fighter_b_name = ?
+        WHERE f.fighter_a_name = {p} OR f.fighter_b_name = {p}
         ORDER BY e.date_parsed DESC
-        LIMIT 5
-    """, (name, name)).fetchall()
+        LIMIT {p}
+    """, (name, name, 5)).fetchall()
     conn.close()
 
     recent = []

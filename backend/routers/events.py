@@ -16,6 +16,7 @@ from backend.services.predictions import (
 )
 from backend.services.explainability import explain_prediction
 from backend.services.odds import fetch_odds, normalize_name, match_fighter_names, american_to_prob
+from db.db_helpers import param
 
 router = APIRouter()
 
@@ -30,6 +31,7 @@ async def get_events(
     Incluye todas las peleas con predicciones retroactivas y resultados reales.
     """
     conn = get_db()
+    p = param()  # Usar placeholder correcto según BD
 
     # Total de eventos
     total = conn.execute("""
@@ -40,13 +42,13 @@ async def get_events(
 
     # Obtener el evento de esta página (ordenado por fecha desc)
     offset = (page - 1)
-    event_row = conn.execute("""
+    event_row = conn.execute(f"""
         SELECT e.event_id, e.name, e.date_parsed, e.location
         FROM events e
         WHERE e.date_parsed IS NOT NULL
         AND EXISTS (SELECT 1 FROM fights f WHERE f.event_id = e.event_id)
         ORDER BY e.date_parsed DESC
-        LIMIT 1 OFFSET ?
+        LIMIT 1 OFFSET {p}
     """, (offset,)).fetchone()
 
     if not event_row:
@@ -56,12 +58,12 @@ async def get_events(
     event = dict(event_row)
 
     # Obtener peleas de este evento
-    fight_rows = conn.execute("""
+    fight_rows = conn.execute(f"""
         SELECT f.fight_id, f.fighter_a_name, f.fighter_b_name,
                f.winner_name, f.method, f.round, f.time,
                f.weight_class, f.is_draw, f.is_no_contest
         FROM fights f
-        WHERE f.event_id = ?
+        WHERE f.event_id = {p}
     """, (event["event_id"],)).fetchall()
 
     conn.close()

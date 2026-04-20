@@ -41,10 +41,18 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# CORS — permitir requests del frontend
+# CORS — permitir requests del frontend (producción + preview + local)
+ALLOWED_ORIGINS = [
+    "https://cagemind.app",
+    "https://www.cagemind.app",
+    "https://cagemind-*.vercel.app",  # Preview deployments
+    "http://localhost:3000",
+    "http://localhost:5173",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción, restringir al dominio del frontend
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

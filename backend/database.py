@@ -22,8 +22,14 @@ def get_db():
     """Retorna una conexión compatible. Soporta SQLite y PostgreSQL."""
     if DATABASE_URL.startswith("postgresql"):
         import psycopg2
-        import psycopg2.extras # Necesario para DictCursor
-        conn = psycopg2.connect(DATABASE_URL)
+        import psycopg2.extras  # Necesario para DictCursor
+        
+        # Parsear la URL para agregar sslmode si no está presente
+        if "sslmode=" not in DATABASE_URL:
+            # Para Supabase, requerir SSL por defecto
+            conn = psycopg2.connect(DATABASE_URL + "?sslmode=require")
+        else:
+            conn = psycopg2.connect(DATABASE_URL)
         return conn
     else:
         clean_path = DATABASE_URL.replace("sqlite:///", "")
