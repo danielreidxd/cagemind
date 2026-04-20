@@ -16,6 +16,67 @@ fighter_cache = None
 fighter_stats_cache = None
 
 
+class ConnectionWrapper:
+    """Wrapper para hacer compatible psycopg2 con la interfaz de sqlite3."""
+    def __init__(self, conn, is_pg=False):
+        self._conn = conn
+        self._is_pg = is_pg
+    
+    def execute(self, query, params=None):
+        if self._is_pg:
+            import psycopg2.extras
+            cur = self._conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+            if params:
+                cur.execute(query, params)
+            else:
+                cur.execute(query)
+            return CursorWrapper(cur, is_pg=True)
+        else:
+            if params:
+                return self._conn.execute(query, params)
+            else:
+                return self._conn.execute(query)
+    
+    def close(self):
+        if self._is_pg:
+            self._conn.close()
+        else:
+            self._conn.close()
+    
+    def commit(self):
+        if self._is_pg:
+            self._conn.commit()
+        else:
+            self._conn.commit()
+    
+    def cursor(self):
+        if self._is_pg:
+            import psycopg2.extras
+            return self._conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        else:
+            return self._conn.cursor()
+
+
+class CursorWrapper:
+    """Wrapper para cursor de psycopg2 compatible con sqlite3."""
+    def __init__(self, cur, is_pg=False):
+        self._cur = cur
+        self._is_pg = is_pg
+    
+    def fetchall(self):
+        if self._is_pg:
+            return self._cur.fetchall()
+        else:
+            return self._cur.fetchall()
+    
+    def fetchone(self):
+        if self._is_pg:
+            return self._cur.fetchone()
+        else:
+            return self._cur.fetchone()
+    
+    def close(self):
+        self._cur.close()
 
 
 def get_db():
@@ -30,12 +91,12 @@ def get_db():
             conn = psycopg2.connect(DATABASE_URL + "?sslmode=require")
         else:
             conn = psycopg2.connect(DATABASE_URL)
-        return conn
+        return ConnectionWrapper(conn, is_pg=True)
     else:
         clean_path = DATABASE_URL.replace("sqlite:///", "")
         conn = sqlite3.connect(clean_path)
         conn.row_factory = sqlite3.Row
-        return conn
+        return ConnectionWrapper(conn, is_pg=False)
 
 
 def load_models():
