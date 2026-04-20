@@ -159,12 +159,7 @@ def load_fighter_cache():
     global fighter_cache
     if fighter_cache is None:
         conn = get_db()
-        
-        if DATABASE_URL.startswith("postgresql"):
-            import psycopg2.extras
-            cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        else:
-            cur = conn.cursor()
+        cur = conn.cursor()
 
         query = """
             SELECT name, height_inches, reach_inches, weight_lbs, stance,
@@ -176,10 +171,10 @@ def load_fighter_cache():
         """
         cur.execute(query)
         rows = cur.fetchall()
-        
+
         cur.close()
         conn.close()
-        
+
         fighter_cache = AliasDict({row["name"]: dict(row) for row in rows})
     return fighter_cache
 
@@ -189,12 +184,7 @@ def load_fighter_stats_cache():
     global fighter_stats_cache
     if fighter_stats_cache is None:
         conn = get_db()
-
-        if DATABASE_URL.startswith("postgresql"):
-            import psycopg2.extras
-            cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        else:
-            cur = conn.cursor()
+        cur = conn.cursor()
 
         query = """
             SELECT
