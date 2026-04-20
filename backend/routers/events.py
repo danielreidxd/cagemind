@@ -6,6 +6,7 @@ from __future__ import annotations
 import json as _json
 from datetime import datetime, date, timedelta
 from pathlib import Path
+from functools import lru_cache
 
 from fastapi import APIRouter, Query
 
@@ -19,6 +20,24 @@ from backend.services.odds import fetch_odds, normalize_name, match_fighter_name
 from db.db_helpers import param
 
 router = APIRouter()
+
+# Cache para el archivo de upcoming (evita leer disco cada vez)
+_upcoming_events_cache = None
+_upcoming_cache_time = None
+
+
+def get_cached_upcoming_events():
+    """Retorna eventos upcoming con cache de 5 minutos."""
+    global _upcoming_events_cache, _upcoming_cache_time
+    
+    now = datetime.now()
+    if _upcoming_events_cache is None or _upcoming_cache_time is None:
+        return None
+    
+    if (now - _upcoming_cache_time).total_seconds() > 300:  # 5 minutos
+        return None
+    
+    return _upcoming_events_cache
 
 
 @router.get("/events")
@@ -153,7 +172,16 @@ async def get_upcoming():
     Retorna eventos próximos (futuros) con predicciones pre-calculadas.
     Filtra automáticamente: solo eventos cuya fecha >= hoy.
     Los eventos pasados se quedan en /events (histórico).
+    
+    OPTIMIZACIÓN: Usa cache de 1 hora para evitar recalcular predicciones.
     """
+    global _upcoming_events_cache, _upcoming_cache_time
+    
+    # Verificar cache primero
+    cached = get_cached_upcoming_events()
+    if cached is not None:
+        return cached
+    
     upcoming_file = Path("data/raw/ufcstats/upcoming_events.json")
 
     if not upcoming_file.exists():
@@ -163,8 +191,6 @@ async def get_upcoming():
         all_events = _json.load(f)
 
     # Filtrar solo eventos futuros y recientes (fecha >= hoy - 2 dias)
-    # Esto evita que desaparezcan el "dia de la pelea" por diferencias de zona horaria (limbo)
-    # y los mantiene "En vivo" hasta que el admin actualice el historico el lunes.
     cutoff_date = date.today() - timedelta(days=2)
     events = []
     for ev in all_events:
@@ -173,42 +199,10 @@ async def get_upcoming():
             if ev_date >= cutoff_date:
                 events.append(ev)
         except (ValueError, KeyError, TypeError):
-            events.append(ev)  # Si no se puede parsear la fecha, incluirlo
+            events.append(ev)
 
     fighters = load_fighter_cache()
     bundle = load_models()
-
-    # Fetch odds una vez para todo el endpoint
-    odds_data = fetch_odds()
-    odds_by_fight = {}
-    for od in odds_data:
-        home = od.get("home_team", "")
-        away = od.get("away_team", "")
-        matched_home = match_fighter_names(home, fighters)
-        matched_away = match_fighter_names(away, fighters)
-        if matched_home and matched_away:
-            for bk in od.get("bookmakers", [])[:1]:
-                for mkt in bk.get("markets", []):
-                    if mkt.get("key") != "h2h":
-                        continue
-                    outcomes = {normalize_name(o["name"]): o["price"] for o in mkt.get("outcomes", [])}
-                    odds_home = outcomes.get(normalize_name(home), 0)
-                    odds_away = outcomes.get(normalize_name(away), 0)
-                    if odds_home and odds_away:
-                        key1 = f"{matched_home}|{matched_away}"
-                        key2 = f"{matched_away}|{matched_home}"
-                        prob_home = american_to_prob(odds_home)
-                        prob_away = american_to_prob(odds_away)
-                        odds_by_fight[key1] = {
-                            "bookmaker": bk.get("title", ""),
-                            "odds_a": odds_home, "odds_b": odds_away,
-                            "implied_a": round(prob_home, 4), "implied_b": round(prob_away, 4),
-                        }
-                        odds_by_fight[key2] = {
-                            "bookmaker": bk.get("title", ""),
-                            "odds_a": odds_away, "odds_b": odds_home,
-                            "implied_a": round(prob_away, 4), "implied_b": round(prob_home, 4),
-                        }
 
     result_events = []
     for event in events:
@@ -220,6 +214,7 @@ async def get_upcoming():
             pred = None
             try:
                 if fa in fighters and fb in fighters:
+                    # Predicción SIMPLIFICADA - solo modelo winner
                     X = compute_live_features(fa, fb)
                     quality = assess_data_quality(fa, fb)
 
@@ -230,38 +225,16 @@ async def get_upcoming():
                     prob_a, prob_b = apply_newcomer_adjustment(prob_a, prob_b, quality)
                     predicted_winner = fa if prob_a > prob_b else fb
 
-                    # Explainable AI
-                    fight_explanations = explain_prediction(X, predicted_winner, fa, fb, bundle)
-
-                    method_proba = bundle["method_model"].predict_proba(X)[0]
-                    method_classes = list(bundle["method_encoder"].classes_)
-                    method_dict = {}
-                    for cls, prob in zip(method_classes, method_proba):
-                        label = {"ko": "KO/TKO", "sub": "Submission", "dec": "Decision"}.get(cls, cls)
-                        method_dict[label] = round(float(prob), 4)
-
-                    dist_proba = bundle["distance_model"].predict_proba(X)[0]
-
-                    round_proba = bundle["round_model"].predict_proba(X)[0]
-                    round_labels = ["Round 1", "Round 2", "Round 3", "Round 4+"]
-                    round_dict = {lbl: round(float(p), 4) for lbl, p in zip(round_labels, round_proba)}
-
                     info_a = fighters[fa]
                     info_b = fighters[fb]
 
+                    # Predicción simplificada - sin explainability, sin method/round
                     pred = {
                         "predicted_winner": predicted_winner,
                         "prob_a": prob_a,
                         "prob_b": prob_b,
                         "confidence": quality["confidence"],
                         "confidence_score": quality["confidence_score"],
-                        "explanations": [e["reason"] for e in fight_explanations],
-                        "method_prediction": method_dict,
-                        "goes_to_decision": {
-                            "finish": round(float(dist_proba[0]), 4),
-                            "decision": round(float(dist_proba[1]), 4),
-                        },
-                        "round_prediction": round_dict,
                         "fighter_a_profile": {
                             "record": str(info_a.get("wins", 0)) + "-" + str(info_a.get("losses", 0)) + "-" + str(info_a.get("draws", 0)),
                             "weight": info_a.get("weight_lbs"),
@@ -276,35 +249,11 @@ async def get_upcoming():
             except Exception:
                 pass
 
-            # Value bet info
-            fight_odds = odds_by_fight.get(f"{fa}|{fb}")
-            value_bet = None
-            if fight_odds and pred:
-                cm_a = pred["prob_a"]
-                cm_b = pred["prob_b"]
-                imp_a = fight_odds["implied_a"]
-                imp_b = fight_odds["implied_b"]
-                value_a = (cm_a / imp_a) - 1 if imp_a > 0 else 0
-                value_b = (cm_b / imp_b) - 1 if imp_b > 0 else 0
-                best_value = max(value_a, value_b)
-                if best_value > VALUE_THRESHOLD and pred.get("confidence") == "HIGH":
-                    vb_fighter = fa if value_a > value_b else fb
-                    vb_value = value_a if value_a > value_b else value_b
-                    vb_odds = fight_odds["odds_a"] if value_a > value_b else fight_odds["odds_b"]
-                    value_bet = {
-                        "fighter": vb_fighter,
-                        "value_pct": round(vb_value * 100, 1),
-                        "american_odds": vb_odds,
-                        "bookmaker": fight_odds["bookmaker"],
-                    }
-
             fights_with_pred.append({
                 "fighter_a": fa,
                 "fighter_b": fb,
                 "weight_class": fight.get("weight_class"),
                 "prediction": pred,
-                "odds": fight_odds,
-                "value_bet": value_bet,
             })
 
         result_events.append({
@@ -316,4 +265,8 @@ async def get_upcoming():
             "predicted_fights": sum(1 for f in fights_with_pred if f["prediction"]),
         })
 
-    return {"events": result_events, "total_events": len(result_events)}
+    # Guardar en cache
+    _upcoming_events_cache = {"events": result_events, "total_events": len(result_events)}
+    _upcoming_cache_time = datetime.now()
+
+    return _upcoming_events_cache
