@@ -13,6 +13,11 @@ on:
   # Permitir ejecución manual desde GitHub UI
   workflow_dispatch:
 
+# Permisos necesarios para push y actions
+permissions:
+  contents: write
+  actions: write
+
 env:
   PYTHON_VERSION: '3.9'
 
@@ -64,6 +69,9 @@ jobs:
           commit_message: 'data: actualizar eventos vía scraping automático'
           file_pattern: 'data/raw/ufcstats/*.json'
           branch: main
+          push_options: --force
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         if: ${{ github.event_name == 'schedule' }}
 
       - name: 🚀 Trigger Redeploy en Railway (opcional)

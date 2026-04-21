@@ -23,6 +23,11 @@ on:
         default: 'false'
         type: boolean
 
+# Permisos necesarios para push y actions
+permissions:
+  contents: write
+  actions: write
+
 env:
   PYTHON_VERSION: '3.9'
 
@@ -76,6 +81,9 @@ jobs:
           commit_message: 'data: actualizar eventos vía scraping manual (${{ inputs.tipo }})'
           file_pattern: 'data/raw/ufcstats/*.json'
           branch: main
+          push_options: --force
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🚀 Trigger Redeploy en Railway
         if: ${{ inputs.redeploy == 'true' }}
