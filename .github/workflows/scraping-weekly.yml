@@ -69,10 +69,16 @@ jobs:
       - name: 🚀 Trigger Redeploy en Railway (opcional)
         run: |
           echo "Trigger redeploy en Railway..."
+          if [ -z "${{ secrets.RAILWAY_API_TOKEN }}" ] || [ -z "${{ secrets.RAILWAY_SERVICE_ID }}" ]; then
+            echo "⚠️ RAILWAY_API_TOKEN o RAILWAY_SERVICE_ID no están configurados"
+            echo "  Salteando redeploy automático"
+            echo "  Configuralos en: https://github.com/${{ github.repository }}/settings/secrets/actions"
+            exit 0
+          fi
           curl -X POST "https://railway.app/api/v1/services/${{ secrets.RAILWAY_SERVICE_ID }}/redeploy" \
             -H "Authorization: Bearer ${{ secrets.RAILWAY_API_TOKEN }}" \
             -H "Content-Type: application/json"
-        if: ${{ secrets.RAILWAY_API_TOKEN != '' && secrets.RAILWAY_SERVICE_ID != '' }}
+          echo "✅ Redeploy triggered"
 
       - name: ✅ Resumen de ejecución
         run: |

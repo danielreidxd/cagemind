@@ -78,9 +78,18 @@ jobs:
           branch: main
 
       - name: 🚀 Trigger Redeploy en Railway
-        if: ${{ inputs.redeploy == 'true' && secrets.RAILWAY_API_TOKEN != '' }}
+        if: ${{ inputs.redeploy == 'true' }}
         run: |
           echo "Trigger redeploy en Railway..."
+          if [ -z "${{ secrets.RAILWAY_API_TOKEN }}" ]; then
+            echo "❌ RAILWAY_API_TOKEN no está configurado"
+            echo "Agregalo en: https://github.com/${{ github.repository }}/settings/secrets/actions"
+            exit 1
+          fi
+          if [ -z "${{ secrets.RAILWAY_SERVICE_ID }}" ]; then
+            echo "❌ RAILWAY_SERVICE_ID no está configurado"
+            exit 1
+          fi
           curl -X POST "https://railway.app/api/v1/services/${{ secrets.RAILWAY_SERVICE_ID }}/redeploy" \
             -H "Authorization: Bearer ${{ secrets.RAILWAY_API_TOKEN }}" \
             -H "Content-Type: application/json"
