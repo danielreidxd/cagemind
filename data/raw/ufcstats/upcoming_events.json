@@ -1,78 +1,5 @@
 [
   {
-    "name": "UFC Fight Night: Sterling vs. Zalal",
-    "date": "April 25, 2026",
-    "url": "http://www.ufcstats.com/event-details/e60d773a0a42048a",
-    "location": "Las Vegas, Nevada, USA",
-    "fights": [
-      {
-        "fighter_a": "Aljamain Sterling",
-        "fighter_b": "Youssef Zalal",
-        "weight_class": "Featherweight"
-      },
-      {
-        "fighter_a": "Norma Dumont",
-        "fighter_b": "Joselyne Edwards",
-        "weight_class": "Women's Bantamweight"
-      },
-      {
-        "fighter_a": "Rafa Garcia",
-        "fighter_b": "Alexander Hernandez",
-        "weight_class": "Lightweight"
-      },
-      {
-        "fighter_a": "Davey Grant",
-        "fighter_b": "Adrian Luna Martinetti",
-        "weight_class": "Bantamweight"
-      },
-      {
-        "fighter_a": "Montel Jackson",
-        "fighter_b": "Raoni Barcelos",
-        "weight_class": "Bantamweight"
-      },
-      {
-        "fighter_a": "Marcus Buchecha",
-        "fighter_b": "Ryan Spann",
-        "weight_class": "Heavyweight"
-      },
-      {
-        "fighter_a": "Rodolfo Vieira",
-        "fighter_b": "Eric McConico",
-        "weight_class": "Middleweight"
-      },
-      {
-        "fighter_a": "Jackson McVey",
-        "fighter_b": "Sedriques Dumas",
-        "weight_class": "Middleweight"
-      },
-      {
-        "fighter_a": "Mayra Bueno Silva",
-        "fighter_b": "Michelle Montague",
-        "weight_class": "Women's Bantamweight"
-      },
-      {
-        "fighter_a": "Jafel Filho",
-        "fighter_b": "Cody Durden",
-        "weight_class": "Flyweight"
-      },
-      {
-        "fighter_a": "Francis Marshall",
-        "fighter_b": "Lucas Brennan",
-        "weight_class": "Lightweight"
-      },
-      {
-        "fighter_a": "Max Griffin",
-        "fighter_b": "Victor Valenzuela",
-        "weight_class": "Welterweight"
-      },
-      {
-        "fighter_a": "Talita Alencar",
-        "fighter_b": "Julia Polastri",
-        "weight_class": "Women's Strawweight"
-      }
-    ]
-  },
-  {
     "name": "UFC Fight Night: Della Maddalena vs. Prates",
     "date": "May 02, 2026",
     "url": "http://www.ufcstats.com/event-details/872b018076f831b0",
@@ -100,7 +27,7 @@
       },
       {
         "fighter_a": "Tai Tuivasa",
-        "fighter_b": "Sean Sharaf",
+        "fighter_b": "Louie Sutherland",
         "weight_class": "Heavyweight"
       },
       {
@@ -124,7 +51,7 @@
         "weight_class": "Bantamweight"
       },
       {
-        "fighter_a": "Benjamin Johnston",
+        "fighter_a": "Ben Johnston",
         "fighter_b": "Wes Schultz",
         "weight_class": "Middleweight"
       },
@@ -172,11 +99,6 @@
         "weight_class": "Lightweight"
       },
       {
-        "fighter_a": "Jan Blachowicz",
-        "fighter_b": "Bogdan Guskov",
-        "weight_class": "Light Heavyweight"
-      },
-      {
         "fighter_a": "Ateba Gautier",
         "fighter_b": "Ozzy Diaz",
         "weight_class": "Middleweight"
@@ -187,9 +109,19 @@
         "weight_class": "Welterweight"
       },
       {
+        "fighter_a": "Grant Dawson",
+        "fighter_b": "Mateusz Rebecki",
+        "weight_class": "Lightweight"
+      },
+      {
         "fighter_a": "Roman Kopylov",
         "fighter_b": "Marco Tulio",
         "weight_class": "Middleweight"
+      },
+      {
+        "fighter_a": "Pat Sabatini",
+        "fighter_b": "William Gomis",
+        "weight_class": "Featherweight"
       },
       {
         "fighter_a": "Baisangur Susurkaev",
@@ -200,11 +132,6 @@
         "fighter_a": "Clayton Carpenter",
         "fighter_b": "Jose Ochoa",
         "weight_class": "Flyweight"
-      },
-      {
-        "fighter_a": "Grant Dawson",
-        "fighter_b": "Mateusz Rebecki",
-        "weight_class": "Lightweight"
       }
     ]
   },
@@ -220,41 +147,6 @@
         "weight_class": "Featherweight"
       },
       {
-        "fighter_a": "Shauna Bannon",
-        "fighter_b": "Nicolle Caliari",
-        "weight_class": "Women's Strawweight"
-      },
-      {
-        "fighter_a": "Ketlen Vieira",
-        "fighter_b": "Jacqueline Cavalcanti",
-        "weight_class": "Women's Bantamweight"
-      },
-      {
-        "fighter_a": "Daniel Barez",
-        "fighter_b": "Luis Gurule",
-        "weight_class": "Flyweight"
-      },
-      {
-        "fighter_a": "Timmy Cuamba",
-        "fighter_b": "Benardo Sopaj",
-        "weight_class": "Bantamweight"
-      },
-      {
-        "fighter_a": "Tuco Tokkos",
-        "fighter_b": "Ivan Erslan",
-        "weight_class": "Light Heavyweight"
-      },
-      {
-        "fighter_a": "Modestas Bukauskas",
-        "fighter_b": "Rodolfo Bellato",
-        "weight_class": "Light Heavyweight"
-      },
-      {
-        "fighter_a": "Alice Ardelean",
-        "fighter_b": "Polyana Viana",
-        "weight_class": "Women's Strawweight"
-      },
-      {
         "fighter_a": "Dooho Choi",
         "fighter_b": "Daniel Santos",
         "weight_class": "Featherweight"
@@ -265,9 +157,24 @@
         "weight_class": "Bantamweight"
       },
       {
+        "fighter_a": "Modestas Bukauskas",
+        "fighter_b": "Rodolfo Bellato",
+        "weight_class": "Light Heavyweight"
+      },
+      {
+        "fighter_a": "Timmy Cuamba",
+        "fighter_b": "Benardo Sopaj",
+        "weight_class": "Bantamweight"
+      },
+      {
         "fighter_a": "Jeremiah Wells",
         "fighter_b": "Nicolas Dalby",
         "weight_class": "Welterweight"
+      },
+      {
+        "fighter_a": "Tuco Tokkos",
+        "fighter_b": "Ivan Erslan",
+        "weight_class": "Light Heavyweight"
       },
       {
         "fighter_a": "Trey Ogden",
@@ -275,9 +182,29 @@
         "weight_class": "Lightweight"
       },
       {
+        "fighter_a": "Ketlen Vieira",
+        "fighter_b": "Jacqueline Cavalcanti",
+        "weight_class": "Women's Bantamweight"
+      },
+      {
         "fighter_a": "Cody Brundage",
         "fighter_b": "Andre Petroski",
         "weight_class": "Middleweight"
+      },
+      {
+        "fighter_a": "Alice Ardelean",
+        "fighter_b": "Polyana Viana",
+        "weight_class": "Women's Strawweight"
+      },
+      {
+        "fighter_a": "Daniel Barez",
+        "fighter_b": "Luis Gurule",
+        "weight_class": "Flyweight"
+      },
+      {
+        "fighter_a": "Shauna Bannon",
+        "fighter_b": "Nicolle Caliari",
+        "weight_class": "Women's Strawweight"
       }
     ]
   },
@@ -293,39 +220,14 @@
         "weight_class": "Bantamweight"
       },
       {
-        "fighter_a": "Sergei Pavlovich",
-        "fighter_b": "Tallison Teixeira",
-        "weight_class": "Heavyweight"
-      },
-      {
         "fighter_a": "Zhang Mingyang",
         "fighter_b": "Alonzo Menifield",
         "weight_class": "Light Heavyweight"
       },
       {
-        "fighter_a": "Alex Perez",
-        "fighter_b": "Sumudaerji",
-        "weight_class": "Flyweight"
-      },
-      {
-        "fighter_a": "Loma Lookboonmee",
-        "fighter_b": "Jaqueline Amorim",
-        "weight_class": "Women's Strawweight"
-      },
-      {
-        "fighter_a": "Yi Sak Lee",
-        "fighter_b": "Luis Felipe Dias",
-        "weight_class": "Middleweight"
-      },
-      {
-        "fighter_a": "Rei Tsuruya",
-        "fighter_b": "Jesus Aguilar",
-        "weight_class": "Flyweight"
-      },
-      {
-        "fighter_a": "Aoriqileng",
-        "fighter_b": "Cody Haddon",
-        "weight_class": "Bantamweight"
+        "fighter_a": "Sergei Pavlovich",
+        "fighter_b": "Tallison Teixeira",
+        "weight_class": "Heavyweight"
       },
       {
         "fighter_a": "Kai Asakura",
@@ -333,14 +235,39 @@
         "weight_class": "Bantamweight"
       },
       {
-        "fighter_a": "Angela Hill",
-        "fighter_b": "Xiong Jingnan",
-        "weight_class": "Women's Strawweight"
+        "fighter_a": "Alex Perez",
+        "fighter_b": "Sumudaerji",
+        "weight_class": "Flyweight"
       },
       {
         "fighter_a": "Muslim Salikhov",
         "fighter_b": "Jake Matthews",
         "weight_class": "Welterweight"
+      },
+      {
+        "fighter_a": "Yi Sak Lee",
+        "fighter_b": "Luis Felipe Dias",
+        "weight_class": "Middleweight"
+      },
+      {
+        "fighter_a": "Aoriqileng",
+        "fighter_b": "Cody Haddon",
+        "weight_class": "Bantamweight"
+      },
+      {
+        "fighter_a": "Rei Tsuruya",
+        "fighter_b": "Jesus Aguilar",
+        "weight_class": "Flyweight"
+      },
+      {
+        "fighter_a": "Angela Hill",
+        "fighter_b": "Xiong Jingnan",
+        "weight_class": "Women's Strawweight"
+      },
+      {
+        "fighter_a": "Loma Lookboonmee",
+        "fighter_b": "Jaqueline Amorim",
+        "weight_class": "Women's Strawweight"
       }
     ]
   },
@@ -374,6 +301,41 @@
         "fighter_a": "Jeisla Chaves",
         "fighter_b": "Yuneisy Duben",
         "weight_class": "Women's Flyweight"
+      },
+      {
+        "fighter_a": "Brendan Allen",
+        "fighter_b": "Edmen Shahbazyan",
+        "weight_class": "Middleweight"
+      },
+      {
+        "fighter_a": "Bryce Mitchell",
+        "fighter_b": "Victor Henry",
+        "weight_class": "Bantamweight"
+      },
+      {
+        "fighter_a": "Marcus McGhee",
+        "fighter_b": "Jakub Wiklacz",
+        "weight_class": "Bantamweight"
+      },
+      {
+        "fighter_a": "Jordan Leavitt",
+        "fighter_b": "Joanderson Brito",
+        "weight_class": "Featherweight"
+      },
+      {
+        "fighter_a": "Fares Ziam",
+        "fighter_b": "Tom Nolan",
+        "weight_class": "Lightweight"
+      },
+      {
+        "fighter_a": "Ketlen Souza",
+        "fighter_b": "Ariane Carnelossi",
+        "weight_class": "Women's Strawweight"
+      },
+      {
+        "fighter_a": "Priscila Cachoeira",
+        "fighter_b": "Chelsea Chandler",
+        "weight_class": "Women's Bantamweight"
       }
     ]
   },
