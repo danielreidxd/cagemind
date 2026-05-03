@@ -1,73 +1,5 @@
 [
   {
-    "name": "UFC Fight Night: Della Maddalena vs. Prates",
-    "date": "May 02, 2026",
-    "url": "http://www.ufcstats.com/event-details/872b018076f831b0",
-    "location": "Perth, Western Australia, Australia",
-    "fights": [
-      {
-        "fighter_a": "Jack Della Maddalena",
-        "fighter_b": "Carlos Prates",
-        "weight_class": "Welterweight"
-      },
-      {
-        "fighter_a": "Beneil Dariush",
-        "fighter_b": "Quillan Salkilld",
-        "weight_class": "Lightweight"
-      },
-      {
-        "fighter_a": "Tim Elliott",
-        "fighter_b": "Steve Erceg",
-        "weight_class": "Flyweight"
-      },
-      {
-        "fighter_a": "Shamil Gaziev",
-        "fighter_b": "Brando Pericic",
-        "weight_class": "Heavyweight"
-      },
-      {
-        "fighter_a": "Tai Tuivasa",
-        "fighter_b": "Louie Sutherland",
-        "weight_class": "Heavyweight"
-      },
-      {
-        "fighter_a": "Cam Rowston",
-        "fighter_b": "Robert Bryczek",
-        "weight_class": "Middleweight"
-      },
-      {
-        "fighter_a": "Junior Tafa",
-        "fighter_b": "Kevin Christian",
-        "weight_class": "Light Heavyweight"
-      },
-      {
-        "fighter_a": "Jacob Malkoun",
-        "fighter_b": "Gerald Meerschaert",
-        "weight_class": "Middleweight"
-      },
-      {
-        "fighter_a": "Colby Thicknesse",
-        "fighter_b": "Vince Morales",
-        "weight_class": "Bantamweight"
-      },
-      {
-        "fighter_a": "Ben Johnston",
-        "fighter_b": "Wes Schultz",
-        "weight_class": "Middleweight"
-      },
-      {
-        "fighter_a": "Jonathan Micallef",
-        "fighter_b": "Themba Gorimbo",
-        "weight_class": "Welterweight"
-      },
-      {
-        "fighter_a": "Dom Mar Fan",
-        "fighter_b": "Kody Steele",
-        "weight_class": "Lightweight"
-      }
-    ]
-  },
-  {
     "name": "UFC 328: Chimaev vs. Strickland",
     "date": "May 09, 2026",
     "url": "http://www.ufcstats.com/event-details/9eedac48b497de5a",
@@ -111,6 +43,11 @@
       {
         "fighter_a": "Grant Dawson",
         "fighter_b": "Mateusz Rebecki",
+        "weight_class": "Lightweight"
+      },
+      {
+        "fighter_a": "Jim Miller",
+        "fighter_b": "Jared Gordon",
         "weight_class": "Lightweight"
       },
       {
@@ -268,6 +205,11 @@
         "fighter_a": "Loma Lookboonmee",
         "fighter_b": "Jaqueline Amorim",
         "weight_class": "Women's Strawweight"
+      },
+      {
+        "fighter_a": "Zhu Kangjie",
+        "fighter_b": "Ramon Taveras",
+        "weight_class": "Featherweight"
       }
     ]
   },
@@ -383,15 +325,40 @@
     ]
   },
   {
-    "name": "UFC Fight Night",
+    "name": "UFC Fight Night: Kape vs. Horiguchi",
     "date": "June 20, 2026",
     "url": "http://www.ufcstats.com/event-details/c8661e204c66f325",
     "location": "Las Vegas, Nevada, USA",
     "fights": [
       {
+        "fighter_a": "Manel Kape",
+        "fighter_b": "Kyoji Horiguchi",
+        "weight_class": "Flyweight"
+      },
+      {
         "fighter_a": "Allan Nascimento",
         "fighter_b": "Mitch Raposo",
         "weight_class": "Flyweight"
+      },
+      {
+        "fighter_a": "Ion Cutelaba",
+        "fighter_b": "Navajo Stirling",
+        "weight_class": "Light Heavyweight"
+      },
+      {
+        "fighter_a": "Andre Lima",
+        "fighter_b": "Kevin Borjas",
+        "weight_class": "Flyweight"
+      },
+      {
+        "fighter_a": "Hyder Amil",
+        "fighter_b": "Christian Rodriguez",
+        "weight_class": "Featherweight"
+      },
+      {
+        "fighter_a": "Bia Mesquita",
+        "fighter_b": "Melissa Mullins",
+        "weight_class": "Women's Bantamweight"
       }
     ]
   },
