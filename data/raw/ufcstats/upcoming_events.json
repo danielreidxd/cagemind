@@ -1,78 +1,5 @@
 [
   {
-    "name": "UFC 328: Chimaev vs. Strickland",
-    "date": "May 09, 2026",
-    "url": "http://www.ufcstats.com/event-details/9eedac48b497de5a",
-    "location": "Newark, New Jersey, USA",
-    "fights": [
-      {
-        "fighter_a": "Khamzat Chimaev",
-        "fighter_b": "Sean Strickland",
-        "weight_class": "Middleweight"
-      },
-      {
-        "fighter_a": "Joshua Van",
-        "fighter_b": "Tatsuro Taira",
-        "weight_class": "Flyweight"
-      },
-      {
-        "fighter_a": "Alexander Volkov",
-        "fighter_b": "Waldo Cortes Acosta",
-        "weight_class": "Heavyweight"
-      },
-      {
-        "fighter_a": "Sean Brady",
-        "fighter_b": "Joaquin Buckley",
-        "weight_class": "Welterweight"
-      },
-      {
-        "fighter_a": "King Green",
-        "fighter_b": "Jeremy Stephens",
-        "weight_class": "Lightweight"
-      },
-      {
-        "fighter_a": "Ateba Gautier",
-        "fighter_b": "Ozzy Diaz",
-        "weight_class": "Middleweight"
-      },
-      {
-        "fighter_a": "Joel Alvarez",
-        "fighter_b": "Yaroslav Amosov",
-        "weight_class": "Welterweight"
-      },
-      {
-        "fighter_a": "Grant Dawson",
-        "fighter_b": "Mateusz Rebecki",
-        "weight_class": "Lightweight"
-      },
-      {
-        "fighter_a": "Jim Miller",
-        "fighter_b": "Jared Gordon",
-        "weight_class": "Lightweight"
-      },
-      {
-        "fighter_a": "Roman Kopylov",
-        "fighter_b": "Marco Tulio",
-        "weight_class": "Middleweight"
-      },
-      {
-        "fighter_a": "Pat Sabatini",
-        "fighter_b": "William Gomis",
-        "weight_class": "Featherweight"
-      },
-      {
-        "fighter_a": "Baisangur Susurkaev",
-        "fighter_b": "Djorden Santos",
-        "weight_class": "Middleweight"
-      },
-      {
-        "fighter_a": "Clayton Carpenter",
-        "fighter_b": "Jose Ochoa",
-        "weight_class": "Flyweight"
-      }
-    ]
-  },
-  {
     "name": "UFC Fight Night: Allen vs. Costa",
     "date": "May 16, 2026",
     "url": "http://www.ufcstats.com/event-details/73abb7a5c57fb443",
@@ -210,6 +137,11 @@
         "fighter_a": "Zhu Kangjie",
         "fighter_b": "Ramon Taveras",
         "weight_class": "Featherweight"
+      },
+      {
+        "fighter_a": "Ding Meng",
+        "fighter_b": "Jose Henrique",
+        "weight_class": "Welterweight"
       }
     ]
   },
@@ -359,6 +291,24 @@
         "fighter_a": "Bia Mesquita",
         "fighter_b": "Melissa Mullins",
         "weight_class": "Women's Bantamweight"
+      }
+    ]
+  },
+  {
+    "name": "UFC Fight Night: Fiziev vs. Torres",
+    "date": "June 27, 2026",
+    "url": "http://www.ufcstats.com/event-details/31e1ea6fe6b682f8",
+    "location": "Baku, Azerbaijan",
+    "fights": [
+      {
+        "fighter_a": "Rafael Fiziev",
+        "fighter_b": "Manuel Torres",
+        "weight_class": "Lightweight"
+      },
+      {
+        "fighter_a": "Shara Magomedov",
+        "fighter_b": "Michel Pereira",
+        "weight_class": "Middleweight"
       }
     ]
   },
