@@ -1,78 +1,5 @@
 [
   {
-    "name": "UFC Fight Night: Allen vs. Costa",
-    "date": "May 16, 2026",
-    "url": "http://www.ufcstats.com/event-details/73abb7a5c57fb443",
-    "location": "Las Vegas, Nevada, USA",
-    "fights": [
-      {
-        "fighter_a": "Arnold Allen",
-        "fighter_b": "Melquizael Costa",
-        "weight_class": "Featherweight"
-      },
-      {
-        "fighter_a": "Dooho Choi",
-        "fighter_b": "Daniel Santos",
-        "weight_class": "Featherweight"
-      },
-      {
-        "fighter_a": "Malcolm Wellmaker",
-        "fighter_b": "Juan Diaz",
-        "weight_class": "Bantamweight"
-      },
-      {
-        "fighter_a": "Modestas Bukauskas",
-        "fighter_b": "Rodolfo Bellato",
-        "weight_class": "Light Heavyweight"
-      },
-      {
-        "fighter_a": "Timmy Cuamba",
-        "fighter_b": "Benardo Sopaj",
-        "weight_class": "Bantamweight"
-      },
-      {
-        "fighter_a": "Jeremiah Wells",
-        "fighter_b": "Nicolas Dalby",
-        "weight_class": "Welterweight"
-      },
-      {
-        "fighter_a": "Tuco Tokkos",
-        "fighter_b": "Ivan Erslan",
-        "weight_class": "Light Heavyweight"
-      },
-      {
-        "fighter_a": "Trey Ogden",
-        "fighter_b": "Tommy Gantt",
-        "weight_class": "Lightweight"
-      },
-      {
-        "fighter_a": "Ketlen Vieira",
-        "fighter_b": "Jacqueline Cavalcanti",
-        "weight_class": "Women's Bantamweight"
-      },
-      {
-        "fighter_a": "Cody Brundage",
-        "fighter_b": "Andre Petroski",
-        "weight_class": "Middleweight"
-      },
-      {
-        "fighter_a": "Alice Ardelean",
-        "fighter_b": "Polyana Viana",
-        "weight_class": "Women's Strawweight"
-      },
-      {
-        "fighter_a": "Daniel Barez",
-        "fighter_b": "Luis Gurule",
-        "weight_class": "Flyweight"
-      },
-      {
-        "fighter_a": "Shauna Bannon",
-        "fighter_b": "Nicolle Caliari",
-        "weight_class": "Women's Strawweight"
-      }
-    ]
-  },
-  {
     "name": "UFC Fight Night: Song vs. Figueiredo",
     "date": "May 30, 2026",
     "url": "http://www.ufcstats.com/event-details/1e75e6c9de99fa76",
@@ -99,19 +26,24 @@
         "weight_class": "Bantamweight"
       },
       {
-        "fighter_a": "Alex Perez",
-        "fighter_b": "Sumudaerji",
-        "weight_class": "Flyweight"
-      },
-      {
         "fighter_a": "Muslim Salikhov",
         "fighter_b": "Jake Matthews",
         "weight_class": "Welterweight"
       },
       {
+        "fighter_a": "Alex Perez",
+        "fighter_b": "Sumudaerji",
+        "weight_class": "Flyweight"
+      },
+      {
         "fighter_a": "Yi Sak Lee",
         "fighter_b": "Luis Felipe Dias",
         "weight_class": "Middleweight"
+      },
+      {
+        "fighter_a": "Ding Meng",
+        "fighter_b": "Jose Henrique",
+        "weight_class": "Welterweight"
       },
       {
         "fighter_a": "Aoriqileng",
@@ -129,19 +61,14 @@
         "weight_class": "Women's Strawweight"
       },
       {
-        "fighter_a": "Loma Lookboonmee",
-        "fighter_b": "Jaqueline Amorim",
-        "weight_class": "Women's Strawweight"
-      },
-      {
         "fighter_a": "Zhu Kangjie",
         "fighter_b": "Ramon Taveras",
         "weight_class": "Featherweight"
       },
       {
-        "fighter_a": "Ding Meng",
-        "fighter_b": "Jose Henrique",
-        "weight_class": "Welterweight"
+        "fighter_a": "Loma Lookboonmee",
+        "fighter_b": "Jaqueline Amorim",
+        "weight_class": "Women's Strawweight"
       }
     ]
   },
@@ -235,6 +162,11 @@
         "weight_class": "Bantamweight"
       },
       {
+        "fighter_a": "Josh Hokit",
+        "fighter_b": "Derrick Lewis",
+        "weight_class": "Heavyweight"
+      },
+      {
         "fighter_a": "Mauricio Ruffy",
         "fighter_b": "Michael Chandler",
         "weight_class": "Lightweight"
@@ -248,11 +180,6 @@
         "fighter_a": "Diego Lopes",
         "fighter_b": "Steve Garcia",
         "weight_class": "Featherweight"
-      },
-      {
-        "fighter_a": "Josh Hokit",
-        "fighter_b": "Derrick Lewis",
-        "weight_class": "Heavyweight"
       }
     ]
   },
@@ -309,15 +236,134 @@
         "fighter_a": "Shara Magomedov",
         "fighter_b": "Michel Pereira",
         "weight_class": "Middleweight"
+      },
+      {
+        "fighter_a": "Ismail Naurdiev",
+        "fighter_b": "Marvin Vettori",
+        "weight_class": "Middleweight"
+      },
+      {
+        "fighter_a": "Ikram Aliskerov",
+        "fighter_b": "Brunno Ferreira",
+        "weight_class": "Middleweight"
+      },
+      {
+        "fighter_a": "Nursulton Ruziboev",
+        "fighter_b": "Andrey Pulyaev",
+        "weight_class": "Middleweight"
+      },
+      {
+        "fighter_a": "Nazim Sadykhov",
+        "fighter_b": "Matheus Camilo",
+        "weight_class": "Lightweight"
+      },
+      {
+        "fighter_a": "Daniil Donchenko",
+        "fighter_b": "Andreas Gustafsson",
+        "weight_class": "Welterweight"
+      },
+      {
+        "fighter_a": "Bekzat Almakhan",
+        "fighter_b": "Jean Matsumoto",
+        "weight_class": "Bantamweight"
+      },
+      {
+        "fighter_a": "Abus Magomedov",
+        "fighter_b": "Michal Oleksiejczuk",
+        "weight_class": "Middleweight"
+      },
+      {
+        "fighter_a": "Abdul Rakhman Yakhyaev",
+        "fighter_b": "Julius Walker",
+        "weight_class": "Light Heavyweight"
+      },
+      {
+        "fighter_a": "Asu Almabayev",
+        "fighter_b": "Charles Johnson",
+        "weight_class": "Flyweight"
+      },
+      {
+        "fighter_a": "Farman Hasanov",
+        "fighter_b": "Eric Nolan",
+        "weight_class": "Welterweight"
       }
     ]
   },
   {
-    "name": "UFC 329",
+    "name": "UFC 329: McGregor vs. Holloway 2",
     "date": "July 11, 2026",
     "url": "http://www.ufcstats.com/event-details/fccb0fee256b7b4d",
     "location": "Las Vegas, Nevada, USA",
-    "fights": []
+    "fights": [
+      {
+        "fighter_a": "Conor McGregor",
+        "fighter_b": "Max Holloway",
+        "weight_class": "Welterweight"
+      },
+      {
+        "fighter_a": "Benoit Saint Denis",
+        "fighter_b": "Paddy Pimblett",
+        "weight_class": "Lightweight"
+      },
+      {
+        "fighter_a": "Cory Sandhagen",
+        "fighter_b": "Mario Bautista",
+        "weight_class": "Bantamweight"
+      },
+      {
+        "fighter_a": "Brandon Royval",
+        "fighter_b": "Lone'er Kavanagh",
+        "weight_class": "Flyweight"
+      },
+      {
+        "fighter_a": "Gable Steveson",
+        "fighter_b": "Elisha Ellison",
+        "weight_class": "Heavyweight"
+      },
+      {
+        "fighter_a": "Robert Whittaker",
+        "fighter_b": "Nikita Krylov",
+        "weight_class": "Light Heavyweight"
+      },
+      {
+        "fighter_a": "Luke Riley",
+        "fighter_b": "Kai Kamaka III",
+        "weight_class": "Featherweight"
+      },
+      {
+        "fighter_a": "Damian Pinas",
+        "fighter_b": "Cesar Almeida",
+        "weight_class": "Middleweight"
+      },
+      {
+        "fighter_a": "Cody Garbrandt",
+        "fighter_b": "Adrian Yanez",
+        "weight_class": "Bantamweight"
+      },
+      {
+        "fighter_a": "Tracy Cortez",
+        "fighter_b": "Wang Cong",
+        "weight_class": "Women's Flyweight"
+      },
+      {
+        "fighter_a": "Ode Osbourne",
+        "fighter_b": "Cody Durden",
+        "weight_class": "Flyweight"
+      }
+    ]
+  },
+  {
+    "name": "UFC Fight Night",
+    "date": "July 18, 2026",
+    "url": "http://www.ufcstats.com/event-details/f354c50b8d63d9b3",
+    "location": "Oklahoma City, Oklahoma, USA",
+    "fights": [
+      {
+        "fighter_a": "Brad Tavares",
+        "fighter_b": "Marc-Andre Barriault",
+        "weight_class": "Middleweight"
+      }
+    ]
   },
   {
     "name": "UFC 330",
